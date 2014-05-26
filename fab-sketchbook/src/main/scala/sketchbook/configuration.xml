@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<experimentSuite>
+    <experiment>
+        <property>
+            <name>Exp1</name>
+            <descrition>Test Experiment</descrition>
+        </property>
+        <system>
+            <name>HDFS</name>
+            <path>
+                <archive>hadoop-2.2.0.tar.gz</archive>
+                <config></config>
+                <home></home>
+                <tmp></tmp>
+            </path>
+        </system>
+        <system>
+            <name>YARN</name>
+        </system>
+        <data>
+            <input></input>
+            <output></output>
+        </data>
+        <job>
+            <name>Test Job</name>
+            <jarFile>testjob.jar</jarFile>
+        </job>
+    </experiment>
+</experimentSuite>
