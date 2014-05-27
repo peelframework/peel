@@ -1,8 +1,9 @@
 package extensions
 
-import common.{LifecycleElement, Shell, SystemComponent}
+import common._
 import common.SCState._
 import common.LifecycleElement
+import common.SCState.SCState
 
 /**
  * Created by felix on 29.04.14.
@@ -21,7 +22,7 @@ class Stratosphere(env : {val shell: Shell}) extends SystemComponent{
     println("tearing down hdfs...")
   }
 
-  def update(le: LifecycleElement) {
+  def update(e: ExpEvent) = {
 
   }
 }

@@ -2,11 +2,14 @@
  * Created by felix on 27.04.14.
  */
 package extensions
-import common.{SCState, LifecycleElement, Shell, SystemComponent}
+import common._
 import common.SCState._
 import common.SCState.SCState
 import org.slf4j.LoggerFactory
 import org.apache.log4j.PropertyConfigurator
+import common.SCState.SCState
+import common.SCState
+import common.LifecycleElement
 
 class HDFS(env : {val shell: Shell}) extends SystemComponent{
 
@@ -18,7 +21,7 @@ class HDFS(env : {val shell: Shell}) extends SystemComponent{
 
   private val deployPath = "/home/felix/IdeaProjects/fab-framework/archives/"
   private val deployTarget = "/home/felix/IdeaProjects/fab-framework/systems/"
-  private val hadoopHome = "/home/felix/IdeaProjects/fab-framework/systems/hadoop-2.2.0/"
+  val hadoopHome = "/home/felix/IdeaProjects/fab-framework/systems/hadoop-2.2.0/"
   private val templateDir = "/home/felix/IdeaProjects/fab-framework/templates/*"
   private val hadoopConfDir = "/home/felix/IdeaProjects/fab-framework/systems/hadoop-2.2.0/etc/hadoop/"
   private val hadoopTmpDir = "/home/felix/app/hadoop/tmp"
@@ -90,12 +93,11 @@ class HDFS(env : {val shell: Shell}) extends SystemComponent{
     env.shell.execute(hadoopHome +  "sbin/stop-dfs.sh", true)
   }
 
-  def update(le: LifecycleElement) = le match {
-    case LifecycleElement(state: SCState, hash: Int) =>
-      if (hash == this.hashCode()) state match {
-        case SCState.init => setup()
-        case SCState.stop => tearDown()
-    }
+  def update(e: ExpEvent) = e match {
+    case SetupEvent() => setup()
+    case TearDownEvent() => tearDown()
+    case DataEvent(src, trgt) => copyData(src, trgt)
+    case _ => logger.info("Wrong event was sent to HDFS")
   }
 
 
