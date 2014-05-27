@@ -30,8 +30,7 @@
         <!-- fab -->
         <dependency>
             <groupId>eu.stratosphere</groupId>
-            <artifactId>fab-common</artifactId>
+            <artifactId>fab-core</artifactId>
         </dependency>
-
     </dependencies>
 </project>

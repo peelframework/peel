@@ -27,6 +27,9 @@
         <scala.version>2.10.0</scala.version>
         <scala.tools.version>2.10.0</scala.tools.version>
 
+        <!-- Spring -->
+        <spring-beans.version>4.0.5.RELEASE</spring-beans.version>
+
         <!-- Testing -->
         <junit.version>4.11</junit.version>
         <scalatest.version>2.1.2</scalatest.version>
@@ -64,7 +67,7 @@
             <!-- fab -->
             <dependency>
                 <groupId>eu.stratosphere</groupId>
-                <artifactId>fab-common</artifactId>
+                <artifactId>fab-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -77,10 +80,29 @@
                 <artifactId>fab-sketchbook</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
+
+            <!-- Spring -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring-beans.version}</version>
+            </dependency>
+
+            <!-- Logging -->
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>1.2.17</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>1.7.5</version>
             </dependency>
 
             <!-- Test -->
@@ -216,7 +238,7 @@
     </build>
 
     <modules>
-        <module>fab-common</module>
+        <module>fab-core</module>
         <module>fab-extensions</module>
         <module>fab-sketchbook</module>
     </modules>

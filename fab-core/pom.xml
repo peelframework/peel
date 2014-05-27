@@ -9,7 +9,7 @@
     </parent>
 
 
-    <artifactId>fab-sketchbook</artifactId>
+    <artifactId>fab-core</artifactId>
     <name>${project.artifactId}</name>
 
     <dependencies>
@@ -27,14 +27,21 @@
             <artifactId>scala-compiler</artifactId>
         </dependency>
 
-        <!-- fab -->
+        <!-- Spring -->
         <dependency>
-            <groupId>eu.stratosphere</groupId>
-            <artifactId>fab-core</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>eu.stratosphere</groupId>
-            <artifactId>fab-extensions</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
         </dependency>
+
     </dependencies>
 </project>

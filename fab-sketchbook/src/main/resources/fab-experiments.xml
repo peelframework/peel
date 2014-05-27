@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- Properties configuration -->
+    <context:property-placeholder location="classpath:fab-extensions.properties"/>
+
+    <bean id="hadoop.v1.single-run" class="eu.stratosphere.fab.core.beans.experiment.Experiment" abstract="true">
+        <constructor-arg name="runner" ref="hadoop.mapreduce.v1"/>
+    </bean>
+
+    <bean id="experiments" class="eu.stratosphere.fab.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <bean parent="hadoop.v1.single-run">
+                    <constructor-arg name="arguments">
+                        <list>
+                            <value>/tmp/input.txt</value>
+                            <value>/tmp/output.txt</value>
+                        </list>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+</beans>
