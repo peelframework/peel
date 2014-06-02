@@ -4,6 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="hadoop.hdfs.v1" class="eu.stratosphere.fab.extensions.beans.system.hadoop.HDFS">
+        <constructor-arg name="name" value="HDFS v1"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.fab.core.beans.system.System.System">
@@ -12,6 +13,7 @@
     </bean>
 
     <bean id="hadoop.mapreduce.v1" class="eu.stratosphere.fab.extensions.beans.system.hadoop.Hadoop">
+        <constructor-arg name="name" value="Hadoop Mapreduce v1"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.fab.core.beans.system.System.System">
@@ -19,4 +21,15 @@
             </set>
         </constructor-arg>
     </bean>
+
+    <bean id="stratosphere.v05" class="eu.stratosphere.fab.extensions.beans.system.stratosphere.Stratosphere">
+        <constructor-arg name="name" value="Stratosphere v0.5"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.fab.core.beans.system.System.System">
+                <ref bean="hadoop.hdfs.v1"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
 </beans>

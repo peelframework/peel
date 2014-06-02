@@ -1,17 +1,19 @@
 package eu.stratosphere.fab.core.beans.experiment;
 
+import eu.stratosphere.fab.core.DependencyGraph;
 import eu.stratosphere.fab.core.beans.ExecutionContext;
 
+import java.lang.System;
 import java.util.List;
 
 /**
  * Created by alexander on 27.05.14.
  */
-public class ExperimentSuite {
+public class JavaExperimentSuite {
 
     public final List<eu.stratosphere.fab.core.beans.experiment.Experiment> experiments;
 
-    public ExperimentSuite(List<eu.stratosphere.fab.core.beans.experiment.Experiment> experiments) {
+    public JavaExperimentSuite(List<eu.stratosphere.fab.core.beans.experiment.Experiment> experiments) {
         this.experiments = experiments;
     }
 

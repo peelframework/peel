@@ -11,11 +11,12 @@ abstract public class System {
         EXPERIMENT_RUN
     }
 
+    public final String name;
     public final Lifespan lifespan;
-
     public final Set<System> dependencies;
 
-    public System(Lifespan lifespan, Set<System> dependencies) {
+    public System(String name, Lifespan lifespan, Set<System> dependencies) {
+        this.name = name;
         this.lifespan = lifespan;
         this.dependencies = dependencies;
     }

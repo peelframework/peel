@@ -1,6 +1,7 @@
 package eu.stratosphere.fab.core;
 
 import eu.stratosphere.fab.core.beans.experiment.ExperimentSuite;
+import eu.stratosphere.fab.core.beans.experiment.JavaExperimentSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
