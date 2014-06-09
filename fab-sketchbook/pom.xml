@@ -36,5 +36,11 @@
             <groupId>eu.stratosphere</groupId>
             <artifactId>fab-extensions</artifactId>
         </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.tools.version}</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -2,9 +2,9 @@ package eu.stratosphere.fab.core.beans.system;
 
 import java.util.Set;
 
-abstract public class System {
+abstract public class JavaSystem {
 
-    public enum Lifespan {
+    public enum JavaLifespan {
         SUITE,
         EXPERIMENT_SEQUENCE,
         EXPERIMENT,
@@ -12,10 +12,10 @@ abstract public class System {
     }
 
     public final String name;
-    public final Lifespan lifespan;
+    public final JavaLifespan lifespan;
     public final Set<System> dependencies;
 
-    public System(String name, Lifespan lifespan, Set<System> dependencies) {
+    public JavaSystem(String name, JavaLifespan lifespan, Set<System> dependencies) {
         this.name = name;
         this.lifespan = lifespan;
         this.dependencies = dependencies;

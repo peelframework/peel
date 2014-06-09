@@ -4,7 +4,7 @@ import eu.stratosphere.fab.core.beans.ExecutionContext
 import scala.collection.JavaConverters._
 import java.util
 import eu.stratosphere.fab.core.DependencyGraph
-import eu.stratosphere.fab.core.beans.system.{ExperimentRunner, JavaExperimentRunner}
+import eu.stratosphere.fab.core.beans.system.{ExperimentRunner, System}
 
 /**
  * Created by felix on 02.06.14.
@@ -15,37 +15,38 @@ class ExperimentSuite(final val experiments: util.ArrayList[Experiment]) {
 
   def run() =  {
     val context: ExecutionContext = new ExecutionContext
-    // convert java list to scala list
 
-    val depGraph: DependencyGraph = createGraph()
+    val depGraph: DependencyGraph[String] = createGraph()
 
   }
 
   /**
    * create a directed Graph from all Experiments and their dependencies
-   * @return Graph with systems as nodes and dependencies as edges
+   * @return Graph with systems as vertices and dependencies as edges
    */
-  def createGraph(): DependencyGraph = {
-    val g = new DependencyGraph
+  def createGraph(): DependencyGraph[String] = {
+    val g = new DependencyGraph[String]
 
-    for(e <- expList) yield { // for every experiment
-      val a = g.getNode(e.name) // put experiment in graph
-      val r: ExperimentRunner = e.runner // get the experiment runner
-      val b = g.getNode(r.name) // put runner in graph
-      g.addEdge(a.name, b.name) // make an edge from experiment to runner
-
-      for(dep <- r.dependencySet)yield{ // for every dependency of the runner
-        g.addEdge(r.name, g.getNode(dep.name).name) // make an edge from runner to its dependency
-        // This does not recursively get all dependencies but only dependencies from the runner!
-        // TODO: make recursive implementation that builds up the graph
+    def getDependencies(s: System): Unit = {
+      if(!s.dependencySet.isEmpty) {
+        for(d <- s.dependencySet) yield {
+          g.addEdge(s.name, d.name)
+          getDependencies(d)
+        }
       }
     }
-    println("Graph: " + g)
 
-    val s: DependencyGraph = g.reverse
+    for(e <- expList) yield { // for every experiment
+      val r: ExperimentRunner = e.runner // get the experiment runner
+      g.addEdge(e.name, r.name) // make an edge from experiment to runner
+      getDependencies(r)
+    }
 
-    println("Reversed: " + s)
+
+    println("Experiment-Graph: " + g)
 
     g // return Graph
   }
+
+
 }

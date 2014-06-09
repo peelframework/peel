@@ -19,20 +19,22 @@
         <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
         <scala-maven-plugin.version>3.1.6</scala-maven-plugin.version>
         <build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
+        <maven-surefire-plugin.version>2.7</maven-surefire-plugin.version>
+        <scalatest-maven-plugin.version>1.0-RC2</scalatest-maven-plugin.version>
 
         <!-- Java -->
         <java.version>1.7</java.version>
 
         <!-- Scala -->
         <scala.version>2.10.0</scala.version>
-        <scala.tools.version>2.10.0</scala.tools.version>
+        <scala.tools.version>2.10</scala.tools.version>
 
         <!-- Spring -->
         <spring-beans.version>4.0.5.RELEASE</spring-beans.version>
 
         <!-- Testing -->
         <junit.version>4.11</junit.version>
-        <scalatest.version>2.1.2</scalatest.version>
+        <scalatest.version>2.1.7</scalatest.version>
         <specs2.version>2.3.10</specs2.version>
     </properties>
 
@@ -233,6 +235,8 @@
                     </execution>
                 </executions>
             </plugin>
+
+
 
         </plugins>
     </build>

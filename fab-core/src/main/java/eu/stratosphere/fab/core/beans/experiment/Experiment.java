@@ -56,7 +56,7 @@ public class Experiment {
     }
 
     public void run(ExecutionContext context) {
-        logger.info("Running experiment XXX with runner " + runner.name);
+        logger.info("Running experiment XXX with runner " + runner);
         //this.runner.run(context);
     }
 }
