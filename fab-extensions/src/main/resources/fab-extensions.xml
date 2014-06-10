@@ -18,7 +18,6 @@
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.fab.core.beans.system.System.System">
                 <ref bean="hadoop.hdfs.v1"/>
-                <ref bean="stratosphere.v05"/>
             </set>
         </constructor-arg>
     </bean>
