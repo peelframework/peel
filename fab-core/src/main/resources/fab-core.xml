@@ -9,6 +9,7 @@
     <!-- Properties configuration -->
     <context:property-placeholder location="classpath:fab-core.properties"/>
 
+    <!-- converters for scala collections -->
     <bean id="conversionService"
           class="org.springframework.context.support.ConversionServiceFactoryBean">
         <property name="converters">
