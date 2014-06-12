@@ -1,15 +1,13 @@
 package eu.stratosphere.fab.core.beans.system
 
 import eu.stratosphere.fab.core.beans.system.Lifespan.Lifespan
-import scala.collection.JavaConverters._
+import eu.stratosphere.fab.core.Node
 
 
 /**
  * Created by felix on 09.06.14.
  */
-abstract class System(val name: String, val lifespan: Lifespan, val dependencies: java.util.Set[System]) {
-
-  final val dependencySet: Set[System] = dependencies.asScala.toSet
+abstract class System(val lifespan: Lifespan, val dependencies: Set[System]) extends Node{
 
   def setUp(): Unit
 

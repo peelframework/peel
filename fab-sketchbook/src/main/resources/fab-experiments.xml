@@ -10,12 +10,10 @@
     <context:property-placeholder location="classpath:fab-extensions.properties"/>
 
     <bean id="hadoop.v1.single-run" class="eu.stratosphere.fab.core.beans.experiment.Experiment" abstract="true">
-        <constructor-arg name ="name" value="Hadoop Mapreduce v1 Single Run"/>
         <constructor-arg name="runner" ref="hadoop.mapreduce.v1"/>
     </bean>
 
     <bean id="stratosphere.v05.single-run" class="eu.stratosphere.fab.core.beans.experiment.Experiment" abstract="true">
-        <constructor-arg name="name" value="Stratosphere v05 Single Run"/>
         <constructor-arg name="runner" ref="stratosphere.v05"/>
     </bean>
 

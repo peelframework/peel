@@ -92,22 +92,25 @@ class DependencyGraph[T] {
 
   /**
    * Depth-First-Search on the Graph
+   * If no start vertex is given, all vertices with in-degree
+   * zero are selected as start vertices. If a start vertex is given,
+   * all vertices that have in-degree zero are added additionally.
+   * @param start optional start vertex.
    * @return List of a possible depth first search sequence
    */
   def dfs(start: Set[T] = vertices diff edges): List[T] = {
 
     @tailrec
     def loop(toVisit: Set[T], visited: List[T]): List[T] = {
-      if(toVisit.isEmpty) visited
+      if (toVisit.isEmpty) visited
       else {
         val next: T = toVisit.head
-        val reachableNodes = graph(next) filter (x => !visited.contains(x))
+        val children: Set[T] = graph(next) filter (x => !visited.contains(x))
 
-        loop(reachableNodes ++ toVisit.tail, next :: visited)
+        loop(children ++ toVisit.tail, next :: visited)
       }
     }
 
-    // if a start vertex is given, add all vertexes that have in-degree zero to the start set
     if(start != (vertices diff edges))
       loop(start ++ (vertices diff edges), List()).reverse
     else
