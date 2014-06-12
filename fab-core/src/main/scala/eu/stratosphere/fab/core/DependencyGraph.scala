@@ -1,6 +1,7 @@
 package eu.stratosphere.fab.core
 
 import scala.collection.mutable.HashMap
+import scala.annotation.tailrec
 
 /**
  * Created by felix on 02.06.14.
@@ -10,17 +11,15 @@ class DependencyGraph[T] {
 
   var graph: HashMap[T, Set[T]] = new HashMap[T, Set[T]]()
 
-  def keys = graph.keySet
-
   def isEmpty: Boolean = graph.isEmpty
 
   def size: Int = graph.size
 
-  /**
-   * returns all vertices of the graph
-   * @return nodes of the graph as a set
-   */
+  // all vertices as a set
   def vertices: Set[T] = graph.keySet.toSet
+
+  // all edges as a set
+  def edges: Set[T] = graph.values.flatten.toSet
 
   /**
    * adds a vertex
@@ -80,10 +79,40 @@ class DependencyGraph[T] {
   }
 
   /**
+   * determine if the graph has a cycle
+   * @return true if graph has a cycle, false otherwise
+   */
+  def hasCycle: Boolean = ???
+
+  /**
    * topological sort of the directed graph
    * @return sorted Graph (List of names of the nodes)
    */
-  def topoSort: List[String] = ???
+  def topoSort: List[T] = ???
+
+  /**
+   * Depth-First-Search on the Graph
+   * @return List of a possible depth first search sequence
+   */
+  def dfs(start: Set[T] = vertices diff edges): List[T] = {
+
+    @tailrec
+    def loop(toVisit: Set[T], visited: List[T]): List[T] = {
+      if(toVisit.isEmpty) visited
+      else {
+        val next: T = toVisit.head
+        val reachableNodes = graph(next) filter (x => !visited.contains(x))
+
+        loop(reachableNodes ++ toVisit.tail, next :: visited)
+      }
+    }
+
+    // if a start vertex is given, add all vertexes that have in-degree zero to the start set
+    if(start != (vertices diff edges))
+      loop(start ++ (vertices diff edges), List()).reverse
+    else
+      loop(start, List()).reverse
+  }
 
   /**
    * reverses the Graph
@@ -101,8 +130,8 @@ class DependencyGraph[T] {
       throw new Exception("Cannot reverse empty Graph!")
   }
 
-  override def toString() = {
-    (for(v <- keys; e <- graph.get(v)) yield {v.toString() + " --> " + e.toString()}).mkString("\n")
+  override def toString: String = {
+    (for(v <- vertices; e <- graph.get(v)) yield {v.toString + " --> " + e.toString}).mkString("\n")
   }
 
   override def equals(that: Any) = that match {

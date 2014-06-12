@@ -1,12 +1,14 @@
 package eu.stratosphere.fab.sketchbook
 
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import eu.stratosphere.fab.core.DependencyGraph
 import scala.collection.mutable
 
-class GraphTestSuite extends FunSuite {
+class GraphTestSuite extends FunSuite with Matchers {
 
   var g = new DependencyGraph[String]
+  val i = new DependencyGraph[String]
+  i.addEdge(List(("A", "B"), ("B", "C"), ("D", "E"), ("E", "C")))
 
   test("An empty Graph should have size 0") {
     assert(g.size == 0)
@@ -23,30 +25,64 @@ class GraphTestSuite extends FunSuite {
   }
 
   test("inserting an element into the graph should return an empty Set") {
-    assert(g.addVertex("vertex1") == mutable.Set())
+    assert(g.addVertex("A") == mutable.Set())
   }
 
   test("insterting the same element twice should change nothing") {
-    g.addVertex("vertex1")
-    assert(g.graph == mutable.HashMap("vertex1" -> mutable.Set()))
+    g.addVertex("A")
+    assert(g.graph == mutable.HashMap("A" -> mutable.Set()))
   }
 
   test("hasEgde should be false for a single vertex") {
-    assert(!g.hasEdge("vertex1"))
+    assert(!g.hasEdge("A"))
   }
 
   test("adding another vertex and an edge between both should lead to true for hasEdge") {
-    g.addEdge("vertex1", "vertex2")
-    assert(g.hasEdge("vertex1", "vertex2"))
+    g.addEdge("A", "B")
+    assert(g.hasEdge("A", "B"))
   }
 
   test("reverse should do what it should!") {
     val h = new DependencyGraph[String]
-    val i = new DependencyGraph[String]
-    h.addEdge(List(("vertex1", "vertex2"), ("vertex1", "vertex3"), ("vertex3", "vertex4")))
-    i.addEdge(List(("vertex2", "vertex1"), ("vertex4", "vertex3"), ("vertex3", "vertex1")))
+    h.addEdge(List(("C", "B"), ("B", "A"), ("C", "E"), ("E", "D")))
     assert(h.reverse == i)
   }
+
+  test("depth first search with no start vertex given") {
+    val l1 = List("A", "B", "C", "D", "E")
+    val l2 = List("D", "E", "C", "A", "B")
+
+    List(l1, l2) should contain (i.dfs())
+  }
+
+  test("dfs on reversed graph with no start vertex given") {
+    val l1 = List("C", "B", "A", "E", "D")
+    val l2 = List("C", "E", "D", "B", "A")
+
+    List(l1, l2) should contain (i.reverse.dfs())
+  }
+
+  test("dfs with vertex A as start vertex") {
+    val l1 = List("A", "B", "C", "D", "E")
+
+    assert(i.dfs(Set("A")) == l1)
+  }
+
+  test("dfs with vertex D as start vertex") {
+    val l1 = List("D", "E", "C", "A", "B")
+
+    assert(i.dfs(Set("D")) == l1)
+  }
+
+  test("should not detect cycle when thre is no cycle") {
+    assert(!i.hasCycle)
+  }
+
+  test("should detect cycle when thre is one") {
+    i.addEdge("C", "A")
+    assert(i.hasCycle)
+  }
+
 
 
 }
