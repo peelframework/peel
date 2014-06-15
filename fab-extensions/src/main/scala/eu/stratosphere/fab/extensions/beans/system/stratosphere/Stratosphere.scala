@@ -9,9 +9,17 @@ import eu.stratosphere.fab.core.beans.system.Lifespan.Lifespan
  */
 class Stratosphere(lifespan: Lifespan, dependencies: Set[System] = Set()) extends ExperimentRunner(lifespan, dependencies) {
 
-  def setUp(): Unit = ???
+  def setUp(): Unit = {
+    logger.info("Setting up Stratosphere...")
+  }
 
-  def tearDown(): Unit = ???
+  override def run(ctx: ExecutionContext) = {
+    logger.info("Running Stratosphere Job...")
+  }
 
-  override def run(context: ExecutionContext) = ???
+  def tearDown(): Unit = {
+    logger.info("Tearing down Stratosphere...")
+  }
+
+  override def toString = "Stratosphere v0.5"
 }

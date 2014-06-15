@@ -12,7 +12,7 @@
     </bean>
 
     <bean id="hadoop.mapreduce.v1" class="eu.stratosphere.fab.extensions.beans.system.hadoop.Hadoop">
-        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="lifespan" value="EXP_SEQ"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.fab.core.beans.system.System.System">
                 <ref bean="hadoop.hdfs.v1"/>
@@ -21,7 +21,7 @@
     </bean>
 
     <bean id="stratosphere.v05" class="eu.stratosphere.fab.extensions.beans.system.stratosphere.Stratosphere">
-        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="lifespan" value="EXP_SEQ"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.fab.core.beans.system.System.System">
                 <ref bean="hadoop.hdfs.v1"/>

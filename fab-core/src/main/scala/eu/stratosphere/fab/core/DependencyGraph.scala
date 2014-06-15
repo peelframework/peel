@@ -118,6 +118,27 @@ class DependencyGraph[T] {
   }
 
   /**
+   * Deth first search that starts at one node and gets all dependencies
+   * Does NOT traverse all nodes but only the ones reachable from the start node!
+   * @param start node to start with
+   * @return sequence of dependencies of that node
+   */
+  def directDependencies(start: T): List[T] = {
+    @tailrec
+    def loop(toVisit: Set[T], visited: List[T]): List[T] = {
+      if (toVisit.isEmpty) visited
+      else {
+        val next: T = toVisit.head
+        val children: Set[T] = graph(next) filter (x => !visited.contains(x))
+
+        loop(children ++ toVisit.tail, next :: visited)
+      }
+    }
+
+    loop(Set(start), List()).reverse
+  }
+
+  /**
    * reverses the Graph
    * @return new Graph with reversed edges
    */

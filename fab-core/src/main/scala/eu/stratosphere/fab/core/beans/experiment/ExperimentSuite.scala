@@ -1,7 +1,7 @@
 package eu.stratosphere.fab.core.beans.experiment
 
 import eu.stratosphere.fab.core.{ExecutionContext, Node, DependencyGraph}
-import eu.stratosphere.fab.core.beans.system.{ExperimentRunner, System}
+import eu.stratosphere.fab.core.beans.system.{Lifespan, ExperimentRunner, System}
 import org.slf4j.LoggerFactory
 
 /**
@@ -12,9 +12,10 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node{
   final val logger = LoggerFactory.getLogger(this.getClass)
 
   def run() =  {
-    val context: ExecutionContext = new ExecutionContext
 
     val depGraph: DependencyGraph[Node] = createGraph()
+    val context: ExecutionContext = new ExecutionContext(depGraph)
+
 
     //TODO check for cycles in the graph
     if(!depGraph.isEmpty) {
@@ -24,7 +25,35 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node{
       throw new RuntimeException("Could not create Graph! (Graph is empty)")
     }
 
+    // setup all systems with suite lifecycle
+    setUpSuite(depGraph)
+
+    for(e <- experiments) e.run(context)
+
+    tearDownSuite(depGraph)
+
   }
+
+  /**
+   * Set up all systems with lifecycle suite in the graph
+   * @param g the dependency graph
+   * @return nothing
+   */
+  def setUpSuite(g: DependencyGraph[Node]) = {
+    for(s <- g.reverse.dfs()) yield {s match {
+      case s: System => if (s.lifespan == Lifespan.SUITE) s.setUp()
+      case x => x
+    }}
+  }
+
+  def tearDownSuite(g: DependencyGraph[Node]) = {
+    for(s <- g.reverse.dfs()) yield {s match {
+      case s: System => if (s.lifespan == Lifespan.SUITE) s.tearDown()
+      case x => x
+    }}
+  }
+
+
 
   /**
    * create a directed Graph from all Experiments and their dependencies
@@ -42,9 +71,10 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node{
       }
     }
 
-    for(e <- experiments) yield { // for every experiment
-      val r: ExperimentRunner = e.runner // get the experiment runner
-      g.addEdge(e, r) // make an edge from experiment to runner
+    for(e <- experiments) yield {
+      g.addEdge(this, e)
+      val r: ExperimentRunner = e.runner
+      g.addEdge(e, r)
       getDependencies(r)
     }
 

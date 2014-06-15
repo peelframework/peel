@@ -5,5 +5,5 @@ package eu.stratosphere.fab.core.beans.system
  */
 case object Lifespan extends Enumeration {
   type Lifespan = Value
-  final val SUITE, EXPERIMENT_SEQUENCE, EXPERIMENT, EXPERIMENT_RUN = Value
+  final val SUITE, EXP_SEQ, EXPERIMENT, EXPERIMENT_RUN = Value
 }

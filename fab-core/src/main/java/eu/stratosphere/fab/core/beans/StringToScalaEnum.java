@@ -13,8 +13,8 @@ public class StringToScalaEnum implements Converter<String, Value>{
         if(s.equals("SUITE")) {
             return Lifespan.SUITE();
         }
-        else if(s.equals("EXPERIMENT_SEQUENCE")) {
-            return Lifespan.EXPERIMENT_SEQUENCE();
+        else if(s.equals("EXP_SEQ")) {
+            return Lifespan.EXP_SEQ();
         }
         else if(s.equals(("EXPERIMENT"))) {
             return Lifespan.EXPERIMENT();

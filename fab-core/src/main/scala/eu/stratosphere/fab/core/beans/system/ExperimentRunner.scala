@@ -11,6 +11,6 @@ abstract class ExperimentRunner(lifespan: Lifespan, dependencies: Set[System])
   extends System(lifespan, dependencies) {
 
 
-  def run(context: ExecutionContext) = ???
+  def run(context: ExecutionContext)
 
 }

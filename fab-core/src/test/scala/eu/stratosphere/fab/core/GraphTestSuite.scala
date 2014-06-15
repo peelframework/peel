@@ -1,7 +1,6 @@
-package eu.stratosphere.fab.sketchbook
+package eu.stratosphere.fab.core
 
 import org.scalatest.{Matchers, FunSuite}
-import eu.stratosphere.fab.core.DependencyGraph
 import scala.collection.mutable
 
 class GraphTestSuite extends FunSuite with Matchers {
@@ -79,8 +78,23 @@ class GraphTestSuite extends FunSuite with Matchers {
   }
 
   test("should detect cycle when thre is one") {
-    i.addEdge("C", "A")
+    //i.addEdge("C", "A")
     //assert(i.hasCycle)
+  }
+
+  test("find direct dependencies of A") {
+    assert(i.directDependencies("A") == List("A", "B", "C"))
+  }
+
+  test("find direct dependencies of D") {
+    assert(i.directDependencies("D") == List("D", "E", "C"))
+  }
+
+  test("find direct dependencies of C in reversed graph") {
+    val l1 = List("C", "B", "A", "E", "D")
+    val l2 = List("C", "E", "D", "B", "A")
+
+    List(l1, l2) should contain (i.reverse.directDependencies("C"))
   }
 
 

@@ -1,7 +1,6 @@
 package eu.stratosphere.fab.core;
 
 import eu.stratosphere.fab.core.beans.experiment.ExperimentSuite;
-import eu.stratosphere.fab.core.beans.experiment.JavaExperimentSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -10,9 +9,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
  * @author Alexander Alexandrov <alexander.alexandrov@tu-berlin.de>
  */
-public class Application {
+public class JavaApplication {
 
-    static Logger logger = LoggerFactory.getLogger(Application.class);
+    static Logger logger = LoggerFactory.getLogger(JavaApplication.class);
 
     @SuppressWarnings("resource")
     public static void main(String... args) throws Exception {
