@@ -43,6 +43,12 @@
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
 
+        <!-- Config -->
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>org.scalatest</groupId>

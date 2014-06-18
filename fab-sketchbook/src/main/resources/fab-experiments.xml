@@ -25,6 +25,7 @@
                         <list>
                             <value>/tmp/input.txt</value>
                             <value>/tmp/output.txt</value>
+                            <value>experiment1.conf</value>
                         </list>
                     </constructor-arg>
                 </bean>
@@ -33,6 +34,7 @@
                         <list>
                             <value>/tmp/input.txt</value>
                             <value>/tmp/output.txt</value>
+                            <value>experiment2.conf</value>
                         </list>
                     </constructor-arg>
                 </bean>

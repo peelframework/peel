@@ -36,6 +36,9 @@
         <junit.version>4.11</junit.version>
         <scalatest.version>2.1.7</scalatest.version>
         <specs2.version>2.3.10</specs2.version>
+
+        <!-- Config -->
+        <config.version>1.2.1</config.version>
     </properties>
 
 
@@ -88,6 +91,13 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${spring-beans.version}</version>
+            </dependency>
+
+            <!-- Config -->
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>${config.version}</version>
             </dependency>
 
             <!-- Logging -->
