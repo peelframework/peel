@@ -25,4 +25,10 @@ object Shell {
     }
     (out.toString, err.toString, exitcode)
   }
+
+  def rmDir(path: String) =
+    logger.info(execute("rm -r " + path, true).toString)
+
+  def untar(src: String, target: String) =
+    logger.info(execute("tar -vxzf %s -C %s".format(src, target), true).toString)
 }
