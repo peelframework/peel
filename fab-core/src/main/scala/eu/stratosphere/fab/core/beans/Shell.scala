@@ -10,6 +10,7 @@ object Shell {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   def execute(str: String, logOutput: Boolean) {
+    logger.info("Shell executing " + str)
     val out = new StringBuilder
     val err = new StringBuilder
     // Use ProcessLogger to catch the results of stdout and strerr
@@ -23,12 +24,13 @@ object Shell {
       if (!err.toString.trim.isEmpty) {
         logger.info(" - result strerr: " + err) }
     }
-    (out.toString, err.toString, exitcode)
+    logger.info("Result: " + (out.toString, err.toString, exitcode).toString)
   }
 
   def rmDir(path: String) =
     logger.info(execute("rm -r " + path, true).toString)
 
-  def untar(src: String, target: String) =
+  def untar(src: String, target: String) = {
     logger.info(execute("tar -vxzf %s -C %s".format(src, target), true).toString)
+  }
 }

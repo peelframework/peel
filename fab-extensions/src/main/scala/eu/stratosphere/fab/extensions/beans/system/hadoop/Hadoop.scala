@@ -27,28 +27,9 @@ class Hadoop(lifespan: Lifespan, dependencies: Set[System] = Set()) extends Expe
   }
 
   def configure(conf: Config) = {
-    val configPath: String = conf.getString("paths.hadoop.v1.conf")
-    // hadoop-env
-    var names: List[String] = conf.getStringList("hadoop.v1.hadoop-env.names").asScala.toList
-    var values: List[String] = conf.getStringList("hadoop.v1.hadoop-env.values").asScala.toList
-    val envString = envTemplate(names, values)
-    printToFile(new File(configPath + "hadoop-env.sh"))(p => {
-      envString.foreach(p.println)
-    })
+    val configPath: String = conf.getString("paths.hadoop.v1.home") + "/conf"
 
-    // mapred-site.xml
-    names = conf.getStringList("hadoop.v1.mapred-site.names").asScala.toList
-    values = conf.getStringList("hadoop.v1.mapred-site.values").asScala.toList
-    val confString = configTemplate(names, values)
-    scala.xml.XML.save(configPath + "mapred-site.xml", confString, "UTF-8", true, null)
 
-  }
-
-  val envTemplate = { (names: List[String], values: List[String]) =>
-    if (names.length != values.length)
-      throw new RuntimeException("Name and Value Lists must have same number of elements!")
-
-    (names, values).zipped.map{ (n, v) => "export %s = %s \n".format(n, v)}
 
   }
 
