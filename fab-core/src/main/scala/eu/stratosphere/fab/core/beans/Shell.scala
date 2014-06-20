@@ -24,7 +24,7 @@ object Shell {
       if (!err.toString.trim.isEmpty) {
         logger.info(" - result strerr: " + err) }
     }
-    logger.info("Result: " + (out.toString, err.toString, exitcode).toString)
+    (out.toString, err.toString, exitcode)
   }
 
   def rmDir(path: String) =
