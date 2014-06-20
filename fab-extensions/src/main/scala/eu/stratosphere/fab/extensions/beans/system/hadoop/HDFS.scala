@@ -28,6 +28,7 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends System
     logger.info("Tearing down " + toString + "...")
     val home: String = config.getString("paths.hadoop.v1.home")
     Shell.execute(home + "/bin/stop-all.sh", true)
+    if (new File(home).exists) Shell.rmDir(home)
   }
 
   def update(): Unit = {
