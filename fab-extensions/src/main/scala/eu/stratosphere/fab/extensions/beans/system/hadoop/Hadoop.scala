@@ -6,44 +6,28 @@ import eu.stratosphere.fab.core.ExecutionContext
 import com.typesafe.config.Config
 import scala.collection.JavaConverters._
 import java.io.File
+import eu.stratosphere.fab.core.beans.Shell
 
 class Hadoop(lifespan: Lifespan, dependencies: Set[System] = Set()) extends ExperimentRunner(lifespan, dependencies) {
 
   def setUp(): Unit = {
-    logger.info("Setting up " + toString + "...")
-    configure(config)
-  }
 
-  override def run(ctx: ExecutionContext) = {
-    logger.info("Running Hadoop Job...")
   }
 
   def tearDown(): Unit = {
-    logger.info("Tearing down " + toString + "...")
+
   }
 
   def update(): Unit = {
-    logger.info("Updating " + toString + "...")
-  }
-
-  def configure(conf: Config) = {
-    val configPath: String = conf.getString("paths.hadoop.v1.home") + "/conf"
-
-
 
   }
 
-  val configTemplate = { (names: List[String], values: List[String]) =>
-    if(names.length != values.length)
-      throw new RuntimeException("Name and Value Lists must have same number of elements!")
-
-    <configuration>
-      {(names, values).zipped.map{ (n, v) =>
-      <property>
-        <name>{n}</name>
-        <value>{v}</value>
-      </property>}}
-    </configuration>
+  def run(job: String) = {
+    logger.info("Running Hadoop Job %s ...".format(job))
+    val home: String = config.getString("paths.hadoop.v1.home")
+    val input = config.getString("paths.hadoop.v1.input")
+    val output = config.getString("paths.hadoop.v1.output")
+    Shell.execute(home + "/bin/hadoop jar %s %s %s".format(job, input, output), true)
   }
 
   override def toString: String = "Hadoop v1"

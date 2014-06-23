@@ -27,4 +27,23 @@ abstract class System(val lifespan: Lifespan, val dependencies: Set[System]) ext
     try { op(p) } finally { p.close() }
   }
 
+  val configTemplate = { (names: List[String], values: List[String]) =>
+    if(names.length != values.length)
+      throw new RuntimeException("Name and Value Lists must have same number of elements!")
+
+    <configuration>
+      {(names, values).zipped.map{ (n, v) =>
+      <property>
+        <name>{n}</name>
+        <value>{v}</value>
+      </property>}}
+    </configuration>
+  }
+
+  val envTemplate = { (names: List[String], values: List[String]) =>
+    if (names.length != values.length)
+      throw new RuntimeException("Name and Value Lists must have same number of elements!")
+    (names, values).zipped.map{ (n, v) => "export %s=\"%s\" \n".format(n, v)}
+  }
+
 }

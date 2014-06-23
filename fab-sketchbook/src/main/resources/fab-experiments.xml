@@ -23,18 +23,20 @@
                 <bean parent="hadoop.v1.single-run">
                     <constructor-arg name="arguments">
                         <list>
+                            <value>experiment1.conf</value>
+                            <value>/home/felix/IdeaProjects/experiment-framework/fab-sketchbook/src/main/resources/hadoop-1.2.1/hadoop-examples-1.2.1.jar wordcount</value>
                             <value>/tmp/input.txt</value>
                             <value>/tmp/output.txt</value>
-                            <value>experiment1.conf</value>
                         </list>
                     </constructor-arg>
                 </bean>
                 <bean parent="stratosphere.v05.single-run">
                     <constructor-arg name="arguments">
                         <list>
+                            <value>experiment2.conf</value>
+                            <value>/examples/stratosphere-java-examples-0.5.1-WordCount.jar</value>
                             <value>/tmp/input.txt</value>
                             <value>/tmp/output.txt</value>
-                            <value>experiment2.conf</value>
                         </list>
                     </constructor-arg>
                 </bean>

@@ -2,6 +2,7 @@ package eu.stratosphere.fab.core.beans
 
 import org.slf4j.LoggerFactory
 import scala.sys.process.{ProcessLogger, Process}
+import java.io.File
 
 /**
  * Created by felix on 15.06.14.
