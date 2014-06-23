@@ -9,5 +9,5 @@ import eu.stratosphere.fab.core.beans.system.Lifespan.Lifespan
 abstract class FileSystem(lifespan: Lifespan, dependencies: Set[System]) extends System(lifespan, dependencies) {
   def setInput(from: File): File
 
-  def getOutput(to: File): File
+  def getOutput(from: File, to: File)
 }

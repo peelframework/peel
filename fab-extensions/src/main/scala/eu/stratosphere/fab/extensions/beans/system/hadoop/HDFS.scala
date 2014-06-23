@@ -10,6 +10,8 @@ import eu.stratosphere.fab.core.beans.Shell
 
 class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSystem(lifespan, dependencies) {
 
+  val home: String = config.getString("paths.hadoop.v1.home")
+
   /**
    * setup hdfs
    *
@@ -22,15 +24,14 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSy
     logger.info("Setting up " + toString + "...")
     val src: String = config.getString("paths.hadoop.v1.source")
     val target: String = config.getString("paths.hadoop.v1.target")
-    val home: String = config.getString("paths.hadoop.v1.home")
     val user: String = config.getString("hdfs.v1.user.name")
     val group: String = config.getString("hdfs.v1.user.group")
     if (new File(home).exists) Shell.rmDir(home)
     Shell.untar(src, target)
     Shell.execute(("chown -R %s:%s " + home).format(user, group) , true)
     configure(config)
-    Shell.execute(home + "/bin/hadoop namenode -format", true)
-    Shell.execute(home + "/bin/start-all.sh", true)
+    Shell.execute(home + "bin/hadoop namenode -format -force", true)
+    Shell.execute(home + "bin/start-all.sh", true)
   }
 
   /**
@@ -40,11 +41,7 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSy
    */
   def tearDown(): Unit = {
     logger.info("Tearing down " + toString + "...")
-    val home: String = config.getString("paths.hadoop.v1.home")
-    if(new File(config.getString("paths.hadoop.v1.output")).exists())
-      Shell.execute(home + "/bin/hadoop fs -rmr %s".format(config.getString("paths.hadoop.v1.output")), true)
-    Shell.execute(home + "/bin/stop-all.sh", true)
-    if (new File(home).exists) Shell.rmDir(home)
+    Shell.execute(home + "bin/stop-all.sh", true)
   }
 
   /**
@@ -67,15 +64,13 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSy
    * @return path on hdfs
    */
   def setInput(from: File): File = {
-    val home: String = config.getString("paths.hadoop.v1.home")
-    val to: File = new File(config.getString("paths.hadoop.v1.input"))
+    val to: File = new File(config.getString("paths.hadoop.v1.input"), from.getName)
     logger.info("Copy Input data from %s to %s...".format(from, to))
-    if(to.exists())
-      Shell.execute(home + "/bin/hadoop fs -rmr %s".format(to), true)
-    Shell.execute(home + "/bin/hadoop fs -put %s %s".format(from, to), true)
+    Shell.execute(home + "bin/hadoop fs -put %s %s".format(from, to), true)
     to
   }
 
+  //TODO check if file already exists - if so, remove?
   /**
    * retrieve data from hdfs output folder
    * copied the data from the hdfs output folder to a folder on
@@ -83,16 +78,9 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSy
    * @param to path on local fs where the data is copied to from hdfs
    * @return path on local fs for the output file
    */
-  def getOutput(to: File): File = {
-    val home: String = config.getString("paths.hadoop.v1.home")
-    val from: File = new File(config.getString("paths.hadoop.v1.output"))
-    if(from.exists()) {
+  def getOutput(from: File, to: File) = {
       logger.info("Copy Input data from %s to %s...".format(from, to))
-      Shell.execute(home + "/bin/hadoop fs -get %s %s".format(from, to), true)
-    } else {
-      throw new FileNotFoundException("File or directory %s could not be found!".format(from))
-    }
-    to
+      Shell.execute(home + "bin/hadoop fs -get %s %s".format(from, to), true)
   }
 
   /**

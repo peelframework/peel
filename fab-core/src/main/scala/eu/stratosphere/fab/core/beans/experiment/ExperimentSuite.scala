@@ -27,7 +27,7 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node{
 
     // setup all systems with suite lifecycle
     setUpSuite(depGraph)
-    for(e <- experiments) new ExperimentSequence(e).run(context)
+    for(e <- experiments) e.run(context)
 
     tearDownSuite(depGraph)
 

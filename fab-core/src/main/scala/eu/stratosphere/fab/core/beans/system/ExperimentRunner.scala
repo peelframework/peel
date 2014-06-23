@@ -11,6 +11,6 @@ import java.io.File
 abstract class ExperimentRunner(lifespan: Lifespan, dependencies: Set[System])
   extends System(lifespan, dependencies) {
 
-  def run(job: String)
+  def run(job: String, input: List[File], output: File)
 
 }
