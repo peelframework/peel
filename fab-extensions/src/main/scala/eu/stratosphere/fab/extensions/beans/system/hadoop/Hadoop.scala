@@ -10,11 +10,13 @@ class Hadoop(lifespan: Lifespan, dependencies: Set[System] = Set()) extends Expe
   val home: String = config.getString("paths.hadoop.v1.home")
 
   def setUp(): Unit = {
-
+    logger.info("Starting system %s...".format(toString))
+    Shell.execute(home + "bin/start-mapred.sh", true)
   }
 
   def tearDown(): Unit = {
-
+    logger.info("Tearind down system %s...".format(toString))
+    Shell.execute(home + "bin/stop-mapred.sh", true)
   }
 
   def update(): Unit = {

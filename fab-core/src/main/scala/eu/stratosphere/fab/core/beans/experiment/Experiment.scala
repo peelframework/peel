@@ -36,10 +36,15 @@ class Experiment (val runner: ExperimentRunner,
 
       for (run <- 1 to sequence(num)) { // repeat experiment with sequence number num
         logger.info("Running repetition %d/%d".format(run, sequence(num).toInt))
-        setUpComponents(ctx.expGraph.reverse.directDependencies(runner)) // setup runs on reversed graph
-        runner.run(job, copyInput, output)
-        copyResults(run)
-        tearDownComponents(ctx.expGraph.directDependencies(runner))
+        try {
+          setUpComponents(ctx.expGraph.reverse.directDependencies(runner)) // setup runs on reversed graph
+          runner.run(job, copyInput, output)
+          copyResults(run)
+        } catch {
+          case e: Exception => logger.info("Exception in Experiment run %d of sequence %d: %s".format(run, num, e.getMessage))
+        } finally {
+          tearDownComponents(ctx.expGraph.directDependencies(runner))
+        }
       }
       //TODO find good solution to save results of a run
     }

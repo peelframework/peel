@@ -26,10 +26,14 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node{
     }
 
     // setup all systems with suite lifecycle
-    setUpSuite(depGraph)
-    for(e <- experiments) e.run(context)
-
-    tearDownSuite(depGraph)
+    try {
+      setUpSuite(depGraph)
+      for (exp <- experiments) exp.run(context)
+    } catch {
+      case e: Exception => logger.info("Exception in ExperimentSuite: %s".format(e.getMessage))
+    } finally {
+      tearDownSuite(depGraph)
+    }
 
   }
 

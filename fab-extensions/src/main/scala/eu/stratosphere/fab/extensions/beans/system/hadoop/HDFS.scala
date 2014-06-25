@@ -18,8 +18,7 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSy
    * Creates a complete hdfs installation with configuration
    * and starts a single node cluster
    */
-  //TODO: allow for more nodes and wait until safemode is over
-  //TODO: namenode format does not work if hdfs is already running (asking if should be reformatted)
+  //TODO: allow for more nodes
   def setUp(): Unit = {
     logger.info("Setting up " + toString + "...")
     val src: String = config.getString("paths.hadoop.v1.source")
@@ -31,7 +30,8 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSy
     Shell.execute(("chown -R %s:%s " + home).format(user, group) , true)
     configure(config)
     Shell.execute(home + "bin/hadoop namenode -format -force", true)
-    Shell.execute(home + "bin/start-all.sh", true)
+    Shell.execute(home + "bin/start-dfs.sh", true)
+    while(inSafemode) Thread.sleep(500)
   }
 
   /**
@@ -39,9 +39,10 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSy
    *
    * Shuts down NameNode, Jobtracker and all other Nodes
    */
+  //TODO remove data folders
   def tearDown(): Unit = {
     logger.info("Tearing down " + toString + "...")
-    Shell.execute(home + "bin/stop-all.sh", true)
+    Shell.execute(home + "bin/stop-dfs.sh", true)
   }
 
   /**
@@ -55,6 +56,16 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set()) extends FileSy
     logger.info("Updating " + toString + "...")
     tearDown()
     setUp()
+  }
+
+  /**
+   * checks if hdfs is in safemode
+   * @return
+   */
+  def inSafemode: Boolean = {
+    val msg: (String, String, Int) = Shell.execute(home + "bin/hadoop dfsadmin -safemode get", true)
+    val status = msg._1.toLowerCase
+    if (status.contains("off")) false else true
   }
 
   /**

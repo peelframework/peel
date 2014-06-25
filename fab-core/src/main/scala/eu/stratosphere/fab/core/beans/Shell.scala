@@ -10,7 +10,7 @@ import java.io.File
 object Shell {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def execute(str: String, logOutput: Boolean) {
+  def execute(str: String, logOutput: Boolean): (String, String, Int) = {
     logger.info("Shell executing " + str)
     val out = new StringBuilder
     val err = new StringBuilder
@@ -32,6 +32,6 @@ object Shell {
     logger.info(execute("rm -r " + path, true).toString)
 
   def untar(src: String, target: String) = {
-    logger.info(execute("tar -vxzf %s -C %s".format(src, target), true).toString)
+    logger.info(execute("tar -xzf %s -C %s".format(src, target), true).toString)
   }
 }
