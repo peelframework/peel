@@ -1,0 +1,103 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+
+    <id>bin</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <!-- copy all jar files and their dependencies -->
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+            <useProjectArtifact>true</useProjectArtifact>
+            <useProjectAttachments>false</useProjectAttachments>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <excludes>
+                <exclude>**/*examples*.jar</exclude>
+                <exclude>**/*javadoc*</exclude>
+                <exclude>**/*sources*</exclude>
+            </excludes>
+        </dependencySet>
+    </dependencySets>
+
+    <fileSets>
+        <!-- create an empty config directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>config</outputDirectory>
+            <fileMode>0600</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- create an empty datasets directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>datasets</outputDirectory>
+            <fileMode>0600</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- create an empty jobs directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>jobs</outputDirectory>
+            <fileMode>0600</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- create an empty log directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>log</outputDirectory>
+            <fileMode>0600</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- create an empty results directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>results</outputDirectory>
+            <fileMode>0600</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- create an empty systems directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>systems</outputDirectory>
+            <fileMode>0600</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <!-- copy bash file -->
+        <file>
+            <source>src/main/assembly/bin/peel.sh</source>
+            <destName>peel</destName>
+            <fileMode>0700</fileMode>
+        </file>
+
+        <!-- create a VERSION file to the project root -->
+        <file>
+            <source>src/main/assembly/VERSION</source>
+            <destName>VERSION</destName>
+            <fileMode>0600</fileMode>
+            <filtered>true</filtered>
+        </file>
+    </files>
+
+</assembly>

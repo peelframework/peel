@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--************************************************************************
+    * Systems
+    *************************************************************************-->
+
+    <!-- Hadoop Distributed File System -->
+    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Hadoop MapReduce -->
+    <bean id="mapreduce" class="eu.stratosphere.peel.extensions.beans.system.hadoop.MapReduce" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+                <ref bean="hdfs"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Stratosphere -->
+    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System"/>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Data Sets
+    *************************************************************************-->
+
+    <!-- Stratosphere + HDFS -->
+    <bean id="dataset.static.hdfs" class="eu.stratosphere.peel.extensions.beans.system.data.hadoop.StaticHDFSDataSet" abstract="true">
+        <constructor-arg name="hdfs" ref="hdfs"/>
+    </bean>
+
+</beans>

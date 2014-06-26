@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--************************************************************************
+    * Custom Systems
+    *************************************************************************-->
+
+    <!-- Hadoop Distributed File System (overriden 'hdfs' bean) -->
+    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Stratosphere (overriden 'hdfs' bean) -->
+    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+                <ref bean="hdfs"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Stratosphere (custom variant for Group 01) -->
+    <bean id="stratosphere.G01" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+                <ref bean="hdfs"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+
+    <!--************************************************************************
+    * Data Sets
+    *************************************************************************-->
+
+    <!-- Gutenberg -->
+    <bean id="dataset.shakespeare" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/hamlet.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/hamlet.txt"/>
+    </bean>
+    <bean id="dataset.higgs.S" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/higgs.S.tar.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.S.txt"/>
+    </bean>
+    <!-- Higgs: https://archive.ics.uci.edu/ml/datasets/HIGGS -->
+    <bean id="dataset.higgs.M" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/higgs.M.tar.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.M.txt"/>
+    </bean>
+    <bean id="dataset.higgs.L" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/higgs.L.tar.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.L.txt"/>
+    </bean>
+    <bean id="dataset.higgs.XL" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/higgs.XL.tar.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.XL.txt"/>
+    </bean>
+    <!-- Docword: https://archive.ics.uci.edu/ml/datasets/Bag+of+Words -->
+    <bean id="docword.enron" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/docword.enron.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.enron.txt"/>
+    </bean>
+    <bean id="docword.nips" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/docword.nips.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.nips.txt"/>
+    </bean>
+    <bean id="docword.nytimes" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/docword.nytimes.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.nytimes.txt"/>
+    </bean>
+    <bean id="docword.pubmed" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/docword.pubmed.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.pubmed.txt"/>
+    </bean>
+
+    <!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+
+    <!-- Experiments -->
+    <bean id="experiment.stratosphere" class="eu.stratosphere.peel.core.beans.experiment.Experiment" abstract="true">
+        <constructor-arg name="runs" value="6"/>
+        <constructor-arg name="runner" ref="stratosphere.G01"/>
+    </bean>
+
+    <!-- WordCount -->
+    <bean id="experiment.stratosphere.wc" parent="experiment.stratosphere" abstract="true">
+        <constructor-arg name="command">
+            <value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.5.1-WordCount.jar ${system.hadoop.path.input}/hamlet.txt ${system.hadoop.path.output}/wc</value>
+        </constructor-arg>
+        <constructor-arg name="data">
+            <set value-type="eu.stratosphere.peel.core.beans.data.DataSet">
+                <ref bean="dataset.shakespeare"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Fixtures
+    *************************************************************************-->
+
+    <bean id="wc.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.name.base = wc.local
+                            system.default.config.masters = [ "localhost" ]
+                            system.default.config.slaves = [ "localhost" ]
+                        </value>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="wc.cloud-7" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.name.base = wc.dop64
+                            system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.name.base = wc.dop48
+                            system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.name.base = wc.dop32
+                            system.default.config.slaves = [ "cloud-7", "cloud-8" ]
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.name.base = wc.dop16
+                            system.default.config.slaves = [ "cloud-7" ]
+                        </value>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+</beans>

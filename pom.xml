@@ -5,14 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.stratosphere</groupId>
-    <artifactId>fab-framework</artifactId>
+    <artifactId>peel</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>fab-framework</name>
+    <name>peel</name>
     <packaging>pom</packaging>
 
     <properties>
         <!-- Common -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <encoding>UTF-8</encoding>
 
         <!-- Maven Plugins -->
@@ -40,6 +42,11 @@
         <!-- Config -->
         <config.version>1.2.1</config.version>
 
+        <!-- Templating -->
+        <jmustache.version>1.9</jmustache.version>
+
+        <!-- Arguments parsing -->
+        <argparse4j.version>0.4.3</argparse4j.version>
     </properties>
 
 
@@ -73,17 +80,17 @@
             <!-- fab -->
             <dependency>
                 <groupId>eu.stratosphere</groupId>
-                <artifactId>fab-core</artifactId>
+                <artifactId>peel-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>eu.stratosphere</groupId>
-                <artifactId>fab-extensions</artifactId>
+                <artifactId>peel-extensions</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>eu.stratosphere</groupId>
-                <artifactId>fab-sketchbook</artifactId>
+                <artifactId>peel-sketchbook</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
@@ -99,6 +106,20 @@
                 <groupId>com.typesafe</groupId>
                 <artifactId>config</artifactId>
                 <version>${config.version}</version>
+            </dependency>
+
+            <!-- Templating -->
+            <dependency>
+                <groupId>com.samskivert</groupId>
+                <artifactId>jmustache</artifactId>
+                <version>${jmustache.version}</version>
+            </dependency>
+
+            <!-- Arguments parsing -->
+            <dependency>
+                <groupId>net.sourceforge.argparse4j</groupId>
+                <artifactId>argparse4j</artifactId>
+                <version>${argparse4j.version}</version>
             </dependency>
 
             <!-- Logging -->
@@ -182,6 +203,18 @@
                         <arg>-deprecation</arg>
                         <arg>-feature</arg>
                     </args>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+
+            <!-- Java compiler -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
 
@@ -246,16 +279,14 @@
                     </execution>
                 </executions>
             </plugin>
-
-
-
         </plugins>
     </build>
 
     <modules>
-        <module>fab-core</module>
-        <module>fab-extensions</module>
-        <module>fab-sketchbook</module>
+        <module>peel-core</module>
+        <module>peel-dist</module>
+        <module>peel-extensions</module>
+        <module>peel-sketchbook</module>
     </modules>
 
 </project>

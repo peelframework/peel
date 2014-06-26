@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- converters for scala collections -->
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="eu.stratosphere.peel.core.beans.StringToConfig"/>
+                <bean class="eu.stratosphere.peel.core.beans.StringToLifespan"/>
+                <bean class="eu.stratosphere.peel.core.beans.JavaListToScalaList"/>
+                <bean class="eu.stratosphere.peel.core.beans.JavaSetToScalaSet"/>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="mc" class="com.samskivert.mustache.Mustache" factory-method="compiler" />
+
+    <bean id="system" abstract="true">
+        <constructor-arg name="mc" ref="mc"/>
+    </bean>
+</beans>
