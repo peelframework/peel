@@ -91,6 +91,13 @@
         <constructor-arg name="runner" ref="stratosphere.G01"/>
     </bean>
 
+    <!--
+    TODO:
+    - set a unique suffix for your experiment (replace .wc with something else)
+    - replace command with right path to your jar, input and output file
+    - replace data with the data set suitable for your experiment
+    -->
+
     <!-- WordCount -->
     <bean id="experiment.stratosphere.wc" parent="experiment.stratosphere" abstract="true">
         <constructor-arg name="command">
