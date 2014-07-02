@@ -1,7 +1,7 @@
 package eu.stratosphere.peel.core.beans.system
 
 import com.samskivert.mustache.Mustache
-import com.typesafe.config.{ConfigFactory, Config}
+import com.typesafe.config.ConfigFactory
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
 import eu.stratosphere.peel.core.config.{Configurable, SystemConfig}
 import eu.stratosphere.peel.core.graph.Node
@@ -16,9 +16,6 @@ abstract class System(val defaultName: String,
   import scala.language.implicitConversions
 
   final val logger = LoggerFactory.getLogger(this.getClass)
-
-  final val pollingInterval = 3000
-  final val pollingCounter = 20
 
   override var config = ConfigFactory.empty()
 
@@ -65,16 +62,10 @@ abstract class System(val defaultName: String,
   // Helper methods.
   // ---------------------------------------------------
 
-  // TODO: move to a util class or Shell
-  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
-    val p = new java.io.PrintWriter(f)
-    try {
-      op(p)
-    } finally {
-      p.close()
-    }
-  }
-}
-
-object System {
+  /**
+   * Starts up the system and polls to check whether everything is up.
+   *
+   * @throws SetUpTimeoutException If the system was not brought after {startup.pollingCounter} times {startup.pollingInterval} milliseconds.
+   */
+  protected def startAndWait(): Unit
 }
