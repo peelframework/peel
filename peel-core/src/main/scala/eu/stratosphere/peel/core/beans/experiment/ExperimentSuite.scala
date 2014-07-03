@@ -4,13 +4,13 @@ import java.io.File
 import java.lang.{System => Sys}
 
 import com.typesafe.config._
-import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
+import eu.stratosphere.peel.core.beans.system.{ExperimentRunner, Lifespan, System}
 import eu.stratosphere.peel.core.config.Configurable
 import eu.stratosphere.peel.core.graph.{DependencyGraph, Node}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
 
-class ExperimentSuite(final val experiments: List[Experiment]) extends Node with BeanNameAware {
+class ExperimentSuite(final val experiments: List[Experiment[ExperimentRunner]]) extends Node with BeanNameAware {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -45,7 +45,7 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node with
         // EXPERIMENT lifespan
         try {
           logger.info("#" * 60)
-          logger.info("Current experiment is %s".format(e.config.getString("experiment.name.base")))
+          logger.info("Current experiment is %s".format(e.config.getString("experiment.name")))
 
           // update config
           val expConfig = loadConfig(graph, Some(e))
@@ -66,15 +66,13 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node with
             case _ => Unit
           }
 
-          logger.info("Materializing exeriment data sets")
-          for (n <- e.data) n.materialize()
+          logger.info("Materializing experiment input data sets")
+          for (n <- e.inputs) n.materialize()
 
           for (r <- 1 to e.runs) {
-            e.config = expConfig
-              .withValue("experiment.run", ConfigValueFactory.fromAnyRef(r))
-              .withValue("experiment.name.run", ConfigValueFactory.fromAnyRef("%s-run%02d".format(expConfig.getString("experiment.name.base"), r))) // update config
-            e.run() // run experiment
-            e.config = expConfig // restore original config
+            for (n <- e.outputs) n.clean()
+            e.run(r) // run experiment
+            for (n <- e.outputs) n.clean()
           }
 
         } catch {
@@ -105,7 +103,7 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node with
     }
   }
 
-  private def loadConfig(graph: DependencyGraph[Node], exp: Option[Experiment] = None, run: Option[Integer] = None) = {
+  private def loadConfig(graph: DependencyGraph[Node], exp: Option[Experiment[ExperimentRunner]] = None, run: Option[Integer] = None) = {
     logger.info(s"Loading current configuration")
     // helpers
     val options = ConfigParseOptions.defaults().setClassLoader(this.getClass.getClassLoader)
@@ -175,14 +173,22 @@ class ExperimentSuite(final val experiments: List[Experiment]) extends Node with
       // add the experiment runner
       g.addEdge(e, e.runner)
       processDependencies(e.runner)
-      // add the data sets and their dependencies
-      for (d <- e.data) {
-        g.addEdge(e, d)
-        // add the data set dependencies
-        for (x <- d.dependencies) {
-          g.addEdge(d, x)
+
+      // add the experiment inputs and their dependencies
+      for (i <- e.inputs) {
+        g.addEdge(e, i)
+        // add the input dependencies
+        for (x <- i.dependencies) {
+          g.addEdge(i, x)
           processDependencies(x)
         }
+      }
+      // add the experiment outputs and their dependencies
+      for (o <- e.outputs) {
+        g.addEdge(e, o)
+        // add the output dependency
+        g.addEdge(o, o.fs)
+        processDependencies(o.fs)
       }
     }
 

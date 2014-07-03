@@ -89,8 +89,8 @@ class MapReduce(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Musta
     }
   }
 
-  override def run(job: String, input: List[File], output: File) = {
-    logger.info("Running MapReduce job")
+  override def run(command: String, outFile: String, errFile: String) = {
+    -1
   }
 
   override def configuration() = SystemConfig(config, List(

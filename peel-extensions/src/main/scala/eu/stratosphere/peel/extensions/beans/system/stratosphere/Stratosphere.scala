@@ -1,11 +1,11 @@
 package eu.stratosphere.peel.extensions.beans.system.stratosphere
 
-import java.io.File
+import java.nio.file.{Files, Paths}
+
 import com.samskivert.mustache.Mustache
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
-import eu.stratosphere.peel.core.beans.system.{SetUpTimeoutException, ExperimentRunner, System}
+import eu.stratosphere.peel.core.beans.system.{ExperimentRunner, SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
-import java.nio.file.{Paths, Files}
 import eu.stratosphere.peel.core.util.shell
 
 class Stratosphere(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends ExperimentRunner("stratosphere", lifespan, dependencies, mc) {
@@ -59,9 +59,8 @@ class Stratosphere(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mu
       "/templates/stratosphere/conf/stratosphere-conf.yaml.mustache", mc)
   ))
 
-  override def run(job: String, input: List[File], output: File) = {
-    logger.info("Running Stratosphere Job...")
-    //Shell ! home + "bin/stratosphere run %s %s %s".format(job, input.mkString(" "), output)
+  override def run(command: String, outFile: String, errFile: String) = {
+    shell ! s"${config.getString("system.stratosphere.path.home")}/bin/stratosphere $command > $outFile 2> $errFile"
   }
 
 

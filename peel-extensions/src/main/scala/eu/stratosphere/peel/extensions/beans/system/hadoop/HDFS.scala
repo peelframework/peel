@@ -162,9 +162,9 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.C
   override def rmr(path: String, skipTrash: Boolean = true) = {
     val hadoopHome = config.getString("system.hadoop.path.home")
     if (skipTrash)
-      shell ! s"""if $hadoopHome/bin/hadoop fs -rmr "$path" """
+      shell ! s"""$hadoopHome/bin/hadoop fs -rmr -skipTrash "$path" """
     else
-      shell ! s"""if $hadoopHome/bin/hadoop fs -rmr -skipTrash "$path" """
+      shell ! s"""$hadoopHome/bin/hadoop fs -rmr "$path" """
   }
 
   override def copyFromLocal(src: String, dst: String) = {

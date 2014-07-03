@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory
 
 abstract class DataSet(val path: String, val dependencies: Set[System]) extends Node with Configurable {
 
-  import scala.language.implicitConversions
-
   final val logger = LoggerFactory.getLogger(this.getClass)
 
   override var config = ConfigFactory.empty()

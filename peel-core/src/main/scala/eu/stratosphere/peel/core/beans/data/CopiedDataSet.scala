@@ -5,7 +5,7 @@ import java.nio.file.{Files, Paths}
 
 import eu.stratosphere.peel.core.beans.system.{FileSystem, System}
 
-class StaticDataSet(val src: String, val dst: String, fs: System with FileSystem) extends DataSet(dst, Set[System](fs)) {
+class CopiedDataSet(val src: String, val dst: String, fs: System with FileSystem) extends DataSet(dst, Set[System](fs)) {
 
   import scala.language.implicitConversions
 
@@ -20,8 +20,7 @@ class StaticDataSet(val src: String, val dst: String, fs: System with FileSystem
       }
 
       logger.info(s"Copying data set '$src' to '$dst'")
-      if (fs.copyFromLocal(src, dst) != 0)
-        throw new RuntimeException(s"Could not copy '$src' to '$dst'")
+      if (fs.copyFromLocal(src, dst) != 0) throw new RuntimeException(s"Could not copy '$src' to '$dst'")
     }
   }
 }

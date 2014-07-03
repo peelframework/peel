@@ -28,7 +28,7 @@
         <java.version>1.7</java.version>
 
         <!-- Scala -->
-        <scala.version>2.10.0</scala.version>
+        <scala.version>2.10.3</scala.version>
         <scala.tools.version>2.10</scala.tools.version>
 
         <!-- Spring -->
@@ -41,6 +41,9 @@
 
         <!-- Config -->
         <config.version>1.2.1</config.version>
+
+        <!-- JSON support -->
+        <spray.version>1.2.6</spray.version>
 
         <!-- Templating -->
         <jmustache.version>1.9</jmustache.version>
@@ -106,6 +109,13 @@
                 <groupId>com.typesafe</groupId>
                 <artifactId>config</artifactId>
                 <version>${config.version}</version>
+            </dependency>
+
+            <!-- JSON support -->
+            <dependency>
+                <groupId>io.spray</groupId>
+                <artifactId>spray-json_${scala.tools.version}</artifactId>
+                <version>${spray.version}</version>
             </dependency>
 
             <!-- Templating -->

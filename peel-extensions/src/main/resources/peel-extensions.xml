@@ -35,11 +35,16 @@
     </bean>
 
     <!--************************************************************************
-    * Data Sets
+    * Data Sets and Experiment Outputs
     *************************************************************************-->
 
-    <!-- Static HDFS data sets -->
-    <bean id="dataset.static.hdfs" class="eu.stratosphere.peel.core.beans.data.StaticDataSet" abstract="true">
+    <!-- HDFS data sets copied from a local file system -->
+    <bean id="dataset.static.hdfs" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet" abstract="true">
+        <constructor-arg name="fs" ref="hdfs"/>
+    </bean>
+
+    <!-- Experiment output written in the HDFS -->
+    <bean id="experiment.output.hdfs" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput" abstract="true">
         <constructor-arg name="fs" ref="hdfs"/>
     </bean>
 
