@@ -38,9 +38,9 @@
     * Data Sets
     *************************************************************************-->
 
-    <!-- Stratosphere + HDFS -->
-    <bean id="dataset.static.hdfs" class="eu.stratosphere.peel.extensions.beans.system.data.hadoop.StaticHDFSDataSet" abstract="true">
-        <constructor-arg name="hdfs" ref="hdfs"/>
+    <!-- Static HDFS data sets -->
+    <bean id="dataset.static.hdfs" class="eu.stratosphere.peel.core.beans.data.StaticDataSet" abstract="true">
+        <constructor-arg name="fs" ref="hdfs"/>
     </bean>
 
 </beans>

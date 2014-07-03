@@ -116,7 +116,7 @@ class MapReduce(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Musta
     val logDir = config.getString("system.hadoop.path.log")
 
     val totl = config.getStringList("system.hadoop.config.slaves").size()
-    val init = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-jobtracker-*.log | grep 'Adding a new node:' | wc -l""").trim())
+    var init = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-jobtracker-*.log | grep 'Adding a new node:' | wc -l""").trim())
 
     shell ! s"${config.getString("system.hadoop.path.home")}/bin/start-mapred.sh"
     logger.info(s"Waiting for nodes to connect")
@@ -131,6 +131,7 @@ class MapReduce(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Musta
       curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-jobtracker-*.log | grep 'Adding a new node:' | wc -l""").trim())
       // timeout if counter goes below zero
       cntr = cntr - 1
+      if (curr - init < 0) init = 0 // protect against log reset on startup
       if (cntr < 0) throw new SetUpTimeoutException(s"Cannot start system '$toString'; node connection timeout at system ")
     }
   }

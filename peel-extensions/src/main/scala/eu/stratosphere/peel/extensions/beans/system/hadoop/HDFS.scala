@@ -4,13 +4,13 @@ import java.nio.file.{Files, Paths}
 
 import com.samskivert.mustache.Mustache
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
-import eu.stratosphere.peel.core.beans.system.{SetUpTimeoutException, System}
+import eu.stratosphere.peel.core.beans.system.{FileSystem, SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
 import eu.stratosphere.peel.core.util.shell
 
 import scala.collection.JavaConverters._
 
-class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("hdfs", lifespan, dependencies, mc) {
+class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("hdfs", lifespan, dependencies, mc) with FileSystem {
 
   // ---------------------------------------------------
   // System.
@@ -119,6 +119,62 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.C
       "/templates/hadoop/conf/site.xml.mustache", mc)
   ))
 
+  /**
+   * Checks if all datanodes have connected and the system is out of safemode.
+   */
+  override protected def startAndWait(): Unit = {
+    val user = config.getString("system.hadoop.user")
+    val logDir = config.getString("system.hadoop.path.log")
+    val hostname = config.getString("app.hostname")
+
+    val totl = config.getStringList("system.hadoop.config.slaves").size()
+    var init = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
+
+    shell ! s"${config.getString("system.hadoop.path.home")}/bin/start-dfs.sh"
+    logger.info(s"Waiting for nodes to connect")
+
+    var curr = init
+    var safe = !(shell !! s"${config.getString("system.hadoop.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
+    var cntr = config.getInt("system.hadoop.startup.polling.counter")
+    while (curr - init < totl || safe) {
+      logger.info(s"Connected ${curr - init} from $totl nodes, safemode is ${if (safe) "ON" else "OFF"}")
+      // wait a bit
+      Thread.sleep(config.getInt("system.hadoop.startup.polling.interval"))
+      // get new values
+      curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
+      safe = !(shell !! s"${config.getString("system.hadoop.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
+      // timeout if counter goes below zero
+      cntr = cntr - 1
+      if (curr - init < 0) init = 0 // protect against log reset on startup
+      if (cntr < 0) throw new SetUpTimeoutException(s"Cannot start system '$toString'; node connection timeout at system ")
+    }
+  }
+
+  // ---------------------------------------------------
+  // FileSystem.
+  // ---------------------------------------------------
+
+  override def exists(path: String) = {
+    val hadoopHome = config.getString("system.hadoop.path.home")
+    (shell !! s"""if $hadoopHome/bin/hadoop fs -test -e "$path" ; then echo "YES" ; else echo "NO"; fi""").trim() == "YES"
+  }
+
+  override def rmr(path: String, skipTrash: Boolean = true) = {
+    val hadoopHome = config.getString("system.hadoop.path.home")
+    if (skipTrash)
+      shell ! s"""if $hadoopHome/bin/hadoop fs -rmr "$path" """
+    else
+      shell ! s"""if $hadoopHome/bin/hadoop fs -rmr -skipTrash "$path" """
+  }
+
+  override def copyFromLocal(src: String, dst: String) = {
+    val hadoopHome = config.getString("system.hadoop.path.home")
+    if (src.endsWith(".gz"))
+      shell ! s"""gunzip -c \"$src\" | $hadoopHome/bin/hadoop fs -put - \"$dst\" """
+    else
+      shell ! s"""$hadoopHome/bin/hadoop fs -copyFromLocal "$src" "$dst" """
+  }
+
   // ---------------------------------------------------
   // Helper methods.
   // ---------------------------------------------------
@@ -142,36 +198,6 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.C
         shell ! s""" ssh $user@$dataNode "cat $dataDir/current/VERSION.backup | sed '3 i storageID=' | sed 's/storageType=NAME_NODE/storageType=DATA_NODE/g'" > $dataDir/current/VERSION """
         shell ! s""" ssh $user@$dataNode "rm -Rf $dataDir/current/VERSION.backup" """
       }
-    }
-  }
-
-  /**
-   * Checks if all datanodes have connected and the system is out of safemode.
-   */
-  override protected def startAndWait(): Unit = {
-    val user = config.getString("system.hadoop.user")
-    val logDir = config.getString("system.hadoop.path.log")
-    val hostname = config.getString("app.hostname")
-
-    val totl = config.getStringList("system.hadoop.config.slaves").size()
-    val init = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
-
-    shell ! s"${config.getString("system.hadoop.path.home")}/bin/start-dfs.sh"
-    logger.info(s"Waiting for nodes to connect")
-
-    var curr = init
-    var safe = !(shell !! s"${config.getString("system.hadoop.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
-    var cntr = config.getInt("system.hadoop.startup.polling.counter")
-    while (curr - init < totl || safe) {
-      logger.info(s"Connected ${curr - init} from $totl nodes, safemode is ${if (safe) "ON" else "OFF"}")
-      // wait a bit
-      Thread.sleep(config.getInt("system.hadoop.startup.polling.interval"))
-      // get new values
-      curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
-      safe = !(shell !! s"${config.getString("system.hadoop.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
-      // timeout if counter goes below zero
-      cntr = cntr - 1
-      if (cntr < 0) throw new SetUpTimeoutException(s"Cannot start system '$toString'; node connection timeout at system ")
     }
   }
 }

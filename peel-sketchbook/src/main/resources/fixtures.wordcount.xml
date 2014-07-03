@@ -7,7 +7,16 @@
     * Custom Systems
     *************************************************************************-->
 
-    <!-- Stratosphere (overriden 'hdfs' bean) -->
+    <!-- HDFS (overriden 'hdfs' bean) -->
+    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Stratosphere (overriden 'stratosphere' bean) -->
     <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system">
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
