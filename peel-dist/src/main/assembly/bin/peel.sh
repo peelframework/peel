@@ -42,7 +42,6 @@ manglePathList() {
 # -or- the respective environment variables are not set.
 ########################################################################################################################
 
-DEFAULT_JVM_HEAP_MB=256                             # JVM heap size in MB
 DEFAULT_JAVA_HOME="/usr/lib/jvm/java-7-oracle"      # Java home
 DEFAULT_JAVA_OPTS=""                                # Optional JVM parameters
 
@@ -72,15 +71,6 @@ this="$bin/$script"
 PEEL_ROOT_DIR=`dirname "$this"`
 PEEL_LIB_DIR=${PEEL_ROOT_DIR}/lib
 
-# These need to be mangled because they are directly passed to java.
-# The above lib path is used by the shell script to retrieve jars in a 
-# directory, so it needs to be unmangled.
-PEEL_ROOT_DIR_MANGLED=`manglePath ${PEEL_ROOT_DIR}`
-PEEL_CONF_DIR=${PEEL_ROOT_DIR_MANGLED}/conf
-PEEL_BIN_DIR=${PEEL_ROOT_DIR_MANGLED}/bin
-PEEL_LOG_DIR=${PEEL_ROOT_DIR_MANGLED}/log
-PEEL_PID_DIR=${PEEL_ROOT_DIR_MANGLED}/tmp
-
 ########################################################################################################################
 # ENVIRONMENT VARIABLES
 ########################################################################################################################
@@ -88,10 +78,6 @@ PEEL_PID_DIR=${PEEL_ROOT_DIR_MANGLED}/tmp
 # Define JAVA_HOME if it is not already set
 if [ -z "${JAVA_HOME}" ]; then
     JAVA_HOME=${DEFAULT_JAVA_HOME}
-fi
-
-if [ -z "${PEEL_JVM_HEAP_MB}" ]; then
-    PEEL_JM_HEAP=${DEFAULT_JVM_HEAP_MB}
 fi
 
 if [ -z "${PEEL_JAVA_OPTS}" ]; then
@@ -113,4 +99,4 @@ fi
 CLASSPATH=`manglePathList $( echo ${PEEL_LIB_DIR}/*.jar . | sed 's/ /:/g' )`
 
 # Run command
-${JAVA_RUN} -cp ${CLASSPATH} ${PEEL_JAVA_OPTS} -D${script:0:-3}.path.root=${PEEL_ROOT_DIR_MANGLED} -D${script:0:-3}.path.log=${PEEL_ROOT_DIR_MANGLED} eu.stratosphere.peel.core.Application $@
+${JAVA_RUN} -cp ${CLASSPATH} ${PEEL_JAVA_OPTS} eu.stratosphere.peel.core.Application $@
