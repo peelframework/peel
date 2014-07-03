@@ -4,10 +4,21 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!--************************************************************************
+    * Minimal list TODOs if you use this file as a starting point:
+    *
+    * 1. Set a unique suffix for your experiment. Let the suffix be $EXP.
+    * 2. Configure the right command in experiment.stratosphere.$EXP
+    * 3. Configure the right input data set in experiment.stratosphere.$EXP
+    *
+    * You can create multiple experiment and fixture beans using
+    * 'experiment.stratosphere.wc' and 'wc.cloud-7' as a blueprint.
+    *************************************************************************-->
+
+    <!--************************************************************************
     * Custom Systems
     *************************************************************************-->
 
-    <!-- Stratosphere (overriden 'stratosphere' bean that depends on HDFS) -->
+    <!-- Stratosphere (overriden 'stratosphere' bean) -->
     <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system">
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
@@ -16,6 +27,17 @@
             </set>
         </constructor-arg>
     </bean>
+
+    <!-- Stratosphere (custom variant for Group 01, check differences in the 'config' folder) -->
+    <bean id="stratosphere.G01" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+                <ref bean="hdfs"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
 
     <!--************************************************************************
     * Data Sets
@@ -27,13 +49,49 @@
         <constructor-arg name="dst" value="${system.hadoop.path.input}/hamlet.txt"/>
     </bean>
 
+    <!-- Higgs: https://archive.ics.uci.edu/ml/datasets/HIGGS -->
+    <bean id="dataset.higgs.S" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/higgs.S.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.S.txt"/>
+    </bean>
+    <bean id="dataset.higgs.M" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/higgs.M.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.M.txt"/>
+    </bean>
+    <bean id="dataset.higgs.L" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/higgs.L.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.L.txt"/>
+    </bean>
+    <bean id="dataset.higgs.XL" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/higgs.XL.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.XL.txt"/>
+    </bean>
+
+    <!-- Docword: https://archive.ics.uci.edu/ml/datasets/Bag+of+Words -->
+    <bean id="docword.enron" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/docword.enron.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.enron.txt"/>
+    </bean>
+    <bean id="docword.nips" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/docword.nips.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.nips.txt"/>
+    </bean>
+    <bean id="docword.nytimes" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/docword.nytimes.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.nytimes.txt"/>
+    </bean>
+    <bean id="docword.pubmed" parent="dataset.static.hdfs">
+        <constructor-arg name="src" value="${app.path.datasets}/docword.pubmed.txt.gz"/>
+        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.pubmed.txt"/>
+    </bean>
+
     <!--************************************************************************
     * Experiments
     *************************************************************************-->
 
     <!-- Experiment beans -->
     <bean id="experiment.stratosphere" class="eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment" abstract="true">
-        <constructor-arg name="runner" ref="stratosphere"/>
+        <constructor-arg name="runner" ref="stratosphere.G01"/> <!-- you can also use stratosphere.G01 here -->
         <constructor-arg name="runs" value="7"/>
     </bean>
 
