@@ -10,29 +10,24 @@ import eu.stratosphere.peel.core.util.shell
 
 import scala.collection.JavaConverters._
 
-class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("hdfs", lifespan, dependencies, mc) with FileSystem {
+class HDFS(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("hdfs", version, lifespan, dependencies, mc) with FileSystem {
+
+  override val configKey = "hadoop"
 
   // ---------------------------------------------------
   // System.
   // ---------------------------------------------------
 
-  override def configuration() = SystemConfig(config, List(
-    SystemConfig.Entry[Model.Hosts]("system.hadoop.config.masters",
-      "%s/masters".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/hosts.mustache", mc),
-    SystemConfig.Entry[Model.Hosts]("system.hadoop.config.slaves",
-      "%s/slaves".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/hosts.mustache", mc),
-    SystemConfig.Entry[Model.Env]("system.hadoop.config.env",
-      "%s/hadoop-env.sh".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/hadoop-env.sh.mustache", mc),
-    SystemConfig.Entry[Model.Site]("system.hadoop.config.core",
-      "%s/core-site.xml".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/site.xml.mustache", mc),
-    SystemConfig.Entry[Model.Site]("system.hadoop.config.hdfs",
-      "%s/hdfs-site.xml".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/site.xml.mustache", mc)
-  ))
+  override def configuration() = SystemConfig(config, {
+    val conf = config.getString("system.hadoop.path.config")
+    List(
+      SystemConfig.Entry[Model.Hosts]("system.hadoop.config.masters", s"$conf/masters", templatePath("conf/hosts"), mc),
+      SystemConfig.Entry[Model.Hosts]("system.hadoop.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
+      SystemConfig.Entry[Model.Env]("system.hadoop.config.env", s"$conf/hadoop-env.sh", templatePath("conf/hadoop-env.sh"), mc),
+      SystemConfig.Entry[Model.Site]("system.hadoop.config.core", s"$conf/core-site.xml", templatePath("conf/site.xml"), mc),
+      SystemConfig.Entry[Model.Site]("system.hadoop.config.hdfs", s"$conf/hdfs-site.xml", templatePath("conf/site.xml"), mc)
+    )
+  })
 
   /**
    * Checks if all datanodes have connected and the system is out of safemode.

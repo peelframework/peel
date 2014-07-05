@@ -1,5 +1,6 @@
 package eu.stratosphere.peel.core.beans.system
 
+import java.net.URL
 import java.nio.file.{Paths, Files}
 
 import com.samskivert.mustache.Mustache
@@ -11,7 +12,8 @@ import eu.stratosphere.peel.core.util.shell
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
 
-abstract class System(val defaultName: String,
+abstract class System(val name: String,
+                      val version: String,
                       val lifespan: Lifespan,
                       val dependencies: Set[System],
                       val mc: Mustache.Compiler) extends Node with Configurable with BeanNameAware {
@@ -23,9 +25,14 @@ abstract class System(val defaultName: String,
   var isUp = lifespan == Lifespan.PROVIDED
 
   /**
+   * The system configuration resides under `system.${configKey}`.
+   */
+  val configKey = name
+
+  /**
    * The name of this bean. Deafults to the system name.
    */
-  var name = defaultName
+  var beanName = name
 
   /**
    * Creates a complete system installation with updated configuration and starts the system.
@@ -36,16 +43,16 @@ abstract class System(val defaultName: String,
     } else {
       logger.info(s"Starting system '$toString'")
 
-      if (config.hasPath(s"system.$defaultName.path.archive")) {
-        if (!Files.exists(Paths.get(config.getString(s"system.$defaultName.path.home")))) {
-          logger.info(s"Extracting archive ${config.getString(s"system.$defaultName.path.archive.src")} to ${config.getString(s"system.$defaultName.path.archive.dst")}")
-          shell.untar(config.getString(s"system.$defaultName.path.archive.src"), config.getString(s"system.$defaultName.path.archive.dst"))
+      if (config.hasPath(s"system.$configKey.path.archive")) {
+        if (!Files.exists(Paths.get(config.getString(s"system.$configKey.path.home")))) {
+          logger.info(s"Extracting archive ${config.getString(s"system.$configKey.path.archive.src")} to ${config.getString(s"system.$configKey.path.archive.dst")}")
+          shell.untar(config.getString(s"system.$configKey.path.archive.src"), config.getString(s"system.$configKey.path.archive.dst"))
 
-          logger.info(s"Changing owner of ${config.getString(s"system.$defaultName.path.home")} to ${config.getString(s"system.$defaultName.user")}:${config.getString(s"system.$defaultName.group")}")
+          logger.info(s"Changing owner of ${config.getString(s"system.$configKey.path.home")} to ${config.getString(s"system.$configKey.user")}:${config.getString(s"system.$configKey.group")}")
           shell ! "chown -R %s:%s %s".format(
-            config.getString(s"system.$defaultName.user"),
-            config.getString(s"system.$defaultName.group"),
-            config.getString(s"system.$defaultName.path.home"))
+            config.getString(s"system.$configKey.user"),
+            config.getString(s"system.$configKey.group"),
+            config.getString(s"system.$configKey.path.home"))
         }
       }
 
@@ -92,14 +99,14 @@ abstract class System(val defaultName: String,
    *
    * @param n The configured bean name
    */
-  override def setBeanName(n: String) = name = n
+  override def setBeanName(n: String) = beanName = n
 
   /**
    * Alias of name.
    *
    * @return
    */
-  override def toString: String = name
+  override def toString: String = beanName
 
   // ---------------------------------------------------
   // Helper methods.
@@ -121,6 +128,25 @@ abstract class System(val defaultName: String,
    * Stops the system.
    */
   protected def stop(): Unit
+
+  /**
+   * Returns the template path closest to the given system and version.
+   */
+  protected def templatePath(path: String) = {
+    // initialize version and template path
+    var v = version.stripSuffix("-SNAPSHOT")
+    var z = Option(this.getClass.getResource(s"/templates/$configKey/$v/$path.mustache"))
+    // iterate while parent version exists and current version does not have a specific template
+    while (!v.isEmpty && z.isEmpty) {
+      v = v.substring(0, Math.max(0, v.lastIndexOf('.')))
+      z = Option(this.getClass.getResource(s"/templates/$configKey/$v/$path.mustache"))
+    }
+    // if version template exists return its path, otherwise return the base tempalte path
+    if (v.isEmpty)
+      s"/templates/$configKey/$path.mustache"
+    else
+      s"/templates/$configKey/$v/$path.mustache"
+  }
 }
 
 object System {

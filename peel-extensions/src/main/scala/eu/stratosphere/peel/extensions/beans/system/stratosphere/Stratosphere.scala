@@ -6,16 +6,15 @@ import eu.stratosphere.peel.core.beans.system.{SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
 import eu.stratosphere.peel.core.util.shell
 
-class Stratosphere(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("stratosphere", lifespan, dependencies, mc) {
+class Stratosphere(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("stratosphere", version, lifespan, dependencies, mc) {
 
-  override def configuration() = SystemConfig(config, List(
-    SystemConfig.Entry[Model.Hosts]("system.stratosphere.config.slaves",
-      "%s/slaves".format(config.getString("system.stratosphere.path.config")),
-      "/templates/stratosphere/conf/hosts.mustache", mc),
-    SystemConfig.Entry[Model.Yaml]("system.stratosphere.config.yaml",
-      "%s/stratosphere-conf.yaml".format(config.getString("system.stratosphere.path.config")),
-      "/templates/stratosphere/conf/stratosphere-conf.yaml.mustache", mc)
-  ))
+  override def configuration() = SystemConfig(config, {
+    val conf = config.getString("system.stratosphere.path.config")
+    List(
+      SystemConfig.Entry[Model.Hosts]("system.stratosphere.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
+      SystemConfig.Entry[Model.Yaml]("system.stratosphere.config.yaml", s"$conf/stratosphere-conf.yaml", templatePath("conf/stratosphere-conf.yaml"), mc)
+    )
+  })
 
   override protected def start(): Unit = {
     val user = config.getString("system.stratosphere.user")

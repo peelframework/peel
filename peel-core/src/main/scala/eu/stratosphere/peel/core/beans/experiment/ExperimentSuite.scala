@@ -31,7 +31,7 @@ class ExperimentSuite(final val experiments: List[Experiment[System]]) extends N
     // generate runs to be executed
     val runs = for (e <- experiments; i <- 1 to e.runs; r <- Some(e.run(i)); if !r.isSuccessful) yield r
     // filter experiments in the relevant runs
-    val exps = runs.foldLeft(List[Experiment[System]]())((es, r) => if (es.isEmpty || es.head != r.exp) r.exp :: es else es)
+    val exps = runs.foldRight(List[Experiment[System]]())((r, es) => if (es.isEmpty || es.head != r.exp) r.exp :: es else es)
 
     // SUITE lifespan
     try {
@@ -131,11 +131,11 @@ class ExperimentSuite(final val experiments: List[Experiment[System]]) extends N
     for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
       case s: System =>
         // load reference.{system.defaultName}.conf
-        loadResource(s"reference.${s.defaultName}.conf")
+        loadResource(s"reference.${s.name}.conf")
         // load {app.path.config}/{system.name}.conf
-        loadFile(s"${Sys.getProperty("app.path.config")}/${s.name}.conf")
+        loadFile(s"${Sys.getProperty("app.path.config")}/${s.beanName}.conf")
         // load {app.path.config}/{app.hostname}/{system.name}.conf
-        loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/${s.name}.conf")
+        loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/${s.beanName}.conf")
       case _ => Unit
     }
 

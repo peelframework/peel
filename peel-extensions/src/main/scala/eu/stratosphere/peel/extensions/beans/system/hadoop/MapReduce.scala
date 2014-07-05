@@ -8,25 +8,20 @@ import eu.stratosphere.peel.core.beans.system.{SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
 import eu.stratosphere.peel.core.util.shell
 
-class MapReduce(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("mapreduce", lifespan, dependencies, mc) {
+class MapReduce(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("mapreduce", version, lifespan, dependencies, mc) {
 
-  override def configuration() = SystemConfig(config, List(
-    SystemConfig.Entry[Model.Hosts]("system.hadoop.config.masters",
-      "%s/masters".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/hosts.mustache", mc),
-    SystemConfig.Entry[Model.Hosts]("system.hadoop.config.slaves",
-      "%s/slaves".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/hosts.mustache", mc),
-    SystemConfig.Entry[Model.Env]("system.hadoop.config.env",
-      "%s/hadoop-env.sh".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/hadoop-env.sh.mustache", mc),
-    SystemConfig.Entry[Model.Site]("system.hadoop.config.core",
-      "%s/core-site.xml".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/site.xml.mustache", mc),
-    SystemConfig.Entry[Model.Site]("system.hadoop.config.mapred",
-      "%s/mapred-site.xml".format(config.getString("system.hadoop.path.config")),
-      "/templates/hadoop/conf/site.xml.mustache", mc)
-  ))
+  override val configKey = "hadoop"
+
+  override def configuration() = SystemConfig(config, {
+    val conf = config.getString("system.stratosphere.path.config")
+    List(
+      SystemConfig.Entry[Model.Hosts]("system.hadoop.config.masters", s"$conf/masters", templatePath("conf/hosts"), mc),
+      SystemConfig.Entry[Model.Hosts]("system.hadoop.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
+      SystemConfig.Entry[Model.Env]("system.hadoop.config.env", s"$conf/hadoop-env.sh", templatePath("conf/hadoop-env.sh"), mc),
+      SystemConfig.Entry[Model.Site]("system.hadoop.config.core", s"$conf/core-site.xml", templatePath("conf/site.xml"), mc),
+      SystemConfig.Entry[Model.Site]("system.hadoop.config.mapred", s"$conf/mapred-site.xml", templatePath("conf/site.xml"), mc)
+    )
+  })
 
   override protected def start(): Unit = {
     val user = config.getString("system.hadoop.user")
