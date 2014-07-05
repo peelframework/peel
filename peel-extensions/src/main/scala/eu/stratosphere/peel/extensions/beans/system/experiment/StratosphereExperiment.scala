@@ -62,7 +62,6 @@ object StratosphereExperiment {
         try {
           // try to get the experiment run plan
           val (plnExit, _) = time(runner.run(s"info -e $command", s"$home/run.pln", s"$home/run.pln"))
-          if (plnExit != 0) throw new RuntimeException(s"Experiment plan info command exited with non-zero code")
 
           // collect current number of lines in log and out files
           var logFiles = collection.mutable.Map[String, Long]()
@@ -70,21 +69,19 @@ object StratosphereExperiment {
             logFiles += f -> (shell !! s"wc -l $f | cut -d' ' -f1").trim.toLong
           }
           for (f <- (shell !! s"ls $runnerLogPath/stratosphere-*.out").split(System.lineSeparator).map(_.trim)) {
-            val x = f
             logFiles += f -> (shell !! s"wc -l $f | cut -d' ' -f1").trim.toLong
           }
 
           // try to execute the experiment run plan
           val (runExit, t) = time(runner.run(s"run $command", s"$home/run.out", s"$home/run.err"))
-          if (runExit != 0) throw new RuntimeException(s"Experiment run command exited with non-zero code")
 
           // copy logs
           shell ! s"rm -Rf $home/stratosphere-logs/*"
-
-          // copy new lines in the log and out files
-          shell ! s"rm -Rf $home/stratosphere-logs/*"
           for (e <- logFiles)
-            shell ! s"tail -n +${e._2} ${e._1} > $home/stratosphere-logs/${Paths.get(e._1).getFileName}"
+            shell ! s"tail -n +${e._2+1} ${e._1} > $home/stratosphere-logs/${Paths.get(e._1).getFileName}"
+
+          if (plnExit != 0) throw new RuntimeException(s"Experiment plan info command exited with non-zero code")
+          if (runExit != 0) throw new RuntimeException(s"Experiment run command exited with non-zero code")
 
           // update run state
           state.time = t

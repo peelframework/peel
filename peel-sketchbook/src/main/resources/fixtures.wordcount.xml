@@ -7,6 +7,19 @@
     * Custom Systems
     *************************************************************************-->
 
+    <!-- Use lifespan "PROVIDED" if you want to start the systems manually   -->
+    <!-- Use lifespan "SUITE" if you want PEEL to deploy to start them       -->
+
+    <!-- Hadoop Distributed File System (overriden 'hdfs' bean) -->
+    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            </set>
+        </constructor-arg>
+    </bean>
+
+
     <!-- Stratosphere (overriden 'stratosphere' bean that depends on HDFS) -->
     <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system">
         <constructor-arg name="lifespan" value="SUITE"/>
@@ -34,7 +47,7 @@
     <!-- Experiment beans -->
     <bean id="experiment.stratosphere" class="eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment" abstract="true">
         <constructor-arg name="runner" ref="stratosphere"/>
-        <constructor-arg name="runs" value="7"/>
+        <constructor-arg name="runs" value="3"/>
     </bean>
 
     <!-- WordCount output -->
@@ -65,9 +78,24 @@
                 <bean parent="experiment.stratosphere.wc">
                     <constructor-arg name="config">
                         <value>
-                            experiment.name = wc.local
-                            system.default.config.masters = [ "localhost" ]
-                            system.default.config.slaves = [ "localhost" ]
+                            experiment.name = wc.local.dop02
+                            system.default.config.parallelism.per-node = 2
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.name = wc.local.dop04
+                            system.default.config.parallelism.per-node = 4
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.name = wc.local.dop08
+                            system.default.config.parallelism.per-node = 8
                         </value>
                     </constructor-arg>
                 </bean>
