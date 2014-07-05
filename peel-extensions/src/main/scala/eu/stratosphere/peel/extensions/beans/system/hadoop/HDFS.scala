@@ -16,91 +16,6 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.C
   // System.
   // ---------------------------------------------------
 
-  override def setUp(): Unit = {
-    logger.info(s"Starting system '$toString'")
-
-    if (config.hasPath("system.hadoop.path.archive")) {
-      if (!Files.exists(Paths.get(config.getString("system.hadoop.path.home")))) {
-        logger.info(s"Extracting archive ${config.getString("system.hadoop.path.archive.src")} to ${config.getString("system.hadoop.path.archive.dst")}")
-        shell.untar(config.getString("system.hadoop.path.archive.src"), config.getString("system.hadoop.path.archive.dst"))
-
-        logger.info(s"Changing owner of ${config.getString("system.hadoop.path.home")} to ${config.getString("system.hadoop.user")}:${config.getString("system.hadoop.group")}")
-        shell ! "chown -R %s:%s %s".format(
-          config.getString("system.hadoop.user"),
-          config.getString("system.hadoop.group"),
-          config.getString("system.hadoop.path.home"))
-      }
-    }
-
-    configuration().update()
-
-    if (config.getBoolean("system.hadoop.format")) format()
-
-    var failedStartUpAttempts = 0
-    var systemIsUp = false
-    while (!systemIsUp) {
-      try {
-        startAndWait()
-        systemIsUp = true
-      } catch {
-        case e: SetUpTimeoutException =>
-          failedStartUpAttempts = failedStartUpAttempts + 1
-          if (failedStartUpAttempts < config.getInt("system.hadoop.startup.max.attempts")) {
-            shell ! s"${config.getString("system.hadoop.path.home")}/bin/stop-dfs.sh"
-            logger.info(s"Could not bring system '$toString' up in time, trying again...")
-          } else {
-            throw e
-          }
-      }
-    }
-
-    logger.info(s"System '$toString' is now running")
-  }
-
-  override def tearDown(): Unit = {
-    logger.info(s"Tearing down system '$toString'")
-
-    shell ! s"${config.getString("system.hadoop.path.home")}/bin/stop-dfs.sh"
-
-    if (config.getBoolean("system.hadoop.format")) format()
-  }
-
-  override def update(): Unit = {
-    logger.info(s"Checking system configuration of '$toString'")
-
-    val c = configuration()
-    if (c.hasChanged) {
-      logger.info(s"Configuration changed, restarting '$toString'...")
-      shell ! s"${config.getString("system.hadoop.path.home")}/bin/stop-dfs.sh"
-
-      if (config.getBoolean("system.hadoop.format")) format()
-
-      c.update()
-
-      if (config.getBoolean("system.hadoop.format")) format()
-
-      var failedStartUpAttempts = 0
-      var systemIsUp = false
-      while (!systemIsUp) {
-        try {
-          startAndWait()
-          systemIsUp = true
-        } catch {
-          case e: SetUpTimeoutException =>
-            failedStartUpAttempts = failedStartUpAttempts + 1
-            if (failedStartUpAttempts < config.getInt("system.hadoop.startup.max.attempts")) {
-              shell ! s"${config.getString("system.hadoop.path.home")}/bin/stop-dfs.sh"
-              logger.info(s"Could not bring system '$toString' up in time, trying again...")
-            } else {
-              throw e
-            }
-        }
-      }
-
-      logger.info(s"System '$toString' is now running")
-    }
-  }
-
   override def configuration() = SystemConfig(config, List(
     SystemConfig.Entry[Model.Hosts]("system.hadoop.config.masters",
       "%s/masters".format(config.getString("system.hadoop.path.config")),
@@ -122,32 +37,55 @@ class HDFS(lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.C
   /**
    * Checks if all datanodes have connected and the system is out of safemode.
    */
-  override protected def startAndWait(): Unit = {
+  override protected def start(): Unit = {
+    if (config.getBoolean("system.hadoop.format")) format()
+
     val user = config.getString("system.hadoop.user")
     val logDir = config.getString("system.hadoop.path.log")
     val hostname = config.getString("app.hostname")
 
-    val totl = config.getStringList("system.hadoop.config.slaves").size()
-    var init = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
+    var failedStartUpAttempts = 0
+    while (!isUp) {
+      try {
+        val totl = config.getStringList("system.hadoop.config.slaves").size()
+        var init = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
 
-    shell ! s"${config.getString("system.hadoop.path.home")}/bin/start-dfs.sh"
-    logger.info(s"Waiting for nodes to connect")
+        shell ! s"${config.getString("system.hadoop.path.home")}/bin/start-dfs.sh"
+        logger.info(s"Waiting for nodes to connect")
 
-    var curr = init
-    var safe = !(shell !! s"${config.getString("system.hadoop.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
-    var cntr = config.getInt("system.hadoop.startup.polling.counter")
-    while (curr - init < totl || safe) {
-      logger.info(s"Connected ${curr - init} from $totl nodes, safemode is ${if (safe) "ON" else "OFF"}")
-      // wait a bit
-      Thread.sleep(config.getInt("system.hadoop.startup.polling.interval"))
-      // get new values
-      curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
-      safe = !(shell !! s"${config.getString("system.hadoop.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
-      // timeout if counter goes below zero
-      cntr = cntr - 1
-      if (curr - init < 0) init = 0 // protect against log reset on startup
-      if (cntr < 0) throw new SetUpTimeoutException(s"Cannot start system '$toString'; node connection timeout at system ")
+        var curr = init
+        var safe = !(shell !! s"${config.getString("system.hadoop.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
+        var cntr = config.getInt("system.hadoop.startup.polling.counter")
+        while (curr - init < totl || safe) {
+          logger.info(s"Connected ${curr - init} from $totl nodes, safemode is ${if (safe) "ON" else "OFF"}")
+          // wait a bit
+          Thread.sleep(config.getInt("system.hadoop.startup.polling.interval"))
+          // get new values
+          curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
+          safe = !(shell !! s"${config.getString("system.hadoop.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
+          // timeout if counter goes below zero
+          cntr = cntr - 1
+          if (curr - init < 0) init = 0 // protect against log reset on startup
+          if (cntr < 0) throw new SetUpTimeoutException(s"Cannot start system '$toString'; node connection timeout at system ")
+        }
+        isUp = true
+      } catch {
+        case e: SetUpTimeoutException =>
+          failedStartUpAttempts = failedStartUpAttempts + 1
+          if (failedStartUpAttempts < config.getInt("system.hadoop.startup.max.attempts")) {
+            shell ! s"${config.getString("system.hadoop.path.home")}/bin/stop-dfs.sh"
+            logger.info(s"Could not bring system '$toString' up in time, trying again...")
+          } else {
+            throw e
+          }
+      }
     }
+  }
+
+  override protected def stop() = {
+    shell ! s"${config.getString("system.hadoop.path.home")}/bin/stop-dfs.sh"
+    if (config.getBoolean("system.hadoop.format")) format()
+    isUp = false
   }
 
   // ---------------------------------------------------

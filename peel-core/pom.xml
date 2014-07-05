@@ -49,6 +49,12 @@
             <artifactId>config</artifactId>
         </dependency>
 
+        <!-- JSON support -->
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-json_${scala.tools.version}</artifactId>
+        </dependency>
+
         <!-- Templating -->
         <dependency>
             <groupId>com.samskivert</groupId>

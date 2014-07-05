@@ -91,7 +91,8 @@
 
     <!-- Experiment beans -->
     <bean id="experiment.stratosphere" class="eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment" abstract="true">
-        <constructor-arg name="runner" ref="stratosphere.G01"/> <!-- you can also use stratosphere.G01 here -->
+        <constructor-arg name="runner" ref="stratosphere.G01"/>
+        <!-- you can also use stratosphere.G01 here -->
         <constructor-arg name="runs" value="7"/>
     </bean>
 
@@ -121,9 +122,9 @@
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="name" value="wc.local"/>
                     <constructor-arg name="config">
                         <value>
-                            experiment.name = wc.local
                             system.default.config.masters = [ "localhost" ]
                             system.default.config.slaves = [ "localhost" ]
                         </value>
@@ -137,33 +138,33 @@
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="name" value="wc.dop64"/>
                     <constructor-arg name="config">
                         <value>
-                            experiment.name = wc.dop64
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
                         </value>
                     </constructor-arg>
                 </bean>
                 <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="name" value="wc.dop48"/>
                     <constructor-arg name="config">
                         <value>
-                            experiment.name = wc.dop48
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
                         </value>
                     </constructor-arg>
                 </bean>
                 <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="name" value="wc.dop32"/>
                     <constructor-arg name="config">
                         <value>
-                            experiment.name = wc.dop32
                             system.default.config.slaves = [ "cloud-7", "cloud-8" ]
                         </value>
                     </constructor-arg>
                 </bean>
                 <bean parent="experiment.stratosphere.wc">
+                    <constructor-arg name="name" value="wc.dop16"/>
                     <constructor-arg name="config">
                         <value>
-                            experiment.name = wc.dop16
                             system.default.config.slaves = [ "cloud-7" ]
                         </value>
                     </constructor-arg>

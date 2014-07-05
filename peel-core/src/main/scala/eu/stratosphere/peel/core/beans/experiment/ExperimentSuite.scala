@@ -2,15 +2,16 @@ package eu.stratosphere.peel.core.beans.experiment
 
 import java.io.File
 import java.lang.{System => Sys}
+import java.nio.file.{Files, Paths}
 
 import com.typesafe.config._
-import eu.stratosphere.peel.core.beans.system.{ExperimentRunner, Lifespan, System}
+import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
 import eu.stratosphere.peel.core.config.Configurable
 import eu.stratosphere.peel.core.graph.{DependencyGraph, Node}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
 
-class ExperimentSuite(final val experiments: List[Experiment[ExperimentRunner]]) extends Node with BeanNameAware {
+class ExperimentSuite(final val experiments: List[Experiment[System]]) extends Node with BeanNameAware {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -24,54 +25,53 @@ class ExperimentSuite(final val experiments: List[Experiment[ExperimentRunner]])
     //TODO check for cycles in the graph
     if (graph.isEmpty) throw new RuntimeException("Suite is empty!")
 
+    // resolve experiment configurations
+    for (e <- experiments) e.config = loadConfig(graph, e)
+
+    // generate runs to be executed
+    val runs = for (e <- experiments; i <- 1 to e.runs; r <- Some(e.run(i)); if !r.isSuccessful) yield r
+    // filter experiments in the relevant runs
+    val exps = runs.foldLeft(List[Experiment[System]]())((es, r) => if (es.isEmpty || es.head != r.exp) r.exp :: es else es)
+
     // SUITE lifespan
     try {
-      val baseConfig = loadConfig(graph)
-
-      // update config
-      for (n <- graph.vertices) n match {
-        case s: Configurable => s.config = baseConfig
-        case _ => Unit
-      }
-
-      logger.info("Setting up systems with SUITE lifespan")
-      for (n <- graph.reverse.traverse()) n match {
-        case s: System => if (s.lifespan == Lifespan.SUITE) s.setUp()
-        case _ => Unit
-      }
-
       logger.info("Executing experiments in suite")
-      for (e <- experiments) {
+      for (e <- exps) {
         // EXPERIMENT lifespan
         try {
           logger.info("#" * 60)
-          logger.info("Current experiment is %s".format(e.config.getString("experiment.name")))
+          logger.info("Current experiment is %s".format(e.name))
 
           // update config
-          val expConfig = loadConfig(graph, Some(e))
           for (n <- graph.descendants(e).reverse) n match {
-            case s: Configurable => s.config = expConfig
+            case s: Configurable => s.config = e.config
             case _ => Unit
           }
 
-          logger.info("Updating systems with SUITE or PROVIDED lifespan")
-          for (n <- graph.reverse.traverse()) n match {
-            case s: System => if (Lifespan.SUITE :: Lifespan.PROVIDED :: Nil contains s.lifespan) s.update()
+          logger.info("Setting up systems with SUITE lifespan")
+          for (n <- graph.reverse.traverse(); if graph.descendants(e).contains(n)) n match {
+            case s: System => if ((Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) && !s.isUp) s.setUp()
+            case _ => Unit
+          }
+
+          logger.info("Updating systems with PROVIDED or SUITE lifespan")
+          for (n <- graph.reverse.traverse(); if graph.descendants(e).contains(n)) n match {
+            case s: System => if (Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) s.update()
             case _ => Unit
           }
 
           logger.info("Setting up systems with EXPERIMENT lifespan")
           for (n <- graph.reverse.traverse(); if graph.descendants(e).contains(n)) n match {
-            case s: System => if (s.lifespan == Lifespan.EXPERIMENT) s.setUp()
+            case s: System => if (Lifespan.EXPERIMENT :: Nil contains s.lifespan) s.setUp()
             case _ => Unit
           }
 
           logger.info("Materializing experiment input data sets")
           for (n <- e.inputs) n.materialize()
 
-          for (r <- 1 to e.runs) {
+          for (r <- runs if r.exp == e) {
             for (n <- e.outputs) n.clean()
-            e.run(r) // run experiment
+            r.execute() // run experiment
             for (n <- e.outputs) n.clean()
           }
 
@@ -103,42 +103,50 @@ class ExperimentSuite(final val experiments: List[Experiment[ExperimentRunner]])
     }
   }
 
-  private def loadConfig(graph: DependencyGraph[Node], exp: Option[Experiment[ExperimentRunner]] = None, run: Option[Integer] = None) = {
-    logger.info(s"Loading current configuration")
-    // helpers
+  private def loadConfig(graph: DependencyGraph[Node], exp: Experiment[System]) = {
+    logger.info(s"Loading configuration for experiment ${exp.name}")
+    // initial empty configuration
+    var config = ConfigFactory.empty()
+
+    // options for configuration parsing
     val options = ConfigParseOptions.defaults().setClassLoader(this.getClass.getClassLoader)
+    // append resource to current config
+    def loadResource(name: String) = {
+      if (Option(this.getClass.getResource(s"/$name")).isDefined) {
+        logger.info(s"Loading resource $name")
+        config = ConfigFactory.parseResources(name, options).withFallback(config)
+      }
+    }
+    def loadFile(path: String) = {
+      if (Files.isReadable(Paths.get(path))) {
+        logger.info(s"Loading file $path")
+        config = ConfigFactory.parseFile(new File(path), options).withFallback(config)
+      }
+    }
 
     // load reference configuration
-    logger.info(s"Loading resource reference.conf")
-    var config = ConfigFactory.parseResources("reference.conf", options)
+    loadResource("reference.conf")
 
     // load systems configuration
-    for (n <- graph.reverse.traverse().reverse) n match {
+    for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
       case s: System =>
         // load reference.{system.defaultName}.conf
-        logger.info(s"Loading resource reference.${s.defaultName}.conf")
-        config = ConfigFactory.parseResources(s"reference.${s.defaultName}.conf", options).withFallback(config)
+        loadResource(s"reference.${s.defaultName}.conf")
         // load {app.path.config}/{system.name}.conf
-        logger.info(s"Loading file ${Sys.getProperty("app.path.config")}/${s.name}.conf")
-        config = ConfigFactory.parseFile(new File(s"${Sys.getProperty("app.path.config")}/${s.name}.conf"), options).withFallback(config)
+        loadFile(s"${Sys.getProperty("app.path.config")}/${s.name}.conf")
         // load {app.path.config}/{app.hostname}/{system.name}.conf
-        logger.info(s"Loading file ${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/${s.name}.conf")
-        config = ConfigFactory.parseFile(new File(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/${s.name}.conf"), options).withFallback(config)
+        loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/${s.name}.conf")
       case _ => Unit
     }
 
     // load {app.path.config}/application.conf
-    logger.info(s"Loading file ${Sys.getProperty("app.path.config")}/application.conf")
-    config = ConfigFactory.parseFile(new File(s"${Sys.getProperty("app.path.config")}/application.conf"), options).withFallback(config)
+    loadFile(s"${Sys.getProperty("app.path.config")}/application.conf")
     // load {app.path.config}/{app.hostname}/application.conf
-    logger.info(s"Loading file ${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
-    config = ConfigFactory.parseFile(new File(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf"), options).withFallback(config)
+    loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
 
     // load the experiment config
-    if (exp.isDefined) {
-      logger.info(s"Loading experiment configuration")
-      config = exp.get.config.withFallback(config)
-    }
+    logger.info(s"Loading experiment configuration")
+    config = exp.config.withFallback(config)
 
     // load system properties
     logger.info(s"Loading system properties as configation")

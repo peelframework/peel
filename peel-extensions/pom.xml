@@ -27,12 +27,6 @@
             <artifactId>scala-compiler</artifactId>
         </dependency>
 
-        <!-- JSON support -->
-        <dependency>
-            <groupId>io.spray</groupId>
-            <artifactId>spray-json_${scala.tools.version}</artifactId>
-        </dependency>
-
         <!-- fab -->
         <dependency>
             <groupId>eu.stratosphere</groupId>

@@ -1,110 +1,56 @@
 package eu.stratosphere.peel.extensions.beans.system.experiment
 
 import java.io.FileWriter
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Paths}
 
 import com.typesafe.config.Config
 import eu.stratosphere.peel.core.beans.data.{DataSet, ExperimentOutput}
 import eu.stratosphere.peel.core.beans.experiment.Experiment
-import eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere
-import org.slf4j.LoggerFactory
-import spray.json._
 import eu.stratosphere.peel.core.util.shell
+import eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere
+import spray.json._
 
-class StratosphereExperiment(val command: String, runner: Stratosphere, runs: Int, inputs: Set[DataSet], outputs: Set[ExperimentOutput], config: Config) extends Experiment(runner, runs, inputs, outputs, config) {
+class StratosphereExperiment(command: String,
+                             runner: Stratosphere,
+                             runs: Int,
+                             inputs: Set[DataSet],
+                             outputs: Set[ExperimentOutput],
+                             name: String,
+                             config: Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
 
-  def this(runs: Int, runner: Stratosphere, input: DataSet, output: ExperimentOutput, command: String, config: Config) = this(command, runner, runs, Set(input), Set(output), config)
+  def this(runs: Int, runner: Stratosphere, input: DataSet, output: ExperimentOutput, command: String, name: String, config: Config) = this(command, runner, runs, Set(input), Set(output), name, config)
 
-  def this(runs: Int, runner: Stratosphere, inputs: Set[DataSet], output: ExperimentOutput, command: String, config: Config) = this(command, runner, runs, inputs, Set(output), config)
+  def this(runs: Int, runner: Stratosphere, inputs: Set[DataSet], output: ExperimentOutput, command: String, name: String, config: Config) = this(command, runner, runs, inputs, Set(output), name, config)
 
-  def run(id: Int) = new StratosphereExperiment.Run(id, runner, runner.resolve(command)).execute()
+  override def run(id: Int): Experiment.Run[Stratosphere] = new StratosphereExperiment.SingleJobRun(id, this)
 }
 
 object StratosphereExperiment {
 
-  case class State(name: String, command: String, var exit: Option[Int] = None, var time: Long = 0) {}
+  case class State(name: String,
+                   command: String,
+                   var runExitCode: Option[Int] = None,
+                   var runTime: Long = 0,
+                   var plnExitCode: Option[Int] = None) extends Experiment.RunState {}
 
   object StateProtocol extends DefaultJsonProtocol with NullOptions {
-    implicit val stateFormat = jsonFormat4(State)
+    implicit val stateFormat = jsonFormat5(State)
   }
 
   /**
    * A private inner class encapsulating the logic of single run.
    */
-  private class Run(val id: Int, val runner: Stratosphere, val command: String) {
+  class SingleJobRun(val id: Int, val exp: StratosphereExperiment) extends Experiment.SingleJobRun[Stratosphere, State] {
 
     import eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment.StateProtocol._
 
-    final val logger = LoggerFactory.getLogger(this.getClass)
+    val runnerLogPath = exp.config.getString("system.stratosphere.path.log")
 
-    val home = f"${runner.config.getString("app.path.results")}/${runner.config.getString("app.suite")}/${runner.config.getString("experiment.name")}.run$id%02d"
-    val name = f"${runner.config.getString("experiment.name")}.run$id%02d"
-    val runnerLogPath = runner.config.getString("system.stratosphere.path.log")
+    override def isSuccessful = state.plnExitCode.getOrElse(-1) == 0 && state.runExitCode.getOrElse(-1) == 0
 
-    var state = loadState()
+    override protected def logFilePatterns = List(s"$runnerLogPath/stratosphere-*.log", s"$runnerLogPath/stratosphere-*.out")
 
-    // ensure experiment folder structure in the constructor
-    {
-      ensureFolderIsWritable(Paths.get(s"$home"))
-      ensureFolderIsWritable(Paths.get(s"$home/stratosphere-logs"))
-
-      loadState()
-    }
-
-    def execute() = {
-      if (state.exit.getOrElse(-1) == 0) {
-        logger.info("Skipping successfully executed experiment %s".format(name))
-      } else {
-        logger.info("Running experiment %s".format(name))
-        logger.info("Experiment data will be written to %s".format(home))
-        logger.info("Experiment command is %s".format(command))
-
-        try {
-          // try to get the experiment run plan
-          val (plnExit, _) = time(runner.run(s"info -e $command", s"$home/run.pln", s"$home/run.pln"))
-
-          // collect current number of lines in log and out files
-          var logFiles = collection.mutable.Map[String, Long]()
-          for (f <- (shell !! s"ls $runnerLogPath/stratosphere-*.log").split(System.lineSeparator).map(_.trim)) {
-            logFiles += f -> (shell !! s"wc -l $f | cut -d' ' -f1").trim.toLong
-          }
-          for (f <- (shell !! s"ls $runnerLogPath/stratosphere-*.out").split(System.lineSeparator).map(_.trim)) {
-            logFiles += f -> (shell !! s"wc -l $f | cut -d' ' -f1").trim.toLong
-          }
-
-          // try to execute the experiment run plan
-          val (runExit, t) = time(runner.run(s"run $command", s"$home/run.out", s"$home/run.err"))
-
-          // copy logs
-          shell ! s"rm -Rf $home/stratosphere-logs/*"
-          for (e <- logFiles)
-            shell ! s"tail -n +${e._2+1} ${e._1} > $home/stratosphere-logs/${Paths.get(e._1).getFileName}"
-
-          if (plnExit != 0) throw new RuntimeException(s"Experiment plan info command exited with non-zero code")
-          if (runExit != 0) throw new RuntimeException(s"Experiment run command exited with non-zero code")
-
-          // update run state
-          state.time = t
-          state.exit = Some(runExit)
-
-          logger.info(s"Experiment run executed in $t milliseconds")
-        } catch {
-          case e: Exception => logger.error("Exception in experiment run %s: %s".format(name, e.getMessage))
-        } finally {
-          writeState()
-        }
-      }
-    }
-
-    private def ensureFolderIsWritable(folder: Path) = {
-      if (Files.exists(folder)) {
-        if (!(Files.isDirectory(folder) && Files.isWritable(folder))) throw new RuntimeException(s"Experiment home '$home' is not a writable directory")
-      } else {
-        Files.createDirectories(folder)
-      }
-    }
-
-    private def loadState(): State = {
+    override protected def loadState(): State = {
       if (Files.isRegularFile(Paths.get(s"$home/state.json"))) {
         try {
           io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
@@ -116,17 +62,27 @@ object StratosphereExperiment {
       }
     }
 
-    private def writeState() = {
+    override protected def writeState() = {
       val fw = new FileWriter(s"$home/state.json")
       fw.write(state.toJson.prettyPrint)
       fw.close()
     }
+
+    override protected def runJob() = {
+      // try to get the experiment run plan
+      val (plnExit, _) = Experiment.time(this !(s"info -e $command", s"$home/run.pln", s"$home/run.pln"))
+      // try to execute the experiment run plan
+      val (runExit, t) = Experiment.time(this !(s"run $command", s"$home/run.out", s"$home/run.err"))
+
+      // update run state
+      state.runTime = t
+      state.runExitCode = Some(runExit)
+      state.plnExitCode = Some(plnExit)
+    }
+
+    private def !(command: String, outFile: String, errFile: String) = {
+      shell ! s"${exp.config.getString("system.stratosphere.path.home")}/bin/stratosphere $command > $outFile 2> $errFile"
+    }
   }
 
-  def time[R](block: => R): (R, Long) = {
-    val t0 = System.currentTimeMillis
-    val result = block
-    val t1 = System.currentTimeMillis
-    (result, t1 - t0)
-  }
 }
