@@ -71,13 +71,18 @@ object StratosphereExperiment {
     override protected def runJob() = {
       // try to get the experiment run plan
       val (plnExit, _) = Experiment.time(this !(s"info -e $command", s"$home/run.pln", s"$home/run.pln"))
+      state.plnExitCode = Some(plnExit)
       // try to execute the experiment run plan
       val (runExit, t) = Experiment.time(this !(s"run $command", s"$home/run.out", s"$home/run.err"))
-
-      // update run state
       state.runTime = t
       state.runExitCode = Some(runExit)
-      state.plnExitCode = Some(plnExit)
+    }
+
+    override def cancelJob() = {
+      val ids = (shell !! s"${exp.config.getString("system.stratosphere.path.home")}/bin/stratosphere list -r | tail -n +2 | head -n 1 | cut -d':' -f4 | tr -d ' '").split(Array('\n', ' '))
+      for (id <- ids) shell ! s"${exp.config.getString("system.stratosphere.path.home")}/bin/stratosphere cancel -i $id"
+      state.runTime = exp.config.getLong("experiment.timeout") * 1000
+      state.runExitCode = Some(-1)
     }
 
     private def !(command: String, outFile: String, errFile: String) = {

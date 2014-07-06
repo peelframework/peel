@@ -136,24 +136,15 @@
     * Fixtures
     *************************************************************************-->
 
-    <bean id="hac.enron.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+    <bean id="hac.enron.single-run" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.hac.enron">
-                    <constructor-arg name="name" value="hac.enron.local.dop02"/>
+                    <constructor-arg name="name" value="hac.enron.single-run"/>
+                    <constructor-arg name="runs" value="1"/>
                     <constructor-arg name="config">
                         <value>
-                            system.default.config.parallelism.per-node = 2
-                            system.stratosphere.config.yaml.parallelization.degree.default = 2
-                        </value>
-                    </constructor-arg>
-                </bean>
-                <bean parent="experiment.stratosphere.hac.enron">
-                    <constructor-arg name="name" value="hac.enron.local.dop04"/>
-                    <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 4
-                            system.stratosphere.config.yaml.parallelization.degree.default = 4
+                            experiment.timeout = 60
                         </value>
                     </constructor-arg>
                 </bean>
@@ -168,6 +159,7 @@
                     <constructor-arg name="name" value="hac.enron.dop64"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
@@ -177,6 +169,7 @@
                     <constructor-arg name="name" value="hac.enron.dop48"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 48
                         </value>
@@ -186,6 +179,7 @@
                     <constructor-arg name="name" value="hac.enron.dop32"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 32
                         </value>
@@ -195,6 +189,7 @@
                     <constructor-arg name="name" value="hac.enron.dop16"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 16
                         </value>
@@ -204,24 +199,17 @@
         </constructor-arg>
     </bean>
 
-    <bean id="hac.nips.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+    <bean id="hac.nips.single-run" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.hac.nips">
-                    <constructor-arg name="name" value="hac.nips.local.dop02"/>
+                    <constructor-arg name="name" value="hac.nips.single-run"/>
+                    <constructor-arg name="runs" value="1"/>
                     <constructor-arg name="config">
                         <value>
-                            system.default.config.parallelism.per-node = 2
-                            system.stratosphere.config.yaml.parallelization.degree.default = 2
-                        </value>
-                    </constructor-arg>
-                </bean>
-                <bean parent="experiment.stratosphere.hac.nips">
-                    <constructor-arg name="name" value="hac.nips.local.dop04"/>
-                    <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 4
-                            system.stratosphere.config.yaml.parallelization.degree.default = 4
+                            experiment.timeout = 60
+                            system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
+                            system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
                     </constructor-arg>
                 </bean>
@@ -236,6 +224,7 @@
                     <constructor-arg name="name" value="hac.nips.dop64"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
@@ -245,6 +234,7 @@
                     <constructor-arg name="name" value="hac.nips.dop48"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 48
                         </value>
@@ -254,6 +244,7 @@
                     <constructor-arg name="name" value="hac.nips.dop32"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 32
                         </value>
@@ -263,6 +254,7 @@
                     <constructor-arg name="name" value="hac.nips.dop16"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 16
                         </value>
@@ -272,24 +264,17 @@
         </constructor-arg>
     </bean>
 
-    <bean id="hac.nytimes.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+    <bean id="hac.nytimes.single-run" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.hac.nytimes">
-                    <constructor-arg name="name" value="hac.nytimes.local.dop02"/>
+                    <constructor-arg name="name" value="hac.nytimes.single-run"/>
+                    <constructor-arg name="runs" value="1"/>
                     <constructor-arg name="config">
                         <value>
-                            system.default.config.parallelism.per-node = 2
-                            system.stratosphere.config.yaml.parallelization.degree.default = 2
-                        </value>
-                    </constructor-arg>
-                </bean>
-                <bean parent="experiment.stratosphere.hac.nytimes">
-                    <constructor-arg name="name" value="hac.nytimes.local.dop04"/>
-                    <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 4
-                            system.stratosphere.config.yaml.parallelization.degree.default = 4
+                            experiment.timeout = 60
+                            system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
+                            system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
                     </constructor-arg>
                 </bean>
@@ -304,6 +289,7 @@
                     <constructor-arg name="name" value="hac.nytimes.dop64"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
@@ -313,6 +299,7 @@
                     <constructor-arg name="name" value="hac.nytimes.dop48"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 48
                         </value>
@@ -322,6 +309,7 @@
                     <constructor-arg name="name" value="hac.nytimes.dop32"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 32
                         </value>
@@ -331,6 +319,7 @@
                     <constructor-arg name="name" value="hac.nytimes.dop16"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 16
                         </value>
@@ -340,24 +329,17 @@
         </constructor-arg>
     </bean>
 
-    <bean id="hac.pubmed.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+    <bean id="hac.pubmed.single-run" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.hac.pubmed">
-                    <constructor-arg name="name" value="hac.pubmed.local.dop02"/>
+                    <constructor-arg name="name" value="hac.pubmed.single-run"/>
+                    <constructor-arg name="runs" value="1"/>
                     <constructor-arg name="config">
                         <value>
-                            system.default.config.parallelism.per-node = 2
-                            system.stratosphere.config.yaml.parallelization.degree.default = 2
-                        </value>
-                    </constructor-arg>
-                </bean>
-                <bean parent="experiment.stratosphere.hac.pubmed">
-                    <constructor-arg name="name" value="hac.pubmed.local.dop04"/>
-                    <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 4
-                            system.stratosphere.config.yaml.parallelization.degree.default = 4
+                            experiment.timeout = 60
+                            system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
+                            system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
                     </constructor-arg>
                 </bean>
@@ -372,6 +354,7 @@
                     <constructor-arg name="name" value="hac.pubmed.dop64"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
@@ -381,6 +364,7 @@
                     <constructor-arg name="name" value="hac.pubmed.dop48"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 48
                         </value>
@@ -390,6 +374,7 @@
                     <constructor-arg name="name" value="hac.pubmed.dop32"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 32
                         </value>
@@ -399,6 +384,7 @@
                     <constructor-arg name="name" value="hac.pubmed.dop16"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 16
                         </value>

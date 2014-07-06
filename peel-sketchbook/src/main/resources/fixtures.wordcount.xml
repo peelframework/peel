@@ -86,30 +86,10 @@
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.wc">
-                    <constructor-arg name="name" value="wc.local.dop02"/>
+                    <constructor-arg name="name" value="wc.local.single-run"/>
+                    <constructor-arg name="runs" value="1"/>
                     <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 2
-                            system.stratosphere.config.yaml.parallelization.degree.default = 2
-                        </value>
-                    </constructor-arg>
-                </bean>
-                <bean parent="experiment.stratosphere.wc">
-                    <constructor-arg name="name" value="wc.local.dop04"/>
-                    <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 4
-                            system.stratosphere.config.yaml.parallelization.degree.default = 4
-                        </value>
-                    </constructor-arg>
-                </bean>
-                <bean parent="experiment.stratosphere.wc">
-                    <constructor-arg name="name" value="wc.local.dop08"/>
-                    <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 8
-                            system.stratosphere.config.yaml.parallelization.degree.default = 8
-                        </value>
+                        <value></value>
                     </constructor-arg>
                 </bean>
             </list>
@@ -123,6 +103,7 @@
                     <constructor-arg name="name" value="wc.dop64"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
@@ -132,6 +113,7 @@
                     <constructor-arg name="name" value="wc.dop48"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 48
                         </value>
@@ -141,6 +123,7 @@
                     <constructor-arg name="name" value="wc.dop32"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 32
                         </value>
@@ -150,6 +133,7 @@
                     <constructor-arg name="name" value="wc.dop16"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 16
                         </value>

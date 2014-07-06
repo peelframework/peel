@@ -106,24 +106,15 @@
     * Fixtures
     *************************************************************************-->
 
-    <bean id="logreg.S.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+    <bean id="logreg.S.single-run" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.logreg.S">
-                    <constructor-arg name="name" value="logreg.S.local.dop02"/>
+                    <constructor-arg name="name" value="logreg.S.single-run"/>
+                    <constructor-arg name="runs" value="1"/>
                     <constructor-arg name="config">
                         <value>
-                            system.default.config.parallelism.per-node = 2
-                            system.stratosphere.config.yaml.parallelization.degree.default = 2
-                        </value>
-                    </constructor-arg>
-                </bean>
-                <bean parent="experiment.stratosphere.logreg.S">
-                    <constructor-arg name="name" value="logreg.S.local.dop04"/>
-                    <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 4
-                            system.stratosphere.config.yaml.parallelization.degree.default = 4
+                            experiment.timeout = 10800
                         </value>
                     </constructor-arg>
                 </bean>
@@ -138,6 +129,7 @@
                     <constructor-arg name="name" value="logreg.S.dop64"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 3600
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 64
                         </value>
@@ -147,6 +139,7 @@
                     <constructor-arg name="name" value="logreg.S.dop48"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 3600
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 48
                         </value>
@@ -156,6 +149,7 @@
                     <constructor-arg name="name" value="logreg.S.dop32"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 3600
                             system.default.config.slaves = [ "cloud-7", "cloud-8" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 32
                         </value>
@@ -165,6 +159,7 @@
                     <constructor-arg name="name" value="logreg.S.dop16"/>
                     <constructor-arg name="config">
                         <value>
+                            experiment.timeout = 3600
                             system.default.config.slaves = [ "cloud-7" ]
                             system.stratosphere.config.yaml.parallelization.degree.default = 16
                         </value>

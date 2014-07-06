@@ -136,21 +136,10 @@
         <constructor-arg name="experiments">
             <list>
                 <bean parent="experiment.stratosphere.wc">
-                    <constructor-arg name="name" value="wc.local.dop02"/>
+                    <constructor-arg name="name" value="wc.local.single-run"/>
+                    <constructor-arg name="runs" value="1"/>
                     <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 2
-                            system.stratosphere.config.yaml.parallelization.degree.default = 2
-                        </value>
-                    </constructor-arg>
-                </bean>
-                <bean parent="experiment.stratosphere.wc">
-                    <constructor-arg name="name" value="wc.local.dop04"/>
-                    <constructor-arg name="config">
-                        <value>
-                            system.default.config.parallelism.per-node = 4
-                            system.stratosphere.config.yaml.parallelization.degree.default = 4
-                        </value>
+                        <value></value>
                     </constructor-arg>
                 </bean>
             </list>
