@@ -56,8 +56,7 @@
 
     <!-- Experiment beans -->
     <bean id="experiment.stratosphere" class="eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment" abstract="true">
-        <constructor-arg name="runner" ref="stratosphere-0.5.1"/>
-        <!--constructor-arg name="runner" ref="stratosphere-0.6-SNAPSHOT"/-->
+        <constructor-arg name="runner" ref="stratosphere-0.6-SNAPSHOT"/>
         <constructor-arg name="runs" value="3"/>
     </bean>
 
@@ -69,8 +68,7 @@
     <!-- WordCount experiment -->
     <bean id="experiment.stratosphere.wc" parent="experiment.stratosphere" abstract="true">
         <constructor-arg name="command">
-            <value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.5.1-WordCount.jar ${system.hadoop.path.input}/hamlet.txt ${system.hadoop.path.output}/wc</value>
-            <!--value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.6-SNAPSHOT-WordCount.jar ${system.hadoop.path.input}/hamlet.txt ${system.hadoop.path.output}/wc</value-->
+            <value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.6-SNAPSHOT-WordCount.jar ${system.hadoop.path.input}/hamlet.txt ${system.hadoop.path.output}/wc</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="dataset.shakespeare"/>

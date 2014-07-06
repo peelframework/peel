@@ -18,6 +18,19 @@
     * Custom Systems
     *************************************************************************-->
 
+    <!-- Use lifespan "PROVIDED" if you want to start the systems manually   -->
+    <!-- Use lifespan "SUITE" if you want PEEL to deploy to start them       -->
+
+    <!-- Hadoop Distributed File System (overriden 'hdfs' bean) -->
+    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+        <constructor-arg name="version" value="1.2.1"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            </set>
+        </constructor-arg>
+    </bean>
+
     <!-- Stratosphere (overriden 'stratosphere' bean that depends on HDFS) -->
     <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system" abstract="true">
         <constructor-arg name="lifespan" value="SUITE"/>
