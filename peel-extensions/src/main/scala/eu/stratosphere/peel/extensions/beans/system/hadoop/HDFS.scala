@@ -1,7 +1,5 @@
 package eu.stratosphere.peel.extensions.beans.system.hadoop
 
-import java.nio.file.{Files, Paths}
-
 import com.samskivert.mustache.Mustache
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
 import eu.stratosphere.peel.core.beans.system.{FileSystem, SetUpTimeoutException, System}
@@ -81,6 +79,10 @@ class HDFS(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(
     shell ! s"${config.getString("system.hadoop.path.home")}/bin/stop-dfs.sh"
     if (config.getBoolean("system.hadoop.format")) format()
     isUp = false
+  }
+
+  def isRunning = {
+    (shell ! s""" ps -ef | grep 'hadoop' | grep 'java' | grep 'namenode' | grep -v 'grep' """) == 0 // TODO: fix using PID
   }
 
   // ---------------------------------------------------

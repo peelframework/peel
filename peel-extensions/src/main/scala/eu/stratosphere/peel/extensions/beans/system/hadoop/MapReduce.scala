@@ -67,4 +67,8 @@ class MapReduce(version: String, lifespan: Lifespan, dependencies: Set[System] =
     shell ! s"${config.getString("system.hadoop.path.home")}/bin/stop-mapred.sh"
     isUp = false
   }
+
+  def isRunning = {
+    (shell ! s"""ps -ef | grep 'hadoop' | grep 'java' | grep 'jobtracker' | grep -v 'grep' """) == 0 // TODO: fix using PID
+  }
 }

@@ -33,7 +33,9 @@ object shell {
 
   def rmDir(path: String) = this ! s"rm -r $path"
 
-  def untar(src: String, dst: String) = if (this ! s"tar -xzf $src -C $dst" != 0) throw new RuntimeException(s"Could not extract '$src' to '$dst'")
+  def extract(src: String, dst: String) = {
+    if (this ! s"tar -xzf $src -C $dst" != 0) throw new RuntimeException(s"Could not extract '$src' to '$dst'")
+  }
 
   private def processLogger() = new OutputStreamProcessLogger(
     new File("%s/shell.out".format(System.getProperty("app.path.log", "/tmp"))),

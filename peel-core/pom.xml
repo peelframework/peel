@@ -67,6 +67,12 @@
             <artifactId>argparse4j</artifactId>
         </dependency>
 
+        <!-- Reflections -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>org.scalatest</groupId>

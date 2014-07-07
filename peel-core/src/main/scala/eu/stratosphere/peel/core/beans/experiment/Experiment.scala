@@ -27,10 +27,11 @@ abstract class Experiment[+R <: System](val command: String,
   /**
    * Experiment run factory method.
    *
-   * @param id The `id` for the constructed experiment run.
+   * @param id The `id` for the constructed experiment run
+   * @param force Force execution of this run
    * @return An run for this experiment identified by the given `id`
    */
-  def run(id: Int): Experiment.Run[R]
+  def run(id: Int, force: Boolean): Experiment.Run[R]
 
   /**
    * Alias of name.
@@ -48,8 +49,9 @@ object Experiment {
 
     val id: Int
     val exp: Experiment[R]
+    val force: Boolean
 
-    val home = f"${exp.config.getString("app.path.results")}/${exp.config.getString("app.suite")}/${exp.name}.run$id%02d"
+    val home = f"${exp.config.getString("app.path.results")}/${exp.config.getString("app.suite.name")}/${exp.name}.run$id%02d"
     val name = f"${exp.name}.run$id%02d"
 
     // ensure experiment folder structure in the constructor
@@ -85,7 +87,7 @@ object Experiment {
     var state = loadState()
 
     override def execute() = {
-      if (isSuccessful) {
+      if (!force && isSuccessful) {
         logger.info("Skipping successfully finished experiment run %s".format(name))
       } else {
         logger.info("Running experiment %s".format(name))

@@ -62,4 +62,8 @@ class Stratosphere(version: String, lifespan: Lifespan, dependencies: Set[System
     shell ! s"${config.getString("system.stratosphere.path.home")}/bin/stop-webclient.sh"
     isUp = false
   }
+
+  def isRunning = {
+    (shell ! s"""ps -ef | grep 'stratosphere' | grep 'java' | grep 'jobmanager' | grep -v 'grep' """) == 0 // TODO: fix using PID
+  }
 }

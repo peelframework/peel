@@ -22,7 +22,7 @@ class StratosphereExperiment(command: String,
 
   def this(runs: Int, runner: Stratosphere, inputs: Set[DataSet], output: ExperimentOutput, command: String, name: String, config: Config) = this(command, runner, runs, inputs, Set(output), name, config)
 
-  override def run(id: Int): Experiment.Run[Stratosphere] = new StratosphereExperiment.SingleJobRun(id, this)
+  override def run(id: Int, force: Boolean): Experiment.Run[Stratosphere] = new StratosphereExperiment.SingleJobRun(id, this, force)
 }
 
 object StratosphereExperiment {
@@ -40,7 +40,7 @@ object StratosphereExperiment {
   /**
    * A private inner class encapsulating the logic of single run.
    */
-  class SingleJobRun(val id: Int, val exp: StratosphereExperiment) extends Experiment.SingleJobRun[Stratosphere, State] {
+  class SingleJobRun(val id: Int, val exp: StratosphereExperiment, val force: Boolean) extends Experiment.SingleJobRun[Stratosphere, State] {
 
     import eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment.StateProtocol._
 
