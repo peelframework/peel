@@ -37,6 +37,15 @@
         </constructor-arg>
     </bean>
 
+    <!-- Spark -->
+    <bean id="spark" class="eu.stratosphere.peel.extensions.beans.system.spark.Spark" parent="system">
+        <constructor-arg name="version" value="1.0"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System"/>
+        </constructor-arg>
+    </bean>
+
     <!--************************************************************************
     * Data Sets and Experiment Outputs
     *************************************************************************-->
