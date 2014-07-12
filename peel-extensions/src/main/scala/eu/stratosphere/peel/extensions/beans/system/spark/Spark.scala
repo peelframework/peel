@@ -29,7 +29,7 @@ class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
     while (!isUp) {
       try {
         val totl = config.getStringList("system.spark.config.slaves").size()
-        val init = 0 // Stratosphere resets the job manager log on startup
+        val init = 0 // Spark resets the job manager log on startup
 
         shell ! s"${config.getString("system.spark.path.home")}/sbin/start-all.sh"
         logger.info(s"Waiting for nodes to connect")
@@ -47,7 +47,6 @@ class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
           if (cntr < 0) throw new SetUpTimeoutException(s"Cannot start system '$toString'; node connection timeout at system ")
         }
         isUp = true
-        Thread.sleep(100000)
       } catch {
         case e: SetUpTimeoutException =>
           failedStartUpAttempts = failedStartUpAttempts + 1

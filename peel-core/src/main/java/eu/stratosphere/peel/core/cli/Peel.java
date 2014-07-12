@@ -114,7 +114,7 @@ public class Peel {
                 .defaultHelp(true)
                 .description("A toolkit for execution of system experiments.");
         parser.addSubparsers()
-                .help("a commands:")
+                .help("a command to run")
                 .dest("app.command")
                 .metavar("COMMAND");
 
