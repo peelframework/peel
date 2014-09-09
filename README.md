@@ -15,7 +15,7 @@ It enables the conduction of fully automated and higly configurable experiments 
 Peel automatically sets up the systems that you specify while taking care of dependency-relations. If you want to change parameters between experiments in your suite, peel updates the corresponsing systems and their dependants automatically. All you need to do is specify your experiments and let peel do the rest!
 
 *Supported Systems*
-- Stratosphere 0.5.1 & 0.6
+- Flink 0.5.1 & 0.6
 - Hadoop 1.2.1 (HDFS and MapReduce)
 - Spark 1.1.0
 
