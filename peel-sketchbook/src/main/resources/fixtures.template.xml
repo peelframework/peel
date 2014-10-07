@@ -22,7 +22,7 @@
     <!-- Use lifespan "SUITE" if you want PEEL to deploy to start them       -->
 
     <!-- Hadoop Distributed File System (overriden 'hdfs' bean) -->
-    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+    <bean id="hdfs-1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS1" parent="system">
         <constructor-arg name="version" value="1.2.1"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
@@ -31,12 +31,12 @@
         </constructor-arg>
     </bean>
 
-    <!-- Stratosphere (overriden 'stratosphere' bean that depends on HDFS) -->
-    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system" abstract="true">
+    <!-- Stratosphere (overriden 'stratosphere' bean that depends on HDFS1) -->
+    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.stratosphere.beans.system.Stratosphere" parent="system" abstract="true">
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-                <ref bean="hdfs"/>
+                <ref bean="hdfs-1"/>
             </set>
         </constructor-arg>
     </bean>
@@ -57,45 +57,45 @@
     *************************************************************************-->
 
     <!-- Gutenberg -->
-    <bean id="dataset.shakespeare" parent="dataset.static.hdfs">
+    <bean id="dataset.shakespeare" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/hamlet.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/hamlet.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/hamlet.txt"/>
     </bean>
 
     <!-- Higgs: https://archive.ics.uci.edu/ml/datasets/HIGGS -->
-    <bean id="dataset.higgs.S" parent="dataset.static.hdfs">
+    <bean id="dataset.higgs.S" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/higgs.S.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.S.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/higgs.S.txt"/>
     </bean>
-    <bean id="dataset.higgs.M" parent="dataset.static.hdfs">
+    <bean id="dataset.higgs.M" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/higgs.M.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.M.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/higgs.M.txt"/>
     </bean>
-    <bean id="dataset.higgs.L" parent="dataset.static.hdfs">
+    <bean id="dataset.higgs.L" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/higgs.L.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.L.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/higgs.L.txt"/>
     </bean>
-    <bean id="dataset.higgs.XL" parent="dataset.static.hdfs">
+    <bean id="dataset.higgs.XL" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/higgs.XL.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/higgs.XL.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/higgs.XL.txt"/>
     </bean>
 
     <!-- Docword: https://archive.ics.uci.edu/ml/datasets/Bag+of+Words -->
-    <bean id="docword.enron" parent="dataset.static.hdfs">
+    <bean id="docword.enron" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.enron.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.enron.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.enron.txt"/>
     </bean>
-    <bean id="docword.nips" parent="dataset.static.hdfs">
+    <bean id="docword.nips" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.nips.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.nips.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.nips.txt"/>
     </bean>
-    <bean id="docword.nytimes" parent="dataset.static.hdfs">
+    <bean id="docword.nytimes" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.nytimes.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.nytimes.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.nytimes.txt"/>
     </bean>
-    <bean id="docword.pubmed" parent="dataset.static.hdfs">
+    <bean id="docword.pubmed" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.pubmed.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.pubmed.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.pubmed.txt"/>
     </bean>
 
     <!--************************************************************************
@@ -103,22 +103,22 @@
     *************************************************************************-->
 
     <!-- Experiment beans -->
-    <bean id="experiment.stratosphere" class="eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment" abstract="true">
+    <bean id="experiment.stratosphere" class="eu.stratosphere.peel.extensions.stratosphere.beans.experiment.StratosphereExperiment" abstract="true">
         <!--constructor-arg name="runner" ref="stratosphere-0.5.1"/-->
         <constructor-arg name="runner" ref="stratosphere-0.6-SNAPSHOT"/>
         <constructor-arg name="runs" value="7"/>
     </bean>
 
     <!-- WordCount output -->
-    <bean id="experiment.stratosphere.wc.output" parent="experiment.output.hdfs">
-        <constructor-arg name="path" value="${system.hadoop.path.output}/wc"/>
+    <bean id="experiment.stratosphere.wc.output" parent="experiment.output.hdfs-1">
+        <constructor-arg name="path" value="${system.hadoop-1.path.output}/wc"/>
     </bean>
 
     <!-- WordCount experiment -->
     <bean id="experiment.stratosphere.wc" parent="experiment.stratosphere" abstract="true">
         <constructor-arg name="command">
-            <value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.5.1-WordCount.jar ${system.hadoop.path.input}/hamlet.txt ${system.hadoop.path.output}/wc</value>
-            <!--value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.6-SNAPSHOT-WordCount.jar ${system.hadoop.path.input}/hamlet.txt ${system.hadoop.path.output}/wc</value-->
+            <value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.5.1-WordCount.jar ${system.hadoop-1.path.input}/hamlet.txt ${system.hadoop-1.path.output}/wc</value>
+            <!--value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.6-SNAPSHOT-WordCount.jar ${system.hadoop-1.path.input}/hamlet.txt ${system.hadoop-1.path.output}/wc</value-->
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="dataset.shakespeare"/>

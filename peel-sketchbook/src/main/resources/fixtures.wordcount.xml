@@ -10,8 +10,8 @@
     <!-- Use lifespan "PROVIDED" if you want to start the systems manually   -->
     <!-- Use lifespan "SUITE" if you want PEEL to deploy to start them       -->
 
-    <!-- Hadoop Distributed File System (overridden 'hdfs' bean) -->
-    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+    <!-- Hadoop Distributed File System (overridden 'hdfs-1' bean) -->
+    <bean id="hdfs-1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS1" parent="system">
         <constructor-arg name="version" value="1.2.1"/>
         <constructor-arg name="lifespan" value="PROVIDED"/>
         <constructor-arg name="dependencies">
@@ -20,32 +20,37 @@
         </constructor-arg>
     </bean>
 
-    <!-- Stratosphere (overridden 'stratosphere' bean that depends on HDFS) -->
-    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system" abstract="true">
+    <!-- Hadoop Distributed File System (overridden 'hdfs-2' bean) -->
+    <bean id="hdfs-2" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS2" parent="system">
+        <constructor-arg name="version" value="2.4.1"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-                <ref bean="hdfs"/>
             </set>
         </constructor-arg>
     </bean>
 
-    <!-- Stratosphere (version 0.5.1) -->
-    <bean id="stratosphere-0.5.1" parent="stratosphere">
-        <constructor-arg name="version" value="0.5.1"/>
-    </bean>
-
-    <!-- Stratosphere (version 0.6-SNAPSHOT) -->
-    <bean id="stratosphere-0.6-SNAPSHOT" parent="stratosphere">
-        <constructor-arg name="version" value="0.6-SNAPSHOT"/>
-    </bean>
-
-    <!-- Spark (overriden spark bean that depends on hdfs -->
-    <bean id="spark" class="eu.stratosphere.peel.extensions.beans.system.spark.Spark" parent="system" abstract="true">
+    <!-- Flink (overridden 'flink' bean that depends on HDFS1) -->
+    <bean id="flink" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system" abstract="true">
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-                <ref bean="hdfs"/>
+                <ref bean="hdfs-2"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Flink (version 0.5.1) -->
+    <bean id="flink-0.6.1" parent="flink">
+        <constructor-arg name="version" value="0.6.1"/>
+    </bean>
+
+    <!-- Spark (overridden spark bean that depends on hdfs -->
+    <bean id="spark" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system" abstract="true">
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+                <ref bean="hdfs-2"/>
             </set>
         </constructor-arg>
     </bean>
@@ -60,9 +65,9 @@
     *************************************************************************-->
 
     <!-- Gutenberg -->
-    <bean id="dataset.shakespeare" parent="dataset.static.hdfs">
+    <bean id="dataset.shakespeare" parent="dataset.static.hdfs-2">
         <constructor-arg name="src" value="${app.path.datasets}/hamlet.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/hamlet.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/hamlet.txt"/>
     </bean>
 
     <!--************************************************************************
@@ -70,25 +75,24 @@
     *************************************************************************-->
 
     <!-- Experiment beans -->
-    <bean id="experiment.stratosphere" class="eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment" abstract="true">
-        <constructor-arg name="runner" ref="stratosphere-0.6-SNAPSHOT"/>
+    <bean id="experiment.flink" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperiment" abstract="true">
+        <constructor-arg name="runner" ref="flink-0.6.1"/>
         <constructor-arg name="runs" value="3"/>
     </bean>
 
-    <bean id="experiment.spark" class="eu.stratosphere.peel.extensions.beans.system.experiment.SparkExperiment" abstract="true">
+    <bean id="experiment.spark" class="eu.stratosphere.peel.extensions.spark.beans.experiment.SparkExperiment" abstract="true">
         <constructor-arg name="runner" ref="spark-1.0"/>
         <constructor-arg name="runs" value="3"/>
     </bean>
 
     <!-- WordCount output -->
-    <bean id="experiment.output.hdfs.wc" parent="experiment.output.hdfs">
-        <constructor-arg name="path" value="${system.hadoop.path.output}/wc"/>
+    <bean id="experiment.output.hdfs.wc" parent="experiment.output.hdfs-2">
+        <constructor-arg name="path" value="${system.hadoop-2.path.output}/wc"/>
     </bean>
 
-    <!-- WordCount experiment -->
-    <bean id="experiment.stratosphere.wc" parent="experiment.stratosphere" abstract="true">
+    <bean id="experiment.flink.wc" parent="experiment.flink" abstract="true">
         <constructor-arg name="command">
-            <value>${system.stratosphere.path.home}/examples/stratosphere-java-examples-0.6-SNAPSHOT-WordCount.jar ${system.hadoop.path.input}/hamlet.txt ${system.hadoop.path.output}/wc</value>
+            <value>${system.flink.path.home}/examples/flink-java-examples-0.6-incubating-WordCount.jar ${system.hadoop-2.path.input}/hamlet.txt ${system.hadoop-2.path.output}/wc</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="dataset.shakespeare"/>
@@ -101,7 +105,7 @@
     <bean id="experiment.spark.wc" parent="experiment.spark" abstract="true">
         <constructor-arg name="command">
             <!-- spark command that is used: spark-submit -->
-            <value> --class org.apache.spark.examples.JavaWordCount ${system.spark.path.home}/lib/spark-examples-1.0.0-hadoop1.0.4.jar ${system.hadoop.path.input}/hamlet.txt ${system.hadoop.path.output}/wc</value>
+            <value>--class org.apache.spark.examples.JavaWordCount ${system.spark.path.home}/lib/spark-examples-1.0.0-hadoop1.0.4.jar ${system.hadoop-2.path.input}/hamlet.txt ${system.hadoop-2.path.output}/wc</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="dataset.shakespeare"/>
@@ -115,10 +119,10 @@
     * Fixtures
     *************************************************************************-->
 
-    <bean id="wc.stratosphere.default" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+    <bean id="wc.flink.default" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
             <list>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.single-run"/>
                     <constructor-arg name="runs" value="1"/>
                     <constructor-arg name="config">
@@ -129,46 +133,46 @@
         </constructor-arg>
     </bean>
 
-    <bean id="wc.stratosphere.cloud-7" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+    <bean id="wc.flink.cloud-7" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
             <list>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.dop64"/>
                     <constructor-arg name="config">
                         <value>
                             experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
-                            system.stratosphere.config.yaml.parallelization.degree.default = 64
+                            system.flink.config.yaml.parallelization.degree.default = 64
                         </value>
                     </constructor-arg>
                 </bean>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.dop48"/>
                     <constructor-arg name="config">
                         <value>
                             experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
-                            system.stratosphere.config.yaml.parallelization.degree.default = 48
+                            system.flink.config.yaml.parallelization.degree.default = 48
                         </value>
                     </constructor-arg>
                 </bean>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.dop32"/>
                     <constructor-arg name="config">
                         <value>
                             experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-9", "cloud-10" ]
-                            system.stratosphere.config.yaml.parallelization.degree.default = 32
+                            system.flink.config.yaml.parallelization.degree.default = 32
                         </value>
                     </constructor-arg>
                 </bean>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.dop16"/>
                     <constructor-arg name="config">
                         <value>
                             experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-10" ]
-                            system.stratosphere.config.yaml.parallelization.degree.default = 16
+                            system.flink.config.yaml.parallelization.degree.default = 16
                         </value>
                     </constructor-arg>
                 </bean>
@@ -193,43 +197,43 @@
     <bean id="wc.spark.cloud-7" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
             <list>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.dop64"/>
                     <constructor-arg name="config">
                         <value>
                             experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-7", "cloud-8", "cloud-9", "cloud-10" ]
-                            system.stratosphere.config.yaml.parallelization.degree.default = 64
+                            system.flink.config.yaml.parallelization.degree.default = 64
                         </value>
                     </constructor-arg>
                 </bean>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.dop48"/>
                     <constructor-arg name="config">
                         <value>
                             experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-8", "cloud-9", "cloud-10" ]
-                            system.stratosphere.config.yaml.parallelization.degree.default = 48
+                            system.flink.config.yaml.parallelization.degree.default = 48
                         </value>
                     </constructor-arg>
                 </bean>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.dop32"/>
                     <constructor-arg name="config">
                         <value>
                             experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-9", "cloud-10" ]
-                            system.stratosphere.config.yaml.parallelization.degree.default = 32
+                            system.flink.config.yaml.parallelization.degree.default = 32
                         </value>
                     </constructor-arg>
                 </bean>
-                <bean parent="experiment.stratosphere.wc">
+                <bean parent="experiment.flink.wc">
                     <constructor-arg name="name" value="wc.dop16"/>
                     <constructor-arg name="config">
                         <value>
                             experiment.timeout = 60
                             system.default.config.slaves = [ "cloud-10" ]
-                            system.stratosphere.config.yaml.parallelization.degree.default = 16
+                            system.flink.config.yaml.parallelization.degree.default = 16
                         </value>
                     </constructor-arg>
                 </bean>

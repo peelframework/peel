@@ -22,6 +22,7 @@ package object config {
 
     // options for configuration parsing
     val options = ConfigParseOptions.defaults().setClassLoader(this.getClass.getClassLoader)
+
     // helper function: append resource to current config
     def loadResource(name: String) = {
       if (Option(this.getClass.getResource(s"/$name")).isDefined) {
@@ -62,7 +63,7 @@ package object config {
     config = exp.config.withFallback(config)
 
     // load system properties
-    logger.info(s"Loading system properties as configation")
+    logger.info(s"Loading system properties as configuration")
     config = ConfigFactory.systemProperties.withFallback(config)
 
     // resolve and return config

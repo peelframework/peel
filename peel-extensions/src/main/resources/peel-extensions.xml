@@ -8,7 +8,7 @@
     *************************************************************************-->
 
     <!-- Hadoop Distributed File System -->
-    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+    <bean id="hdfs-1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS1" parent="system">
         <constructor-arg name="version" value="1.2.1"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
@@ -17,19 +17,29 @@
         </constructor-arg>
     </bean>
 
-    <!-- Hadoop MapReduce -->
-    <bean id="mapreduce" class="eu.stratosphere.peel.extensions.beans.system.hadoop.MapReduce" parent="system">
+    <!-- Hadoop Distributed File System -->
+    <bean id="hdfs-2" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS2" parent="system">
+        <constructor-arg name="version" value="2.4.1"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Hadoop MapReduce1 -->
+    <bean id="mapred-1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.MapReduce1" parent="system">
         <constructor-arg name="version" value="1.2.1"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-                <ref bean="hdfs"/>
+                <ref bean="hdfs-1"/>
             </set>
         </constructor-arg>
     </bean>
 
     <!-- Stratosphere -->
-    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system">
+    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.stratosphere.beans.system.Stratosphere" parent="system">
         <constructor-arg name="version" value="0.5.1"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
@@ -37,8 +47,17 @@
         </constructor-arg>
     </bean>
 
+    <!-- Flink -->
+    <bean id="flink" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
+        <constructor-arg name="version" value="0.6"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System"/>
+        </constructor-arg>
+    </bean>
+
     <!-- Spark -->
-    <bean id="spark" class="eu.stratosphere.peel.extensions.beans.system.spark.Spark" parent="system">
+    <bean id="spark" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system">
         <constructor-arg name="version" value="1.0"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
@@ -50,14 +69,24 @@
     * Data Sets and Experiment Outputs
     *************************************************************************-->
 
-    <!-- HDFS data sets copied from a local file system -->
-    <bean id="dataset.static.hdfs" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet" abstract="true">
-        <constructor-arg name="fs" ref="hdfs"/>
+    <!-- HDFS1 data sets copied from a local file system -->
+    <bean id="dataset.static.hdfs-1" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet" abstract="true">
+        <constructor-arg name="fs" ref="hdfs-1"/>
     </bean>
 
-    <!-- Experiment output written in the HDFS -->
-    <bean id="experiment.output.hdfs" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput" abstract="true">
-        <constructor-arg name="fs" ref="hdfs"/>
+    <!-- HDFS2 data sets copied from a local file system -->
+    <bean id="dataset.static.hdfs-2" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet" abstract="true">
+        <constructor-arg name="fs" ref="hdfs-2"/>
+    </bean>
+
+    <!-- Experiment output written in the HDFS1 -->
+    <bean id="experiment.output.hdfs-1" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput" abstract="true">
+        <constructor-arg name="fs" ref="hdfs-1"/>
+    </bean>
+
+    <!-- Experiment output written in the HDFS2 -->
+    <bean id="experiment.output.hdfs-2" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput" abstract="true">
+        <constructor-arg name="fs" ref="hdfs-2"/>
     </bean>
 
 </beans>

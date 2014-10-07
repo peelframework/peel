@@ -22,7 +22,7 @@
     <!-- Use lifespan "SUITE" if you want PEEL to deploy to start them       -->
 
     <!-- Hadoop Distributed File System (overriden 'hdfs' bean) -->
-    <bean id="hdfs" class="eu.stratosphere.peel.extensions.beans.system.hadoop.HDFS" parent="system">
+    <bean id="hdfs-1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS1" parent="system">
         <constructor-arg name="version" value="1.2.1"/>
         <constructor-arg name="lifespan" value="PROVIDED"/>
         <constructor-arg name="dependencies">
@@ -31,12 +31,12 @@
         </constructor-arg>
     </bean>
 
-    <!-- Stratosphere (overriden 'stratosphere' bean that depends on HDFS) -->
-    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.beans.system.stratosphere.Stratosphere" parent="system" abstract="true">
+    <!-- Stratosphere (overriden 'stratosphere' bean that depends on HDFS1) -->
+    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.stratosphere.beans.system.Stratosphere" parent="system" abstract="true">
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-                <ref bean="hdfs"/>
+                <ref bean="hdfs-1"/>
             </set>
         </constructor-arg>
     </bean>
@@ -52,11 +52,11 @@
     </bean>
 
     <!-- Spark (overriden spark bean that depends on hdfs -->
-    <bean id="spark" class="eu.stratosphere.peel.extensions.beans.system.spark.Spark" parent="system" abstract="true">
+    <bean id="spark" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system" abstract="true">
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-                <ref bean="hdfs"/>
+                <ref bean="hdfs-1"/>
             </set>
         </constructor-arg>
     </bean>
@@ -71,21 +71,21 @@
     *************************************************************************-->
 
     <!-- Docword: https://archive.ics.uci.edu/ml/datasets/Bag+of+Words -->
-    <bean id="docword.enron" parent="dataset.static.hdfs">
+    <bean id="docword.enron" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.enron.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.enron.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.enron.txt"/>
     </bean>
-    <bean id="docword.nips" parent="dataset.static.hdfs">
+    <bean id="docword.nips" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.nips.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.nips.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.nips.txt"/>
     </bean>
-    <bean id="docword.nytimes" parent="dataset.static.hdfs">
+    <bean id="docword.nytimes" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.nytimes.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.nytimes.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.nytimes.txt"/>
     </bean>
-    <bean id="docword.pubmed" parent="dataset.static.hdfs">
+    <bean id="docword.pubmed" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.pubmed.txt.gz"/>
-        <constructor-arg name="dst" value="${system.hadoop.path.input}/docword.pubmed.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.pubmed.txt"/>
     </bean>
 
     <!--************************************************************************
@@ -93,19 +93,19 @@
     *************************************************************************-->
 
     <!-- kmeanspp output -->
-    <bean id="experiment.stratosphere.kmeanspp.output" parent="experiment.output.hdfs">
-        <constructor-arg name="path" value="${system.hadoop.path.output}/kmeanspp"/>
+    <bean id="experiment.stratosphere.kmeanspp.output" parent="experiment.output.hdfs-1">
+        <constructor-arg name="path" value="${system.hadoop-1.path.output}/kmeanspp"/>
     </bean>
 
     <!-- Experiment beans -->
-    <bean id="experiment.stratosphere.kmeanspp" class="eu.stratosphere.peel.extensions.beans.system.experiment.StratosphereExperiment" abstract="true">
+    <bean id="experiment.stratosphere.kmeanspp" class="eu.stratosphere.peel.extensions.stratosphere.beans.experiment.StratosphereExperiment" abstract="true">
         <constructor-arg name="runner" ref="stratosphere-0.6-SNAPSHOT"/>
         <constructor-arg name="runs" value="4"/>
         <constructor-arg name="output">
             <ref bean="experiment.stratosphere.kmeanspp.output"/>
         </constructor-arg>
     </bean>
-    <bean id="experiment.spark.kmeanspp" class="eu.stratosphere.peel.extensions.beans.system.experiment.SparkExperiment" abstract="true">
+    <bean id="experiment.spark.kmeanspp" class="eu.stratosphere.peel.extensions.spark.beans.experiment.SparkExperiment" abstract="true">
         <constructor-arg name="runner" ref="spark-1.0"/>
         <constructor-arg name="runs" value="3"/>
         <constructor-arg name="output">
@@ -116,7 +116,7 @@
     <!-- kmeanspp experiment (enron dataset) -->
     <bean id="experiment.stratosphere.kmeanspp.enron" parent="experiment.stratosphere.kmeanspp" abstract="true">
         <constructor-arg name="command">
-            <value>${app.path.jobs}/impro3-ss14-stratosphere-1.0-SNAPSHOT-kmeanspp.jar ${system.hadoop.path.input}/docword.enron.txt ${system.hadoop.path.output}/kmeanspp 4 10</value>
+            <value>${app.path.jobs}/impro3-ss14-stratosphere-1.0-SNAPSHOT-kmeanspp.jar ${system.hadoop-1.path.input}/docword.enron.txt ${system.hadoop-1.path.output}/kmeanspp 4 10</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="docword.enron"/>
@@ -124,7 +124,7 @@
     </bean>
     <bean id="experiment.spark.kmeanspp.enron" parent="experiment.spark.kmeanspp" abstract="true">
         <constructor-arg name="command">
-            <value>--class de.tu_berlin.impro3.spark.App ${app.path.jobs}/impro3-ss14-spark-1.0-SNAPSHOT.jar kmeanspp -k4 -i10 ${system.hadoop.path.input}/docword.enron.txt ${system.hadoop.path.output}/kmeanspp</value>
+            <value>--class de.tu_berlin.impro3.spark.App ${app.path.jobs}/impro3-ss14-spark-1.0-SNAPSHOT.jar kmeanspp -k4 -i10 ${system.hadoop-1.path.input}/docword.enron.txt ${system.hadoop-1.path.output}/kmeanspp</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="docword.enron"/>
@@ -134,7 +134,7 @@
     <!-- kmeanspp experiment (nips dataset) -->
     <bean id="experiment.stratosphere.kmeanspp.nips" parent="experiment.stratosphere.kmeanspp" abstract="true">
         <constructor-arg name="command">
-            <value>${app.path.jobs}/impro3-ss14-stratosphere-1.0-SNAPSHOT-kmeanspp.jar ${system.hadoop.path.input}/docword.nips.txt ${system.hadoop.path.output}/kmeanspp 4 10</value>
+            <value>${app.path.jobs}/impro3-ss14-stratosphere-1.0-SNAPSHOT-kmeanspp.jar ${system.hadoop-1.path.input}/docword.nips.txt ${system.hadoop-1.path.output}/kmeanspp 4 10</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="docword.nips"/>
@@ -142,7 +142,7 @@
     </bean>
     <bean id="experiment.spark.kmeanspp.nips" parent="experiment.spark.kmeanspp" abstract="true">
         <constructor-arg name="command">
-            <value>--class de.tu_berlin.impro3.spark.App ${app.path.jobs}/impro3-ss14-spark-1.0-SNAPSHOT.jar kmeanspp -k4 -i10 ${system.hadoop.path.input}/docword.nips.txt ${system.hadoop.path.output}/kmeanspp</value>
+            <value>--class de.tu_berlin.impro3.spark.App ${app.path.jobs}/impro3-ss14-spark-1.0-SNAPSHOT.jar kmeanspp -k4 -i10 ${system.hadoop-1.path.input}/docword.nips.txt ${system.hadoop-1.path.output}/kmeanspp</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="docword.nips"/>
@@ -152,7 +152,7 @@
     <!-- kmeanspp experiment (nytimes dataset) -->
     <bean id="experiment.stratosphere.kmeanspp.nytimes" parent="experiment.stratosphere.kmeanspp" abstract="true">
         <constructor-arg name="command">
-            <value>${app.path.jobs}/impro3-ss14-stratosphere-1.0-SNAPSHOT-kmeanspp.jar ${system.hadoop.path.input}/docword.nytimes.txt ${system.hadoop.path.output}/kmeanspp 4 10</value>
+            <value>${app.path.jobs}/impro3-ss14-stratosphere-1.0-SNAPSHOT-kmeanspp.jar ${system.hadoop-1.path.input}/docword.nytimes.txt ${system.hadoop-1.path.output}/kmeanspp 4 10</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="docword.nytimes"/>
@@ -160,7 +160,7 @@
     </bean>
     <bean id="experiment.spark.kmeanspp.nytimes" parent="experiment.spark.kmeanspp" abstract="true">
         <constructor-arg name="command">
-            <value>--class de.tu_berlin.impro3.spark.App ${app.path.jobs}/impro3-ss14-spark-1.0-SNAPSHOT.jar kmeanspp -k4 -i10 ${system.hadoop.path.input}/docword.nytimes.txt ${system.hadoop.path.output}/kmeanspp</value>
+            <value>--class de.tu_berlin.impro3.spark.App ${app.path.jobs}/impro3-ss14-spark-1.0-SNAPSHOT.jar kmeanspp -k4 -i10 ${system.hadoop-1.path.input}/docword.nytimes.txt ${system.hadoop-1.path.output}/kmeanspp</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="docword.nytimes"/>
@@ -170,7 +170,7 @@
     <!-- kmeanspp experiment (pubmed dataset) -->
     <bean id="experiment.stratosphere.kmeanspp.pubmed" parent="experiment.stratosphere.kmeanspp" abstract="true">
         <constructor-arg name="command">
-            <value>${app.path.jobs}/impro3-ss14-stratosphere-1.0-SNAPSHOT-kmeanspp.jar ${system.hadoop.path.input}/docword.pubmed.txt ${system.hadoop.path.output}/kmeanspp 4 10</value>
+            <value>${app.path.jobs}/impro3-ss14-stratosphere-1.0-SNAPSHOT-kmeanspp.jar ${system.hadoop-1.path.input}/docword.pubmed.txt ${system.hadoop-1.path.output}/kmeanspp 4 10</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="docword.pubmed"/>
@@ -178,7 +178,7 @@
     </bean>
     <bean id="experiment.spark.kmeanspp.pubmed" parent="experiment.spark.kmeanspp" abstract="true">
         <constructor-arg name="command">
-            <value>--class de.tu_berlin.impro3.spark.App ${app.path.jobs}/impro3-ss14-spark-1.0-SNAPSHOT.jar kmeanspp -k4 -i10 ${system.hadoop.path.input}/docword.pubmed.txt ${system.hadoop.path.output}/kmeanspp</value>
+            <value>--class de.tu_berlin.impro3.spark.App ${app.path.jobs}/impro3-ss14-spark-1.0-SNAPSHOT.jar kmeanspp -k4 -i10 ${system.hadoop-1.path.input}/docword.pubmed.txt ${system.hadoop-1.path.output}/kmeanspp</value>
         </constructor-arg>
         <constructor-arg name="input">
             <ref bean="docword.pubmed"/>
