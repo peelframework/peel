@@ -79,6 +79,11 @@
         <constructor-arg name="fs" ref="hdfs-2"/>
     </bean>
 
+    <!-- HDFS1 data sets generated from a DataGenerator -->
+    <bean id="dataset.generated.hdfs-1" class="eu.stratosphere.peel.core.beans.data.GeneratedDataSet" abstract="true">
+            <constructor-arg name="fs" ref="hdfs-1"/>
+    </bean>
+
     <!-- Experiment output written in the HDFS1 -->
     <bean id="experiment.output.hdfs-1" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput" abstract="true">
         <constructor-arg name="fs" ref="hdfs-1"/>
