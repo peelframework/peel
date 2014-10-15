@@ -67,6 +67,31 @@
     </bean>
 
     <!--************************************************************************
+    * Jobs
+    *************************************************************************-->
+
+    <bean id="job.spark" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob" />
+
+    <bean id="spark-1.0-job" parent="job.spark">
+        <constructor-arg name="runner" ref="spark-1.0"/>
+    </bean>
+
+    <!--************************************************************************
+    * Dataset Generators
+    *************************************************************************-->
+    <bean id="datagenerators.clustering" parent="spark-1.0-job">
+        <constructor-arg name="runner" ref="spark-1.0"/>
+        <constructor-arg name="command">
+            <value>--class de.tu_berlin.impro3.spark.App ${app.path.datagenerators}/clustergenerator.jar clustergenerator</value>
+        </constructor-arg>
+        <constructor-arg name="config">
+            <value>
+                experiment.timeout = 300
+            </value>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
     * Data Sets
     *************************************************************************-->
 
@@ -86,6 +111,11 @@
     <bean id="docword.pubmed" parent="dataset.static.hdfs-1">
         <constructor-arg name="src" value="${app.path.datasets}/docword.pubmed.txt.gz"/>
         <constructor-arg name="dst" value="${system.hadoop-1.path.input}/docword.pubmed.txt"/>
+    </bean>
+
+    <bean id="clusters.k3.N99" parent="dataset.generated.hdfs-1">
+        <constructor-arg name="job" ref="datagenerators.clustering"/>
+        <constructor-arg name="dst" value="${system.hadoop-1.path.input}/clusters.k3N99.txt"/>
     </bean>
 
     <!--************************************************************************
