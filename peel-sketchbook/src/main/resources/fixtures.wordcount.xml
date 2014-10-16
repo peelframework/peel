@@ -15,7 +15,7 @@
         <constructor-arg name="version" value="1.2.1"/>
         <constructor-arg name="lifespan" value="PROVIDED"/>
         <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System">
             </set>
         </constructor-arg>
     </bean>
@@ -25,7 +25,7 @@
         <constructor-arg name="version" value="2.4.1"/>
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System">
             </set>
         </constructor-arg>
     </bean>
@@ -34,13 +34,13 @@
     <bean id="flink" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system" abstract="true">
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System">
                 <ref bean="hdfs-2"/>
             </set>
         </constructor-arg>
     </bean>
 
-    <!-- Flink (version 0.5.1) -->
+    <!-- Flink (version 0.6.1) -->
     <bean id="flink-0.6.1" parent="flink">
         <constructor-arg name="version" value="0.6.1"/>
     </bean>
@@ -49,7 +49,7 @@
     <bean id="spark" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system" abstract="true">
         <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System">
                 <ref bean="hdfs-2"/>
             </set>
         </constructor-arg>
