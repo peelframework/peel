@@ -1,5 +1,6 @@
 package eu.stratosphere.peel.core
 
+import eu.stratosphere.peel.core.beans.data.GeneratedDataSet
 import eu.stratosphere.peel.core.beans.experiment.ExperimentSuite
 import eu.stratosphere.peel.core.beans.system.System
 import org.slf4j.LoggerFactory
@@ -52,6 +53,14 @@ package object graph {
         processDependencies(o.fs)
       }
     }
+
+    // add job dependencies to generated data sets (FIXME: generalize the dependency mechanism)
+    g.vertices.collect({
+      case i: GeneratedDataSet =>
+        g.addEdge(i, i.src)
+        g.addEdge(i.src, i.src.runner)
+        processDependencies(i.src.runner)
+    })
 
     g // return the graph
   }

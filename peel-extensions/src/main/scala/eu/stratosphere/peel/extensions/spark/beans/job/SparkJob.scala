@@ -1,14 +1,15 @@
 package eu.stratosphere.peel.extensions.spark.beans.job
 
-import com.typesafe.config.Config
 import eu.stratosphere.peel.core.beans.system.Job
 import eu.stratosphere.peel.core.util.shell
 import eu.stratosphere.peel.extensions.spark.beans.system.Spark
 
-class SparkJob(command: String, runner: Spark, config: Config) extends Job(command, runner, config) {
+class SparkJob(command: String, runner: Spark, timeout: Long) extends Job(command, runner, timeout) {
+
+  def this(command: String, runner: Spark) = this(command, runner, 600)
 
   def runJob() = {
-    this ! command
+    this ! resolve(command)
   }
 
   def cancelJob() = {}

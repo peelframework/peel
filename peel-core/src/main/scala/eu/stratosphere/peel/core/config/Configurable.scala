@@ -1,6 +1,6 @@
 package eu.stratosphere.peel.core.config
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions, ConfigSyntax}
+import com.typesafe.config.{Config, ConfigFactory}
 
 trait Configurable {
 

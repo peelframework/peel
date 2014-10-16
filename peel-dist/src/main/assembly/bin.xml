@@ -18,6 +18,8 @@
             <useProjectAttachments>false</useProjectAttachments>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <useTransitiveFiltering>true</useTransitiveFiltering>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
             <excludes>
                 <exclude>**/*examples*.jar</exclude>
                 <exclude>**/*javadoc*</exclude>
@@ -31,7 +33,7 @@
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>config</outputDirectory>
-            <fileMode>0600</fileMode>
+            <fileMode>0644</fileMode>
             <excludes>
                 <exclude>**/*</exclude>
             </excludes>
@@ -40,7 +42,7 @@
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>datasets</outputDirectory>
-            <fileMode>0600</fileMode>
+            <fileMode>0644</fileMode>
             <excludes>
                 <exclude>**/*</exclude>
             </excludes>
@@ -49,7 +51,7 @@
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>jobs</outputDirectory>
-            <fileMode>0600</fileMode>
+            <fileMode>0644</fileMode>
             <excludes>
                 <exclude>**/*</exclude>
             </excludes>
@@ -58,7 +60,7 @@
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>log</outputDirectory>
-            <fileMode>0600</fileMode>
+            <fileMode>0644</fileMode>
             <excludes>
                 <exclude>**/*</exclude>
             </excludes>
@@ -67,7 +69,7 @@
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>results</outputDirectory>
-            <fileMode>0600</fileMode>
+            <fileMode>0644</fileMode>
             <excludes>
                 <exclude>**/*</exclude>
             </excludes>
@@ -76,7 +78,7 @@
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>systems</outputDirectory>
-            <fileMode>0600</fileMode>
+            <fileMode>0644</fileMode>
             <excludes>
                 <exclude>**/*</exclude>
             </excludes>
@@ -95,7 +97,7 @@
         <file>
             <source>src/main/assembly/VERSION</source>
             <destName>VERSION</destName>
-            <fileMode>0600</fileMode>
+            <fileMode>0644</fileMode>
             <filtered>true</filtered>
         </file>
     </files>

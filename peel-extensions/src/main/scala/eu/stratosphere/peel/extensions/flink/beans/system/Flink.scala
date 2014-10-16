@@ -23,7 +23,7 @@ class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
     var failedStartUpAttempts = 0
     while (!isUp) {
       try {
-        val totl = config.getStringList(s"system.${configKey}.config.slaves").size()
+        val totl = config.getStringList(s"system.$configKey.config.slaves").size()
         val init = 0 // Flink resets the job manager log on startup
 
         shell ! s"${config.getString("system.flink.path.home")}/bin/start-cluster.sh"

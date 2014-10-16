@@ -11,11 +11,11 @@ class GeneratedDataSet(val src: Job[System], val dst: String, fs: System with Fi
     val dst = resolve(this.dst)
 
     if (!fs.exists(dst)) {
-      logger.info(s"Generating data set '${src.command}' to '$dst'")
+      logger.info(s"Generating data for target '$dst'")
       try {
         src.execute()
       } catch {
-        case e: Throwable => throw new RuntimeException(s"Could not generate the dataset with '${src.command}' to '$dst'")
+        case e: Throwable => throw new RuntimeException(s"Could not generate data for target '$dst'")
       }
     }
   }
