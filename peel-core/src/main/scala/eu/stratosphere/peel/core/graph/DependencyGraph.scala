@@ -138,10 +138,12 @@ class DependencyGraph[T] {
   def reverse: DependencyGraph[T] = {
     if (!isEmpty) {
       val newGraph = new DependencyGraph[T]()
-      for {
-        (vertex, neighbours) <- graph.toList
-        neighbour <- neighbours
-      } yield newGraph.addEdge(neighbour, vertex)
+
+      for (vertex <- graph.keySet)
+        newGraph.addVertex(vertex)
+      for ((vertex, neighbours) <- graph.toList; neighbour <- neighbours)
+        newGraph.addEdge(neighbour, vertex)
+
       newGraph
     } else
       throw new Exception("Cannot reverse empty Graph!")

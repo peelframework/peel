@@ -59,15 +59,14 @@ class SetUp extends Command {
     if (graph.isEmpty) throw new RuntimeException("Experiment suite is empty!")
 
     // find experiment
-    val exps = suite.experiments.filter(_.name == expName)
-    // load config
-    for (e <- suite.experiments.filter(_.name == expName)) e.config = loadConfig(graph, e)
+    val expOption = suite.experiments.find(_.name == expName)
     // check if experiment exists (the list should contain exactly one element)
-    if (exps.size != 1) throw new RuntimeException(s"Experiment '$expName' either not found or ambigous in suite '$suiteName'")
+    if (expOption.isEmpty) throw new RuntimeException(s"Experiment '$expName' either not found or ambigous in suite '$suiteName'")
 
-    for (exp <- exps) {
+    for (exp <- expOption) {
       try {
         // update config
+        loadConfig(graph, exp)
         for (n <- graph.descendants(exp)) n match {
           case s: Configurable => s.config = exp.config
           case _ => Unit

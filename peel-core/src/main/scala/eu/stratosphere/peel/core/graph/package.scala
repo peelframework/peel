@@ -10,6 +10,23 @@ package object graph {
   final val logger = LoggerFactory.getLogger(this.getClass)
 
   /**
+   * Create a directed Graph from a system and its subsystems.
+   *
+   * @return Graph with systems as vertices and dependencies as edges
+   */
+  def createGraph(system: System): DependencyGraph[Node] = {
+    logger.info(s"Constructing dependency graph for system '${system.name}'")
+
+    // initial graph
+    implicit val g = new DependencyGraph[Node]
+
+    g.addVertex(system)
+    processDependencies(system)
+
+    g
+  }
+
+  /**
    * Create a directed Graph from all Experiments and their dependencies.
    *
    * @return Graph with systems as vertices and dependencies as edges
@@ -18,17 +35,7 @@ package object graph {
     logger.info(s"Constructing dependency graph for suite '${suite.name}'")
 
     // initial graph
-    val g = new DependencyGraph[Node]
-
-    // helper function: process system dependencies
-    def processDependencies(s: System): Unit = {
-      if (s.dependencies.nonEmpty) {
-        for (d <- s.dependencies) {
-          g.addEdge(s, d)
-          processDependencies(d)
-        }
-      }
-    }
+    implicit val g = new DependencyGraph[Node]
 
     for (e <- suite.experiments) {
       g.addEdge(suite, e)
@@ -63,5 +70,15 @@ package object graph {
     })
 
     g // return the graph
+  }
+
+  // helper function: process system dependencies
+  def processDependencies(s: System)(implicit g: DependencyGraph[Node]): Unit = {
+    if (s.dependencies.nonEmpty) {
+      for (d <- s.dependencies) {
+        g.addEdge(s, d)
+        processDependencies(d)
+      }
+    }
   }
 }
