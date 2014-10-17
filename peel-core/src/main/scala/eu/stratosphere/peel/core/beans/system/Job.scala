@@ -17,7 +17,7 @@ abstract class Job[+R <: System](val command: String, val runner: R, timeout: Lo
 
   override var config = ConfigFactory.empty()
 
-  def runJob()
+  def runJob(): Int
 
   def cancelJob()
 
@@ -25,17 +25,21 @@ abstract class Job[+R <: System](val command: String, val runner: R, timeout: Lo
     logger.info("Running Job with command %s".format(resolve(command)))
 
     try {
-      Await.ready(future(runJob()), timeout seconds)
+      val exitCode = Await.result(future(runJob()), timeout seconds)
+      if (exitCode != 0) throw new RuntimeException("Data generation job did not finish successfully")
     } catch {
       case e: TimeoutException =>
         logger.warn(s"Job did not finish within the given time limit of ${config.getLong("job.timeout")} seconds")
         cancelJob()
+        throw e
       case e: InterruptedException =>
         logger.warn(s"Job was interrupted")
         cancelJob()
+        throw e
       case e: Throwable =>
         logger.warn(s"Job threw an unexpected exception: ${e.getMessage}")
         cancelJob()
+        throw e
     }
   }
 }

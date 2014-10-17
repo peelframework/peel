@@ -124,13 +124,8 @@ class HDFS2(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
     for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
       for (dataDir <- config.getString(s"system.$configKey.config.hdfs.dfs.data.dir").split(',')) {
         logger.info(s"Initializing data directory $dataDir at datanode $dataNode")
-        shell ! s""" ssh $user@$dataNode "rm -Rf $dataDir/current" """
+        shell ! s""" ssh $user@$dataNode "rm -Rf $dataDir" """
         shell ! s""" ssh $user@$dataNode "mkdir -p $dataDir/current" """
-        logger.info(s"Copying namenode's VERSION file to datanode $dataNode")
-        shell ! s""" scp $nameDir/current/VERSION $user@$dataNode:$dataDir/current/VERSION.backup """
-        logger.info(s"Adapting VERSION file on datanode $dataNode")
-        shell ! s""" ssh $user@$dataNode "cat $dataDir/current/VERSION.backup | sed '3 i storageID=' | sed 's/storageType=NAME_NODE/storageType=DATA_NODE/g'" > $dataDir/current/VERSION """
-        shell ! s""" ssh $user@$dataNode "rm -Rf $dataDir/current/VERSION.backup" """
       }
     }
   }

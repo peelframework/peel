@@ -45,8 +45,8 @@ abstract class System(val name: String,
     } else {
       logger.info(s"Starting system '$toString'")
 
-      if (config.hasPath(s"system.$configKey.path.archive")) {
-        if (!Files.exists(Paths.get(config.getString(s"system.$configKey.path.home")))) {
+      if (!Files.exists(Paths.get(config.getString(s"system.$configKey.path.home")))) {
+        if (config.hasPath(s"system.$configKey.path.archive")) {
           logger.info(s"Extracting archive ${config.getString(s"system.$configKey.path.archive.src")} to ${config.getString(s"system.$configKey.path.archive.dst")}")
           shell.extract(config.getString(s"system.$configKey.path.archive.src"), config.getString(s"system.$configKey.path.archive.dst"))
 
@@ -55,6 +55,8 @@ abstract class System(val name: String,
             config.getString(s"system.$configKey.user"),
             config.getString(s"system.$configKey.group"),
             config.getString(s"system.$configKey.path.home"))
+        } else {
+          throw new RuntimeException(s"Cannot find archive path for system '$configKey'")
         }
       }
 
