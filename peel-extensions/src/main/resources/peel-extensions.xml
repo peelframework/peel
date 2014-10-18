@@ -75,6 +75,17 @@
         </constructor-arg>
     </bean>
 
+    <!-- Aura -->
+    <bean id="aura" class="eu.stratosphere.peel.extensions.aura.beans.system.Aura" parent="system">
+        <constructor-arg name="version" value="1.0"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+                <ref bean="zookeeper"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
     <!--************************************************************************
     * Data Sets and Experiment Outputs
     *************************************************************************-->

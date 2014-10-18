@@ -2,7 +2,7 @@ package eu.stratosphere.peel.core.config
 
 import java.util
 
-import com.typesafe.config.{Config, ConfigObject}
+import com.typesafe.config.{ConfigRenderOptions, Config, ConfigObject}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -14,6 +14,11 @@ trait Model {
 }
 
 object Model {
+
+  class HOCON(val c: Config, val prefix: String) extends Model {
+
+    val value = c.getValue(prefix).render(ConfigRenderOptions.defaults().setOriginComments(false))
+  }
 
   class Site(val c: Config, val prefix: String) extends Model {
 
@@ -73,12 +78,6 @@ object Model {
       collect(c.getConfig(prefix).root(), this)
       Unit
     }
-  }
-
-  class HOCON(val c: Config, val prefix: String) extends util.HashMap[String, Object] with Model {
-
-    // ser
-    val serialized = c.atPath(prefix).toString
   }
 
   class Hosts(val c: Config, val key: String) extends Model {
