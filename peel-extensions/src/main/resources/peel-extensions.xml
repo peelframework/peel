@@ -7,6 +7,16 @@
     * Systems
     *************************************************************************-->
 
+    <!-- Zookeeper -->
+    <bean id="zookeeper" class="eu.stratosphere.peel.extensions.zookeeper.beans.system.Zookeeper" parent="system">
+        <constructor-arg name="version" value="3.4.5"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
+            </set>
+        </constructor-arg>
+    </bean>
+
     <!-- Hadoop Distributed File System -->
     <bean id="hdfs-1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS1" parent="system">
         <constructor-arg name="version" value="1.2.1"/>

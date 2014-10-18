@@ -1,7 +1,6 @@
 package eu.stratosphere.peel.core.config
 
 import java.util
-import java.util.HashMap
 
 import com.typesafe.config.{Config, ConfigObject}
 
@@ -22,10 +21,15 @@ object Model {
 
       val buffer = ListBuffer[Pair]()
 
+      def sanitize(s: String) = s
+        .stripPrefix(s"$prefix.") // remove prefix
+        .stripSuffix(".\"_root_\"") // remove ._root_ suffix
+        .replaceAll("\\.\"(\\d+)\"", ".$1") // unquote numeric path components, e.g. foo."1" => foo.1
+
       def collect(c: Config): Unit = {
         for (e <- c.entrySet().asScala) e.getValue match {
           case c: Config => collect(c)
-          case _ => buffer += Pair(e.getKey.stripPrefix(s"$prefix.").stripSuffix(".\"_root_\""), c.getString(e.getKey))
+          case _ => buffer += Pair(sanitize(e.getKey), c.getString(e.getKey))
         }
       }
 
@@ -69,6 +73,12 @@ object Model {
       collect(c.getConfig(prefix).root(), this)
       Unit
     }
+  }
+
+  class HOCON(val c: Config, val prefix: String) extends util.HashMap[String, Object] with Model {
+
+    // ser
+    val serialized = c.atPath(prefix).toString
   }
 
   class Hosts(val c: Config, val key: String) extends Model {

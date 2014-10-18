@@ -49,7 +49,7 @@ object SystemConfig {
 
     private def fetch() = {
       val p = FileSystems.getDefault.getPath(filePath)
-      Files.readAllBytes(p)
+      if (Files.exists(p)) Files.readAllBytes(p) else Array[Byte]()
     }
 
     private def flush(b: Array[Byte]) = {
