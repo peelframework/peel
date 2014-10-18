@@ -2,8 +2,10 @@ package eu.stratosphere.peel.core.graph
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.reflect.ClassTag
+import scala.reflect.classTag
 
-class DependencyGraph[T] {
+class DependencyGraph[T: ClassTag] {
 
   var graph: mutable.HashMap[T, Set[T]] = new mutable.HashMap[T, Set[T]]()
 
@@ -126,9 +128,10 @@ class DependencyGraph[T] {
    * Depth-first list of all node descendants.
    *
    * @param start node to start with
+   * @param excluded a set of nodes to be excluded from the traversal.
    * @return sequence of dependencies of that node
    */
-  def descendants(start: T): List[T] = collect(Set(start), List()).reverse
+  def descendants(start: T, excluded: Set[_ <: T] = Set.empty[T]): List[T] = collect(Set(start), List(), excluded).reverse
 
   /**
    * Reverses the graph.
@@ -154,16 +157,21 @@ class DependencyGraph[T] {
    *
    * @param toVisit A set of nodes that are yet to be visited.
    * @param visited A list of already visited nodes.
-   * @return
+   * @param excluded a set of nodes to be excluded from the traversal.
+   * @tparam U The type of the excluded set elements.
    */
   @tailrec
-  private def collect(toVisit: Set[T], visited: List[T]): List[T] = {
+  private def collect[U <: T: ClassTag](toVisit: Set[T], visited: List[T], excluded: Set[U] = Set.empty[T]): List[T] = {
+    val clazz = classTag[T].runtimeClass
     if (toVisit.isEmpty) visited
     else {
       val next: T = toVisit.head
-      val children: Set[T] = graph(next) filter (x => !visited.contains(x))
+      val children: Set[T] = graph(next) filter {
+        case x if clazz.isInstance(x) => !visited.contains(x) && !excluded.contains(x.asInstanceOf[U])
+        case x: Any => !visited.contains(x)
+      }
 
-      collect(children ++ toVisit.tail, next :: visited)
+      collect(children ++ toVisit.tail, next :: visited, excluded)
     }
   }
 

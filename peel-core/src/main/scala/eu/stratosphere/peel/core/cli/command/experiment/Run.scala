@@ -95,13 +95,13 @@ class Run extends Command {
         if (!justRun) {
           logger.info("Setting up systems with SUITE or EXPERIMENT lifespan")
           for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System => if ((Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan) && !s.isUp) s.setUp()
+            case s: System if (Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan) && !s.isUp => s.setUp()
             case _ => Unit
           }
 
           logger.info("Updating systems with PROVIDED lifespan")
           for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System => if (Lifespan.PROVIDED :: Nil contains s.lifespan) s.update()
+            case s: System if Lifespan.PROVIDED :: Nil contains s.lifespan => s.update()
             case _ => Unit
           }
         } else {
@@ -115,6 +115,14 @@ class Run extends Command {
         logger.info("Materializing experiment input data sets")
         for (n <- exp.inputs) n.materialize()
 
+        logger.info("Tearing down redundant systems before conducting experiment runs")
+        val required = graph.descendants(exp, exp.inputs).diff(Seq(exp)).toSet
+        val redundant = graph.descendants(exp, required)
+        for (n <- graph.traverse(); if redundant.contains(n)) n match {
+          case s: System => s.tearDown()
+          case _ => Unit
+        }
+
         for (n <- exp.outputs) n.clean()
         r.execute() // run experiment
       } catch {
@@ -126,7 +134,7 @@ class Run extends Command {
         if (!justRun) {
           logger.info("Tearing down systems with SUITE or EXPERIMENT lifespan")
           for (n <- graph.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System => if (Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan) s.tearDown()
+            case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan => s.tearDown()
             case _ => Unit
           }
         }

@@ -83,24 +83,32 @@ class Run extends Command {
 
           logger.info("Setting up systems with SUITE lifespan")
           for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System => if ((Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) && !s.isUp) s.setUp()
+            case s: System if (Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) && !s.isUp => s.setUp()
             case _ => Unit
           }
 
           logger.info("Updating systems with PROVIDED or SUITE lifespan")
           for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System => if (Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) s.update()
+            case s: System if Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan => s.update()
             case _ => Unit
           }
 
           logger.info("Setting up systems with EXPERIMENT lifespan")
           for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System => if (Lifespan.EXPERIMENT :: Nil contains s.lifespan) s.setUp()
+            case s: System if Lifespan.EXPERIMENT :: Nil contains s.lifespan => s.setUp()
             case _ => Unit
           }
 
           logger.info("Materializing experiment input data sets")
           for (n <- exp.inputs) n.materialize()
+
+          logger.info("Tearing down redundant systems before conducting experiment runs")
+          val required = graph.descendants(exp, exp.inputs).diff(Seq(exp)).toSet
+          val redundant = graph.descendants(exp, required)
+          for (n <- graph.traverse(); if redundant.contains(n)) n match {
+            case s: System => s.tearDown()
+            case _ => Unit
+          }
 
           for (r <- runs if r.exp == exp) {
             for (n <- exp.outputs) n.clean()
@@ -116,7 +124,7 @@ class Run extends Command {
         } finally {
           logger.info("Tearing down systems with EXPERIMENT lifespan")
           for (n <- graph.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System => if (s.lifespan == Lifespan.EXPERIMENT) s.tearDown()
+            case s: System if s.lifespan == Lifespan.EXPERIMENT => s.tearDown()
             case _ => Unit
           }
         }
@@ -132,7 +140,7 @@ class Run extends Command {
       logger.info("#" * 60)
       logger.info("Tearing down systems with SUITE lifespan")
       for (n <- graph.traverse()) n match {
-        case s: System => if (s.lifespan == Lifespan.SUITE) s.tearDown()
+        case s: System if s.lifespan == Lifespan.SUITE => s.tearDown()
         case _ => Unit
       }
     }

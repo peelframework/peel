@@ -65,7 +65,7 @@ class TearDown extends Command {
 
     for (exp <- expOption) {
       // update config
-      loadConfig(graph, exp)
+      exp.config = loadConfig(graph, exp)
       for (n <- graph.descendants(exp)) n match {
         case s: Configurable => s.config = exp.config
         case _ => Unit
