@@ -162,12 +162,3 @@ abstract class System(val name: String,
       s"/templates/$configKey/$v/$path.mustache"
   }
 }
-
-object System {
-
-  case object State extends Enumeration {
-    type State = Value
-    final val RUNNING, STOPPED = Value
-  }
-
-}
