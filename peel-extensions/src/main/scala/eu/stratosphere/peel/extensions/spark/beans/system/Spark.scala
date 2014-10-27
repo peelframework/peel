@@ -2,7 +2,8 @@ package eu.stratosphere.peel.extensions.spark.beans.system
 
 import com.samskivert.mustache.Mustache
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
-import eu.stratosphere.peel.core.beans.system.{SetUpTimeoutException, System}
+import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
+import eu.stratosphere.peel.core.beans.system.{Lifespan, SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
 import eu.stratosphere.peel.core.util.shell
 
@@ -62,6 +63,7 @@ class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
 
   override def stop(): Unit = {
     shell ! s"${config.getString("system.spark.path.home")}/sbin/stop-all.sh"
+    isUp = false
   }
 
   def isRunning = {

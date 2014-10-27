@@ -26,6 +26,8 @@
 
         <!-- Java -->
         <java.version>1.7</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <!-- Scala -->
         <scala.version>2.10.3</scala.version>

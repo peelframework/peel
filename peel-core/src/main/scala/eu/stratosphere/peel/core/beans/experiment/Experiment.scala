@@ -86,6 +86,8 @@ object Experiment {
 
     var state = loadState()
 
+    var logFileCounts: Map[String, Long] = null
+
     override def execute() = {
       if (!force && isSuccessful) {
         logger.info("Skipping successfully finished experiment run %s".format(name))
@@ -95,9 +97,8 @@ object Experiment {
         logger.info("Experiment command is %s".format(command))
 
         try {
-          // collect runner log files and their current line counts
-          val logFiles = for (pattern <- logFilePatterns; f <- (shell !! s"ls $pattern").split(Sys.lineSeparator).map(_.trim)) yield f
-          val logFileCounts = Map((for (f <- logFiles) yield f -> (shell !! s"wc -l $f | cut -d' ' -f1").trim.toLong): _*)
+
+          beforeRun()
 
           try {
             Await.ready(future(runJob()), exp.config.getLong("experiment.timeout") seconds)
@@ -113,9 +114,7 @@ object Experiment {
               cancelJob()
           }
 
-          // copy logs
-          shell ! s"rm -Rf $home/logs/*"
-          for ((file, count) <- logFileCounts) shell ! s"tail -n +${count + 1} $file > $home/logs/${Paths.get(file).getFileName}"
+          afterRun()
 
           if (isSuccessful)
             logger.info(s"Experiment run finished in ${state.runTime} milliseconds")
@@ -127,6 +126,18 @@ object Experiment {
           writeState()
         }
       }
+    }
+
+    protected def beforeRun() = {
+      // collect runner log files and their current line counts
+      val logFiles = for (pattern <- logFilePatterns; f <- (shell !! s"ls $pattern").split(Sys.lineSeparator).map(_.trim)) yield f
+      logFileCounts = Map((for (f <- logFiles) yield f -> (shell !! s"wc -l $f | cut -d' ' -f1").trim.toLong): _*)
+    }
+
+    protected def afterRun(): Unit = {
+      // copy logs
+      shell ! s"rm -Rf $home/logs/*"
+      for ((file, count) <- logFileCounts) shell ! s"tail -n +${count + 1} $file > $home/logs/${Paths.get(file).getFileName}"
     }
 
     protected def command = exp.resolve(exp.command)
