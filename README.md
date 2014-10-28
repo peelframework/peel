@@ -12,7 +12,7 @@ It enables the conduction of fully automated and higly configurable experiments 
 - Evaluate and compare the performance of your systems
 
 #### Specify dependencies in your systems and let peel do the rest! 
-Peel automatically sets up the systems that you specify while taking care of dependency-relations. If you want to change parameters between experiments in your suite, peel updates the corresponsing systems and their dependants automatically. All you need to do is specify your experiments and let peel do the rest!
+Peel automatically sets up the systems that you specify while taking care of dependency-relations. If you want to change parameters between experiments in your suite, peel updates the corresponding systems and their dependants automatically. All you need to do is to specify your experiments and let peel do the rest!
 
 *Supported Systems*
 - [Flink](http://flink.incubator.apache.org/) 0.5.1 & 0.6
@@ -105,7 +105,7 @@ To execute **run #1** from the **wc.single-run** experiment in the **wc.default*
 ./peel exp:teardown wc.default wc.single-run --fixtures ./config/fixtures.wordcount.xml
 ```
 
-To execute all runs runs from all experiments in the suite, type:
+To execute all runs from all experiments in the suite, type:
 
 ```bash
 ./peel run-suite --fixtures ./config/fixtures.wordcount.xml <suit-name>
