@@ -77,7 +77,7 @@ object SparkExperiment {
           case Some(dir) => {
             // check if folder is actually new
             latestFolderBeforeRun match {
-              case Some(pathBeforeRun) => assert(dir != pathBeforeRun, s"No new event log created, got $dir")
+              case Some(pathBeforeRun) => if (dir != pathBeforeRun) println(s"No new event log created, got $dir")
               case None => // experiment is first result
             }
 

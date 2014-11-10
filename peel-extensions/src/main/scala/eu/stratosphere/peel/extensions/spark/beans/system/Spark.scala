@@ -1,12 +1,14 @@
 package eu.stratosphere.peel.extensions.spark.beans.system
 
 import com.samskivert.mustache.Mustache
+import com.typesafe.config.ConfigException
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
 import eu.stratosphere.peel.core.beans.system.{Lifespan, SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
 import eu.stratosphere.peel.core.util.shell
 
+import scala.collection.JavaConverters._
 
 class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("spark", version, lifespan, dependencies, mc) {
 
@@ -25,6 +27,19 @@ class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
   override def start(): Unit = {
     val user = config.getString("system.spark.user")
     val logDir = config.getString("system.spark.path.log")
+
+    // check if tmp dir exists and create if not
+    try {
+      val tmpDir = config.getString("system.spark.config.defaults.spark.local.dir")
+
+      for (dataNode <- config.getStringList(s"system.spark.config.slaves").asScala) {
+        logger.info(s"Initializing tmp directory $tmpDir at taskmanager node $dataNode")
+        shell ! s""" ssh $user@$dataNode "rm -Rf $tmpDir" """
+        shell ! s""" ssh $user@$dataNode "mkdir -p $tmpDir" """
+      }
+    } catch {
+      case _: ConfigException => // ignore not set explicitly, java default is taken
+    }
 
     var failedStartUpAttempts = 0
     while (!isUp) {
