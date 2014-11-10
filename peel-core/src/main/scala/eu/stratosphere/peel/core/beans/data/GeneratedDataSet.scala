@@ -15,7 +15,7 @@ class GeneratedDataSet(val src: Job[System], val dst: String, fs: System with Fi
       try {
         src.execute()
       } catch {
-        case e: Throwable => throw new RuntimeException(s"Could not generate data for target '$dst'")
+        case e: Throwable => throw new RuntimeException(s"Could not generate data for target '$dst' [$e]", e)
       }
     }
   }
