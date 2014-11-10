@@ -32,13 +32,13 @@ class Zookeeper(version: String, lifespan: Lifespan, dependencies: Set[System] =
   private def start(s: Zookeeper.Server) = {
     logger.info(s"Starting zookeeper at ${s.host}:${s.leaderPort}:${s.quorumPort}")
     val user = config.getString(s"system.$configKey.user")
-    shell ! s""" ssh $user@${s.host} "${config.getString(s"system.$configKey.path.home")}/bin/zkServer.sh start" """
+    shell ! s""" ssh $user@${s.host} ${config.getString(s"system.$configKey.path.home")}/bin/zkServer.sh start """
   }
 
   private def stop(s: Zookeeper.Server) = {
     logger.info(s"Stopping zookeeper at ${s.host}:${s.leaderPort}:${s.quorumPort}")
     val user = config.getString(s"system.$configKey.user")
-    shell ! s""" ssh $user@${s.host} "${config.getString(s"system.$configKey.path.home")}/bin/zkServer.sh stop" """
+    shell ! s""" ssh $user@${s.host} ${config.getString(s"system.$configKey.path.home")}/bin/zkServer.sh stop """
   }
 
   private def isRunning(s: Zookeeper.Server) = {

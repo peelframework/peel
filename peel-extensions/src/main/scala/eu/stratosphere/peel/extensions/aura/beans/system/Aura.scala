@@ -37,6 +37,11 @@ class Aura(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(
         val totl = config.getStringList(s"system.$configKey.config.slaves").size()
         val init = 0 // aura resets the job manager log on startup
 
+        if (!zookeeper.isRunning) {
+          logger.info("Zookeeper still not running, trying to start again")
+          zookeeper.start()
+        }
+
         // clean up zookeeper entries from an old setup
         zookeeper.cli ! "rmr /aura"
 
