@@ -35,7 +35,7 @@ Please refer to the help screens for more detailed information.
 If you are not sure if the configuration and the experiment jars work fine, you can run a single experiment with the following sequence of commands:
 
 ```bash
-# 1. set-up all systems systems 
+# 1. set-up all systems
 ./peel exp:setup ${SUITE} ${EXPERIMENT} --fixtures ${FIXTURES}
 # 2. just run the experiment, skip system set-up and tear-down
 ./peel exp:run ${SUITE} ${EXPERIMENT} --fixtures ${FIXTURES} --run 1 --just 
@@ -47,7 +47,7 @@ Halt and repeat the second step if your algorithm does not terminate or is too s
 
 ### Executing All Experiments in a Suite 
 
-To run a you use the **suite:run** command and specify the fixtures file and the id of the suite in your fixture:
+To run a suite you use the **suite:run** command and specify the fixtures file and the id of the suite in your fixture:
 
 ```bash
 ./peel suite:run --fixtures ${FIXTURES} ${SUITE}
@@ -61,7 +61,7 @@ If you want to rerun a particular experiment, delete the corresponding experimen
 ## Creating Fixtures
 
 
-In **fixtures.wordcount.xml** you can see a minimal example that runs the example Stratosphere wordcount job with one, two, three, and four slaves. 
+In **fixtures.wordcount.xml** you can see a minimal example that runs the example Flink wordcount job with one, two, three, and four slaves. 
 The following table provides a short descriptions of the beans configured in this file.
 
 Bean                       | Description
