@@ -8,6 +8,7 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import eu.stratosphere.peel.core.beans.experiment.Experiment
 import eu.stratosphere.peel.core.beans.system.System
 import eu.stratosphere.peel.core.graph.{DependencyGraph, Node}
+import eu.stratosphere.peel.core.util.shell
 import org.slf4j.LoggerFactory
 
 package object config {
@@ -39,6 +40,10 @@ package object config {
     cb.loadFile(s"${Sys.getProperty("app.path.config")}/application.conf")
     // load {app.path.config}/{app.hostname}/application.conf
     cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
+
+    // load current runtime config
+    logger.info(s"Loading current runtime values as configuration")
+    cb.append(currentRuntimeConfig())
 
     // load system properties
     logger.info(s"Loading system properties as configuration")
@@ -79,6 +84,10 @@ package object config {
     logger.info(s"Loading experiment configuration")
     cb.append(exp.config)
 
+    // load current runtime config
+    logger.info(s"Loading current runtime values as configuration")
+    cb.append(currentRuntimeConfig())
+
     // load system properties
     logger.info(s"Loading system properties as configuration")
     cb.append(ConfigFactory.systemProperties)
@@ -86,6 +95,24 @@ package object config {
     // resolve and return config
     logger.info(s"Resolving configuration")
     cb.resolve()
+  }
+
+
+  /**
+   * Loads default values from the current runtime config.
+   *
+   * @return
+   */
+  private def currentRuntimeConfig() = {
+    // initial empty configuration
+    val runtimeConfig = new java.util.HashMap[String, Object]()
+    // add current runtime values to configuration
+    runtimeConfig.put("runtime.cpu.cores", Runtime.getRuntime.availableProcessors().asInstanceOf[Object])
+    runtimeConfig.put("runtime.memory.max", Runtime.getRuntime.maxMemory().asInstanceOf[Object])
+    runtimeConfig.put("runtime.hostname", (shell !! "echo $HOSTNAME").trim())
+    runtimeConfig.put("runtime.disk.size", new File("/").getTotalSpace.asInstanceOf[Object])
+    // return a config object
+    ConfigFactory.parseMap(runtimeConfig)
   }
 
   private class ConfigBuilder {
