@@ -77,6 +77,7 @@ abstract class System(val name: String,
       logger.info(s"Tearing down system '$toString'")
 
       stop()
+      awaitShutdown()
     }
   }
 
@@ -90,12 +91,25 @@ abstract class System(val name: String,
     } else {
       logger.info(s"System configuration of '$toString' changed, restarting...")
 
-      stop()
-      c.update()
+      tearDown()
+      setUp()
       start()
 
       logger.info(s"System '$toString' is now running")
     }
+  }
+
+  private def awaitShutdown() : Unit = {
+    var maxAttempts = config.getInt("system.default.stop.max.attempts")
+    while (isRunning) {
+      // wait a bit
+      Thread.sleep(config.getInt("system.default.stop.polling.interval"))
+      if (maxAttempts <= 0) {
+        throw new RuntimeException(s"Unable to shut down system '$toString' in time.")
+      }
+      maxAttempts = maxAttempts - 1
+    }
+    logger.info(s"Shut down system '$toString'.")
   }
 
   /**
