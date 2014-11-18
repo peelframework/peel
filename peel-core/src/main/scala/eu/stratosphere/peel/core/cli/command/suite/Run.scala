@@ -24,7 +24,7 @@ class Run extends Command {
       .`type`(classOf[String])
       .dest("app.path.fixtures")
       .metavar("FIXTURES")
-      .help("fixtures file")
+      .help("fixtures file (default: config/fixtures.xml)")
     parser.addArgument("--force", "-f")
       .`type`(classOf[Boolean])
       .dest("app.suite.experiment.force")

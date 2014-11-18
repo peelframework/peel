@@ -23,7 +23,7 @@ class SetUp extends Command {
       .`type`(classOf[String])
       .dest("app.path.fixtures")
       .metavar("FIXTURES")
-      .help("fixtures file")
+      .help("fixtures file (default: config/fixtures.xml)")
     // arguments
     parser.addArgument("suite")
       .`type`(classOf[String])
