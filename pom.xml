@@ -8,8 +8,46 @@
     <artifactId>peel</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>peel</name>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>Peel is a framework for automatic large-scale experiments for massively-parallel systems
+        and algorithms. It enables the conduction of fully automated and higly configurable experiments
+        that can be executed from a simple command line interface.</description>
+    <url>https://github.com/stratosphere/peel</url>
     <packaging>pom</packaging>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Alexander Alexandrov</name>
+            <email>alexander.alexandrov@tu-berlin.de</email>
+            <organization>Database Systems and Information Management Group, TU Berlin</organization>
+            <organizationUrl>https://www.dima.tu-berlin.de/</organizationUrl>
+        </developer>
+        <developer>
+            <name>Andreas Kunft</name>
+            <email>andreas.kunft@tu-berlin.de</email>
+            <organization>Database Systems and Information Management Group, TU Berlin</organization>
+            <organizationUrl>https://www.dima.tu-berlin.de/</organizationUrl>
+        </developer>
+        <developer>
+            <name>Felix Schüler</name>
+            <email>felix.schueler@campus.tu-berlin.de</email>
+            <organization>Complex and Distributed IT Systems, TU Berlin</organization>
+            <organizationUrl>https://www.cit.tu-berlin.de/</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:stratosphere/peel.git</connection>
+        <developerConnection>scm:git:git@github.com:stratosphere/peel.git</developerConnection>
+        <url>git@github.com:stratosphere/peel.git</url>
+    </scm>
 
     <properties>
         <!-- Common -->
@@ -23,6 +61,11 @@
         <build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
         <maven-surefire-plugin.version>2.7</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>1.0-RC2</scalatest-maven-plugin.version>
+        <maven-release-plugin.version>2.5</maven-release-plugin.version>
+        <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
+        <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.3</nexus-staging-maven-plugin.version>
 
         <!-- Java -->
         <java.version>1.7</java.version>
@@ -58,13 +101,22 @@
     </properties>
 
 
+<!-- use of repositories is discouraded by sonatype
     <repositories>
         <repository>
             <id>oss.sonatype.org</id>
             <name>sonatype sapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
-    </repositories>
+    </repositories>-->
+
+    <!-- Sonatype distribution management -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
@@ -85,7 +137,7 @@
                 <version>${scala.version}</version>
             </dependency>
 
-            <!-- fab -->
+            <!-- peel -->
             <dependency>
                 <groupId>eu.stratosphere</groupId>
                 <artifactId>peel-core</artifactId>
@@ -182,7 +234,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 
     <build>
         <plugins>
@@ -301,8 +352,97 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${nexus-staging-maven-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <!-- profile for Sonatype releases -->
+    <profiles>
+        <profile>
+            <!-- used for SNAPSHOT and regular releases -->
+            <id>docs-and-source</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version><!--$NO-MVN-MAN-VER$-->
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version><!--$NO-MVN-MAN-VER$-->
+                        <configuration>
+                            <quiet>true</quiet>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-release-plugin</artifactId>
+                            <version>${maven-release-plugin.version}</version>
+                            <configuration>
+                                <mavenExecutorId>forked-path</mavenExecutorId>
+                                <useReleaseProfile>false</useReleaseProfile>
+                                <arguments>${arguments} -Psonatype-oss-release</arguments>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 
     <modules>
         <module>peel-core</module>

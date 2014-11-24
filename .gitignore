@@ -5,6 +5,7 @@
 .metadata/*
 .project
 .settings
+settings.xml
 target
 *.swp
 *.class
