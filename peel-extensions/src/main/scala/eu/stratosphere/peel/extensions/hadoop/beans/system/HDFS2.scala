@@ -72,6 +72,7 @@ class HDFS2(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
           }
       }
     }
+    mkdir(config.getString(s"system.$configKey.path.input"))
   }
 
   override protected def stop() = {
@@ -107,6 +108,11 @@ class HDFS2(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
       shell ! s"""gunzip -c \"$src\" | $hadoopHome/bin/hadoop fs -put - \"$dst\" """
     else
       shell ! s"""$hadoopHome/bin/hadoop fs -copyFromLocal "$src" "$dst" """
+  }
+
+  def mkdir(dir: String) = {
+    val hadoopHome = config.getString(s"system.$configKey.path.home")
+    shell ! s"""$hadoopHome/bin/hadoop fs -mkdir -p "$dir" """
   }
 
   // ---------------------------------------------------
