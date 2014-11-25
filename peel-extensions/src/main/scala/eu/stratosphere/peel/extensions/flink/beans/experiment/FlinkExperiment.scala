@@ -3,6 +3,7 @@ package eu.stratosphere.peel.extensions.flink.beans.experiment
 import java.io.FileWriter
 import java.nio.file.{Files, Paths}
 
+import java.lang.{System => Sys}
 import com.typesafe.config.Config
 import eu.stratosphere.peel.core.beans.data.{DataSet, ExperimentOutput}
 import eu.stratosphere.peel.core.beans.experiment.Experiment
@@ -49,13 +50,16 @@ class FlinkExperiment(command: String,
 object FlinkExperiment {
 
   case class State(name: String,
+                   suiteName: String,
                    command: String,
+                   runnerName: String,
+                   runnerVersion: String,
                    var runExitCode: Option[Int] = None,
                    var runTime: Long = 0,
                    var plnExitCode: Option[Int] = None) extends Experiment.RunState {}
 
   object StateProtocol extends DefaultJsonProtocol with NullOptions {
-    implicit val stateFormat = jsonFormat5(State)
+    implicit val stateFormat = jsonFormat8(State)
   }
 
   /** A private inner class encapsulating the logic of single run. */
@@ -74,10 +78,10 @@ object FlinkExperiment {
         try {
           io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
         } catch {
-          case e: Throwable => State(name, command)
+          case e: Throwable => State(name, Sys.getProperty("app.suite.name"), command, exp.runner.name, exp.runner.version)
         }
       } else {
-        State(name, command)
+        State(name, Sys.getProperty("app.suite.name"), command, exp.runner.name, exp.runner.version)
       }
     }
 
