@@ -93,9 +93,7 @@ abstract class System(val name: String,
 
       tearDown()
       setUp()
-      start()
 
-      logger.info(s"System '$toString' is now running")
     }
   }
 
