@@ -5,6 +5,14 @@ import java.nio.file.{Files, Paths}
 
 import eu.stratosphere.peel.core.beans.system.{FileSystem, System}
 
+/** Dataset that is copied from a local filesystem to a specified target location.
+  *
+  * If the data already exists at the specified location, it is '''not''' copied again!
+  *
+  * @param src Local path where the data is stored.
+  * @param dst Path in the distributed filesystem where the data is stored.
+  * @param fs The filesystem that is used.
+  */
 class CopiedDataSet(val src: String, val dst: String, fs: System with FileSystem) extends DataSet(dst, Set[System](fs)) {
 
   import scala.language.implicitConversions
