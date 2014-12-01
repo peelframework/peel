@@ -1,0 +1,7 @@
+EXPERIMENT_NAME,EXPERIMENTSUITE_NAME,SYSTEM_NAME,EXPERIMENT_AVERAGEEXPERIME
+flink.dop160.men14G,tpch3.200G.wally,flink,62323
+flink.dop320.men14G,tpch3.200G.wally,flink,38145
+flink.dop80.men14G,tpch3.200G.wally,flink,120512
+spark.dop160.men14G,tpch3.200G.wally,spark,337094
+spark.dop320.men14G,tpch3.200G.wally,spark,171650
+spark.dop80.men14G,tpch3.200G.wally,spark,648646
