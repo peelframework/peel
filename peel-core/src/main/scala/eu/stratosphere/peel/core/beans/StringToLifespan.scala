@@ -3,6 +3,9 @@ package eu.stratosphere.peel.core.beans
 import eu.stratosphere.peel.core.beans.system.Lifespan
 import org.springframework.core.convert.converter.Converter
 
+/** Spring Converter to convert Java Strings to [[eu.stratosphere.peel.core.beans.system.Lifespan Lifespan]] Values
+  *
+  */
 class StringToLifespan extends Converter[String, Lifespan.Value]{
 
   def convert(s: String): Lifespan.Value = {

@@ -10,6 +10,9 @@ import eu.stratosphere.peel.core.graph.createGraph
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
 
+/** Command that is used to set up the specified system from the fixture
+  *
+  */
 class SetUp extends Command {
 
   override def name() = "sys:setup"

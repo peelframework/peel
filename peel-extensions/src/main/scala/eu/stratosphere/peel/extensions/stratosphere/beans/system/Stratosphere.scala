@@ -6,6 +6,13 @@ import eu.stratosphere.peel.core.beans.system.{SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
 import eu.stratosphere.peel.core.util.shell
 
+/** Wrapper class for Stratosphere (now: as Apache Flink)
+ *
+ * @param version Version of the system (e.g. "7.1")
+ * @param lifespan [[eu.stratosphere.peel.core.beans.system.Lifespan Lifespan]] of the system
+ * @param dependencies Set of dependencies that this system needs
+ * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
+ */
 class Stratosphere(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("stratosphere", version, lifespan, dependencies, mc) {
 
   override def configuration() = SystemConfig(config, {

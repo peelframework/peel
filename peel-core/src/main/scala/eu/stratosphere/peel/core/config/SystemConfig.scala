@@ -6,7 +6,7 @@ import java.nio.file.{FileSystems, Files}
 import com.samskivert.mustache.Mustache
 import com.typesafe.config.Config
 import org.slf4j.LoggerFactory
-
+// TODO documentation
 case class SystemConfig(config: Config, entries: List[SystemConfig.Entry[Model]]) {
 
   def hasChanged = (for (e <- entries) yield

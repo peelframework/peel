@@ -11,6 +11,16 @@ import eu.stratosphere.peel.core.graph.{DependencyGraph, Node}
 import eu.stratosphere.peel.core.util.shell
 import org.slf4j.LoggerFactory
 
+/** Package Object to handle the loading of configuration files
+  *
+  * Configuration files are loaded and resolved according to the
+  * specifications of the [[https://github.com/typesafehub/config Typesafe Config docs]]
+  * (check standard behavior section first).
+  *
+  * non-standard config files are read from {app.path.config} where host-specific configurations
+  * are read from {app.path.config}/{app.hostname}
+  *
+  */
 package object config {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
@@ -98,10 +108,9 @@ package object config {
   }
 
 
-  /**
-   * Loads default values from the current runtime config.
+  /** Loads default values from the current runtime config.
    *
-   * @return
+   * @return current Config Object
    */
   private def currentRuntimeConfig() = {
     // initial empty configuration
@@ -140,6 +149,9 @@ package object config {
 
     def append(other: Config) = config = other.withFallback(config)
 
-    def resolve() = config.resolve()
+    def resolve() = {
+      val x = config.resolve()
+      x
+    }
   }
 }

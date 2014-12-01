@@ -11,6 +11,17 @@ import eu.stratosphere.peel.core.util.shell
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
 
+/** This class represents a System in the Peel framework.
+  *
+  * Most Nodes in the peel dependency-graph are Systems. A system can specify it's dependencies which are then set up
+  * automatically, according to their Lifespans.
+ *
+ * @param name The name of this bean. Deafults to the system name (e.g. "Flink")
+ * @param version Version of the system (e.g. "7.1")
+ * @param lifespan [[eu.stratosphere.peel.core.beans.system.Lifespan Lifespan]] of the system
+ * @param dependencies Set of dependencies that this system needs
+ * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
+ */
 abstract class System(val name: String,
                       val version: String,
                       val lifespan: Lifespan,
@@ -23,19 +34,13 @@ abstract class System(val name: String,
 
   var isUp = lifespan == Lifespan.PROVIDED
 
-  /**
-   * The system configuration resides under `system.${configKey}`.
-   */
+  /** The system configuration resides under `system.${configKey}`. */
   val configKey = name
 
-  /**
-   * The name of this bean. Deafults to the system name.
-   */
+  /** The name of this bean. Deafults to the system name. */
   var beanName = name
 
-  /**
-   * Creates a complete system installation with updated configuration and starts the system.
-   */
+  /** Creates a complete system installation with updated configuration and starts the system. */
   def setUp() = {
     if (isRunning) {
       if (isUp)
@@ -67,9 +72,7 @@ abstract class System(val name: String,
     }
   }
 
-  /**
-   * Cleans up and shuts down the system.
-   */
+  /** Cleans up and shuts down the system. */
   def tearDown() = {
     if (!isRunning) {
       logger.info(s"System '$toString' is already down")
@@ -81,9 +84,7 @@ abstract class System(val name: String,
     }
   }
 
-  /**
-   * Restarts the system if the system configuration has changed.
-   */
+  /** Restarts the system if the system configuration has changed. */
   def update() = {
     val c = configuration()
     if (!c.hasChanged) {
@@ -97,6 +98,7 @@ abstract class System(val name: String,
     }
   }
 
+  /** Waits until the system is shut down (blocking). */
   private def awaitShutdown() : Unit = {
     var maxAttempts = config.getInt("system.default.stop.max.attempts")
     while (isRunning) {
@@ -110,17 +112,15 @@ abstract class System(val name: String,
     logger.info(s"Shut down system '$toString'.")
   }
 
-  /**
-   * Bean name setter.
+  /** Bean name setter.
    *
    * @param n The configured bean name
    */
   override def setBeanName(n: String) = beanName = n
 
-  /**
-   * Alias of name.
+  /** Alias of name.
    *
-   * @return
+   * @return name of the bean
    */
   override def toString: String = beanName
 
@@ -128,25 +128,19 @@ abstract class System(val name: String,
   // Helper methods.
   // ---------------------------------------------------
 
-  /**
-   * Returns an of the system configuration using the current Config
-   */
+  /** Returns an of the system configuration using the current Config */
   protected def configuration(): SystemConfig
 
-  /**
-   * Starts up the system and polls to check whether everything is up.
+  /** Starts up the system and polls to check whether everything is up.
    *
    * @throws SetUpTimeoutException If the system was not brought after {startup.pollingCounter} times {startup.pollingInterval} milliseconds.
    */
   protected def start(): Unit
 
-  /**
-   * Stops the system.
-   */
+  /** Stops the system. */
   protected def stop(): Unit
 
-  /**
-   * Checks whether a process for this system is already running.
+  /** Checks whether a process for this system is already running.
    *
    * This is different from the value of `isUp`, as a system can be running, but not yet up and operational (i.e. if
    * not all worker nodes of a distributed have connected).
@@ -155,9 +149,7 @@ abstract class System(val name: String,
    */
   def isRunning: Boolean
 
-  /**
-   * Returns the template path closest to the given system and version.
-   */
+  /** Returns the template path closest to the given system and version. */
   protected def templatePath(path: String) = {
     // initialize version and template path
     var v = version.stripSuffix("-SNAPSHOT")

@@ -12,6 +12,9 @@ import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
 
+/** Command that is used to run a single experiment from a fixture
+ *
+ */
 class Run extends Command {
 
   override def name() = "exp:run"

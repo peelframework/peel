@@ -8,6 +8,17 @@ import org.slf4j.LoggerFactory
 import scala.concurrent._
 import scala.concurrent.duration._
 
+/** Logic to execute a job in a System.
+  *
+  * This class represents a normal job in a System such as Flink or Spark. It wraps the job-file (that is probably
+  * packaged as a .jar file and provides the functionality to run and cancel it, similar to an
+  * [[eu/stratosphere/peel/core/beans/experiment/Experiment.scala Experiment]].
+ *
+ * @param command Command to run the job (as specified by the specific system)
+ * @param runner System that this job is written for
+ * @param timeout Timeout limit for the job. If job does not finish within the given limit, it is canceled
+ * @tparam R Type of the system/runner
+ */
 abstract class Job[+R <: System](val command: String, val runner: R, timeout: Long) extends Node with Configurable {
 
   import ExecutionContext.Implicits.global
@@ -17,10 +28,13 @@ abstract class Job[+R <: System](val command: String, val runner: R, timeout: Lo
 
   override var config = ConfigFactory.empty()
 
+  /** Runs the job on specified runner */
   def runJob(): Int
 
+  /** Cancels the job */
   def cancelJob()
 
+  /** Executes job and handles exceptions and timeouts. */
   def execute() = {
     logger.info("Running Job with command %s".format(resolve(command)))
 

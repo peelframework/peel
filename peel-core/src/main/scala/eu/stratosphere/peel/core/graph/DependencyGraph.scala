@@ -5,34 +5,41 @@ import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 
+/** Graph that holds the components of the specified Experiment/Suite with their dependencies
+  *
+  * The dependency-graph represents dependencies between systems, datasets and experiments.
+  * The underlying datastructure is a [[scala.collection.mutable.HashMap HashMap]] with keys of type T and values of
+  * type Set[T].
+  *
+  * @tparam T type of the vertices
+  */
 class DependencyGraph[T: ClassTag] {
 
   var graph: mutable.HashMap[T, Set[T]] = new mutable.HashMap[T, Set[T]]()
 
-  /**
+  /** Checks if the graph is empty
    * @return True if the graph is empty (i.e. has no nodes).
    */
   def isEmpty: Boolean = graph.isEmpty
 
-  /**
+  /** Size of the graph
    * @return The number of nodes in the graph
    */
   def size: Int = graph.size
 
-  /**
+  /** Get a Set of all vertices
    * @return All vertices as a set.
    */
   def vertices: Set[T] = graph.keySet.toSet
 
-  /**
+  /** Get a set of all vertices that are targeted by another vertex (Values in the map that represents the graph)
    * @return All edge targets as a set.
    */
   def edgeTargets: Set[T] = graph.values.flatten.toSet
 
-  /**
-   * Adds a vertex to the graph.
+  /** Adds a vertex to the graph.
    *
-   * If vertex already exists, returns the value associated with it, otherwise adds a vertex with emoty set as value
+   * If vertex already exists, returns the value associated with it, otherwise adds a vertex with empty set as value
    * and returns empty.
    *
    * @param key vertex to insert
@@ -40,8 +47,7 @@ class DependencyGraph[T: ClassTag] {
    */
   def addVertex(key: T): Set[T] = graph.getOrElseUpdate(key, Set())
 
-  /**
-   * Adds an edge from src to target.
+  /** Adds an edge from src to target.
    *
    * If one or both of the vertices do not exist yet, they are created.
    *
@@ -57,8 +63,7 @@ class DependencyGraph[T: ClassTag] {
     graph.update(src, graph(src) + target)
   }
 
-  /**
-   * Adds edges defined in a list.
+  /** Adds edges defined in a list.
    *
    * @param edges A list of edges to be added to the graph.
    */
@@ -66,8 +71,7 @@ class DependencyGraph[T: ClassTag] {
     for ((s, t) <- edges) yield addEdge(s, t)
   }
 
-  /**
-   * Tests if this vertex has any edge.
+  /** Tests if this vertex has any edge.
    *
    * @param src the vertex to check for an edge
    * @return true if vertex has edge, false otherwise
@@ -79,8 +83,7 @@ class DependencyGraph[T: ClassTag] {
     }
   }
 
-  /**
-   * Checks if the graph has an edge between two vertices
+  /** Checks if the graph has an edge between two vertices
    *
    * @param src the source vertex
    * @param target he target vertex
@@ -93,22 +96,25 @@ class DependencyGraph[T: ClassTag] {
     }
   }
 
-  /**
-   * Determine if the graph has a cycle
-   *
-   * @return True if graph has a cycle, false otherwise
-   */
+  /** Determine if the graph has a cycle
+    *
+    * NOT IMPLEMENTED!
+    *
+    * @return True if graph has a cycle, false otherwise
+    */
   def hasCycle: Boolean = ???
+  // TODO implement check for cycle
 
-  /**
-   * Topological sort of the directed graph
-   *
-   * @return Topologically Sorted Graph (List of names of the nodes)
-   */
+  /** Topological sort of the directed graph
+    *
+    * NOT IMPLEMENTED!
+    *
+    * @return Topologically Sorted Graph (List of names of the nodes)
+    */
   def topologicalSort: List[T] = ???
+  // TODO implement topological sort
 
-  /**
-   * Depth-first traversal on the graph.
+  /** Depth-first traversal on the graph.
    *
    * If no start vertex is given, all vertices with in-degree zero are selected as start vertices.
    * If a start vertex is given, all vertices that have in-degree zero are added additionally.
@@ -124,8 +130,7 @@ class DependencyGraph[T: ClassTag] {
       collect(start, List()).reverse
   }
 
-  /**
-   * Depth-first list of all node descendants.
+  /** Depth-first list of all node descendants.
    *
    * @param start node to start with
    * @param excluded a set of nodes to be excluded from the traversal.
@@ -133,11 +138,12 @@ class DependencyGraph[T: ClassTag] {
    */
   def descendants(start: T, excluded: Set[_ <: T] = Set.empty[T]): List[T] = collect(Set(start), List(), excluded).reverse
 
-  /**
-   * Reverses the graph.
-   *
-   * @return A new Graph with the same set of vertices and reversed edges.
-   */
+  /** Reverses the graph.
+    *
+    * All edges are redirected to point from the target to the source.
+    *
+    * @return A new Graph with the same set of vertices and reversed edges.
+    */
   def reverse: DependencyGraph[T] = {
     if (!isEmpty) {
       val newGraph = new DependencyGraph[T]()
@@ -152,8 +158,7 @@ class DependencyGraph[T: ClassTag] {
       throw new Exception("Cannot reverse empty Graph!")
   }
 
-  /**
-   * Collects descendants in a depth-first manner starting from the given set.
+  /** Collects descendants in a depth-first manner starting from the given set.
    *
    * @param toVisit A set of nodes that are yet to be visited.
    * @param visited A list of already visited nodes.

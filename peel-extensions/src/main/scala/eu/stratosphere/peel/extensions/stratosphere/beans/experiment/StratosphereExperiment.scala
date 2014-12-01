@@ -12,6 +12,27 @@ import eu.stratosphere.peel.extensions.stratosphere.beans.experiment
 import eu.stratosphere.peel.extensions.stratosphere.beans.system.Stratosphere
 import spray.json._
 
+/** Stratosphere experiment class.
+  *
+  * Stratosphere is the predecessor of what is now Apache Flink.
+ *
+ * @param command The command that specifies the execution of the experiment in terms of the underlying system's way of
+ *                submitting jobs. Example command for a Flink-experiment:
+ *
+ *                <code>-p 16 ./examples/flink-java-examples-0.7.0-incubating-WordCount.jar
+ *                file:///home/user/hamlet.txt file:///home/user/wordcount_out
+ *                </code>
+ *
+ *                You do not have to state the command that is used to 'run' the command (e.g. in Flink
+ *                <code> ./bin/flink run </code>
+ *
+ * @param runner The system that is used to run the experiment (e.g. Flink, Spark, ...)
+ * @param runs The number of runs/repetitions of this experiment
+ * @param inputs Input Datasets for the experiment
+ * @param outputs The output of the Experiment
+ * @param name Name of the Experiment
+ * @param config Config Object for the experiment
+ */
 class StratosphereExperiment(command: String,
                              runner: Stratosphere,
                              runs: Int,

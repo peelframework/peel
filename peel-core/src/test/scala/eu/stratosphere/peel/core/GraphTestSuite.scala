@@ -4,6 +4,9 @@ import eu.stratosphere.peel.core.graph.DependencyGraph
 import org.scalatest.{Matchers, FunSuite}
 import scala.collection.mutable
 
+/** TestSuite to test properties of the graph that holds all systems and dependencies.
+ *
+ */
 class GraphTestSuite extends FunSuite with Matchers {
 
   var g = new DependencyGraph[String]

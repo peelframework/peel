@@ -8,6 +8,16 @@ import eu.stratosphere.peel.core.util.shell
 
 import scala.collection.JavaConverters._
 
+/** Wrapper class for HDFS1
+ *
+  * Implements HDFS1 as a [[eu.stratosphere.peel.core.beans.system.System System]] class and provides setup and teardown methods.
+  * Additionally it offers the Filesysem capabilities to interact with hdfs.
+  *
+ * @param version Version of the system (e.g. "7.1")
+ * @param lifespan [[eu.stratosphere.peel.core.beans.system.Lifespan Lifespan]] of the system
+ * @param dependencies Set of dependencies that this system needs
+ * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
+ */
 class HDFS1(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("hdfs-1", version, lifespan, dependencies, mc) with FileSystem {
 
   override val configKey = "hadoop-1"

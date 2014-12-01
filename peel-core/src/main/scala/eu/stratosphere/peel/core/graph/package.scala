@@ -5,12 +5,15 @@ import eu.stratosphere.peel.core.beans.experiment.ExperimentSuite
 import eu.stratosphere.peel.core.beans.system.System
 import org.slf4j.LoggerFactory
 
+/** Package object that holds the functionality to create the dependency graph
+  * from the specified experiment-fixtures and their dependencies.
+  *
+  */
 package object graph {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
 
-  /**
-   * Create a directed Graph from a system and its subsystems.
+  /** Create a directed Graph from a system and its subsystems.
    *
    * @return Graph with systems as vertices and dependencies as edges
    */
@@ -26,8 +29,7 @@ package object graph {
     g
   }
 
-  /**
-   * Create a directed Graph from all Experiments and their dependencies.
+  /** Create a directed Graph from all Experiments and their dependencies.
    *
    * @return Graph with systems as vertices and dependencies as edges
    */
@@ -72,7 +74,7 @@ package object graph {
     g // return the graph
   }
 
-  // helper function: process system dependencies
+  /** helper function: process system dependencies */
   def processDependencies(s: System)(implicit g: DependencyGraph[Node]): Unit = {
     if (s.dependencies.nonEmpty) {
       for (d <- s.dependencies) {

@@ -7,12 +7,19 @@ import com.typesafe.config.{ConfigRenderOptions, Config, ConfigObject}
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
+/** A model for the different configuration file types specified by systems (e.g. .yaml, .env, hosts)
+ *
+ */
+// TODO document
 trait Model {
 
   case class Pair(name: String, value: Any) {}
 
 }
 
+/**
+ *
+ */
 object Model {
 
   class HOCON(val c: Config, val prefix: String) extends Model {

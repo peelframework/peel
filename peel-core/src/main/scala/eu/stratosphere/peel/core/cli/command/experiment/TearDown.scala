@@ -11,6 +11,9 @@ import eu.stratosphere.peel.core.graph.createGraph
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
 
+/** Command that is used to tear down the dependencies for the experiments
+  *
+  */
 class TearDown extends Command {
 
   override def name() = "exp:teardown"
