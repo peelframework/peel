@@ -140,6 +140,9 @@ package object config {
 
     def append(other: Config) = config = other.withFallback(config)
 
-    def resolve() = config.resolve()
+    def resolve() = {
+      val x = config.resolve()
+      x
+    }
   }
 }

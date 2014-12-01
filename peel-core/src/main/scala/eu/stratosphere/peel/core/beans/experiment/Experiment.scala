@@ -16,6 +16,26 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
+/** Abstract representation of an experiment.
+  *
+  * @param command The command that specifies the execution of the experiment in terms of the underlying system's way of
+  *                submitting jobs. Example command for a Flink-experiment:
+  *
+  *                <code>-p 16 ./examples/flink-java-examples-0.7.0-incubating-WordCount.jar
+  *                      file:///home/user/hamlet.txt file:///home/user/wordcount_out
+  *                </code>
+  *
+  *                You do not have to state the command that is used to 'run' the command (e.g. in Flink
+  *                <code> ./bin/flink run </code>
+  *
+ * @param runner
+ * @param runs
+ * @param inputs
+ * @param outputs
+ * @param name
+ * @param config
+ * @tparam R
+ */
 abstract class Experiment[+R <: System](val command: String,
                                         val runner: R,
                                         val runs: Int,

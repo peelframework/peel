@@ -6,6 +6,12 @@ import eu.stratosphere.peel.core.config.Configurable
 import eu.stratosphere.peel.core.graph.Node
 import org.slf4j.LoggerFactory
 
+/** Represents the output of an experiment
+ *
+ * @param path
+ * @param fs
+ */
+// TODO doc details
 class ExperimentOutput(val path: String, val fs: System with FileSystem) extends Node with Configurable {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
