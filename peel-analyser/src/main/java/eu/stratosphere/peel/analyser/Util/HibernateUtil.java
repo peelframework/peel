@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Util;
+package eu.stratosphere.peel.analyser.util;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -19,10 +19,6 @@ public class HibernateUtil {
 
     public static SessionFactory getSessionFACTORY(){
         return sessionFACTORY;
-    }
-
-    public static void resetDatabase(){
-
     }
 
     public static org.hibernate.Session getSession(){

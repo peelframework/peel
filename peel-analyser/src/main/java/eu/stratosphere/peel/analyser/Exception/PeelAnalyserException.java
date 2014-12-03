@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Exception;
+package eu.stratosphere.peel.analyser.exception;
 
 /**
  * Created by ubuntu on 18.10.14.

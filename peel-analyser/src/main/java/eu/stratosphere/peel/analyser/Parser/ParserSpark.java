@@ -1,10 +1,10 @@
-package eu.stratosphere.peel.analyser.Parser;
+package eu.stratosphere.peel.analyser.parser;
 
-import eu.stratosphere.peel.analyser.Exception.PeelAnalyserException;
-import eu.stratosphere.peel.analyser.Model.ExperimentRun;
-import eu.stratosphere.peel.analyser.Model.Task;
-import eu.stratosphere.peel.analyser.Model.TaskInstance;
-import eu.stratosphere.peel.analyser.Model.TaskInstanceEvents;
+import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
+import eu.stratosphere.peel.analyser.model.ExperimentRun;
+import eu.stratosphere.peel.analyser.model.Task;
+import eu.stratosphere.peel.analyser.model.TaskInstance;
+import eu.stratosphere.peel.analyser.model.TaskInstanceEvents;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.json.JSONObject;
@@ -51,7 +51,7 @@ public class ParserSpark implements Parser{
         Task task;
         Transaction transaction = session.beginTransaction();
 
-        String line = "";
+        String line;
         while((line = in.readLine()) != null){
             if(ParserSparkHelper.getEvent(line).equals("SparkListenerTaskEnd") && !skipInstances){
                 task = getTaskByLine(line);
@@ -78,7 +78,7 @@ public class ParserSpark implements Parser{
 
     /**
      * this method will parse the line and will create a new TaskInstance object with the parsed information
-     * @param input
+     * @param input a logfile line
      * @return TaskInstance with all related events
      */
     private TaskInstance getTaskInstanceByLine(String input, Task task){

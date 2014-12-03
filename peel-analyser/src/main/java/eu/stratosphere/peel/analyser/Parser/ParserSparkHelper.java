@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Parser;
+package eu.stratosphere.peel.analyser.parser;
 
 import org.json.JSONObject;
 
@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * Created by Fabian on 02.11.2014.
  */
-public class ParserSparkHelper {
+class ParserSparkHelper {
 
     public static int getTaskID(String input){
         JSONObject jsonObject = new JSONObject(input);

@@ -1,19 +1,12 @@
-package eu.stratosphere.peel.analyser.Model;
+package eu.stratosphere.peel.analyser.model;
 
-import eu.stratosphere.peel.analyser.Util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import org.hibernate.Session;
-import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
-import java.util.Iterator;
-import java.util.List;
 
 public class TaskTest {
-
-    @Before
-    public void setUp() throws Exception {
-        HibernateUtil.resetDatabase();
-    }
 
     @Test
     public void testGetTaskInstanceBySubtaskNumber() throws Exception {
@@ -23,12 +16,10 @@ public class TaskTest {
         int experimentRunRun = 1;
         Integer subtaskNumber = 1;
         Integer taskNumberOfSubtask = 1;
-        Task task = null;
+        Task task;
 
-        List resultSuite = null;
-        Iterator<Experiment> resultExperimentIterator = null;
         Session session = null;
-        TaskInstance taskInstance = null;
+        TaskInstance taskInstance;
         try {
             //create session
             session = HibernateUtil.getSessionFACTORY().openSession();
@@ -87,6 +78,6 @@ public class TaskTest {
         }
 
         TaskInstance taskInstanceResult = task.taskInstanceBySubtaskNumber(subtaskNumber);
-        assertEquals(taskInstance ,taskInstanceResult);
+        assertEquals(taskInstance.getSubTaskNumber() ,taskInstanceResult.getSubTaskNumber());
     }
 }

@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Model;
+package eu.stratosphere.peel.analyser.model;
 
 import javax.persistence.*;
 import java.util.*;
@@ -17,7 +17,7 @@ public class ExperimentRun {
     private Experiment experiment;
 
     public ExperimentRun() {
-        taskSet = new HashSet<Task>();
+        taskSet = new HashSet<>();
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

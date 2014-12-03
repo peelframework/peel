@@ -1,6 +1,6 @@
-package eu.stratosphere.peel.analyser.Util;
+package eu.stratosphere.peel.analyser.util;
 
-import eu.stratosphere.peel.analyser.Model.ExperimentRun;
+import eu.stratosphere.peel.analyser.model.ExperimentRun;
 
 import java.io.File;
 

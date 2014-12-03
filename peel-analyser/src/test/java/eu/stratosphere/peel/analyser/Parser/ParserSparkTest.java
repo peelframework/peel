@@ -1,10 +1,12 @@
-package eu.stratosphere.peel.analyser.Parser;
+package eu.stratosphere.peel.analyser.parser;
 
-import eu.stratosphere.peel.analyser.Model.System;
-import eu.stratosphere.peel.analyser.Util.HibernateUtil;
-import junit.framework.TestCase;
+import eu.stratosphere.peel.analyser.model.*;
+import eu.stratosphere.peel.analyser.model.System;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import org.easymock.EasyMock;
 import org.hibernate.Session;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -12,15 +14,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Date;
 
-public class ParserSparkTest extends TestCase{
+public class ParserSparkTest {
 
     private ExperimentRun experimentRun;
-    private Task task;
     private Session session = null;
 
     //remember to close session!
-    protected void setUp() throws Exception{
-        HibernateUtil.resetDatabase();
+    @Before
+    public void setUp() throws Exception{
 
         String experimentSuiteName = "kmeans-mllib.dop80.run01";
         String experimentName = "kmeans-mllib.dob80";
@@ -59,7 +60,7 @@ public class ParserSparkTest extends TestCase{
             session.save(experimentRun);
             experiment.getExperimentRunSet().add(experimentRun);
 
-            task = new Task();
+            Task task = new Task();
             task.setExperimentRun(experimentRun);
             task.setTaskType("ResultTask");
             experimentRun.getTaskSet().add(task);
@@ -96,10 +97,10 @@ public class ParserSparkTest extends TestCase{
         session.close();
         Task taskResult = experimentRun.getTaskSet().iterator().next();
         TaskInstance taskInstanceResult = taskResult.getTaskInstances().iterator().next();
-        assertEquals("ResultTask", taskResult.getTaskType());
-        assertEquals(taskInstanceNumber, taskInstanceResult.getSubTaskNumber());
-        assertEquals(launch, taskInstanceResult.getEventByName("Launch").getValueTimestamp());
-        assertEquals(finished, taskInstanceResult.getEventByName("Finished").getValueTimestamp());
+        Assert.assertEquals("ResultTask", taskResult.getTaskType());
+        Assert.assertEquals(taskInstanceNumber, taskInstanceResult.getSubTaskNumber());
+        Assert.assertEquals(launch, taskInstanceResult.getEventByName("Launch").getValueTimestamp());
+        Assert.assertEquals(finished, taskInstanceResult.getEventByName("Finished").getValueTimestamp());
     }
 
     @Test
@@ -122,10 +123,10 @@ public class ParserSparkTest extends TestCase{
         session.close();
         Task taskResult = experimentRun.taskByTaskType("ShuffleMapTask");
         TaskInstance taskInstanceResult = taskResult.taskInstanceBySubtaskNumber(subTaskNumber);
-        assertEquals("ShuffleMapTask", taskResult.getTaskType());
-        assertEquals(subTaskNumber, taskInstanceResult.getSubTaskNumber());
-        assertEquals(launch, taskInstanceResult.getEventByName("Launch").getValueTimestamp());
-        assertEquals(finished, taskInstanceResult.getEventByName("Finished").getValueTimestamp());
+        Assert.assertEquals("ShuffleMapTask", taskResult.getTaskType());
+        Assert.assertEquals(subTaskNumber, taskInstanceResult.getSubTaskNumber());
+        Assert.assertEquals(launch, taskInstanceResult.getEventByName("Launch").getValueTimestamp());
+        Assert.assertEquals(finished, taskInstanceResult.getEventByName("Finished").getValueTimestamp());
     }
 
     @Test
@@ -143,16 +144,16 @@ public class ParserSparkTest extends TestCase{
         TaskInstance taskInstanceResultTask2850 = taskResultTask.taskInstanceBySubtaskNumber(2850);
         Date launchResultTask2850 = new Date(1414094815532L);
         Date finishedResultTask2850 = new Date(1414094815549L);
-        assertEquals(taskInstanceResultTask2850.getEventByName("Launch").getValueTimestamp(), launchResultTask2850);
-        assertEquals(taskInstanceResultTask2850.getEventByName("Finished").getValueTimestamp(), finishedResultTask2850);
+        Assert.assertEquals(taskInstanceResultTask2850.getEventByName("Launch").getValueTimestamp(), launchResultTask2850);
+        Assert.assertEquals(taskInstanceResultTask2850.getEventByName("Finished").getValueTimestamp(), finishedResultTask2850);
 
         //Test2 with Subtask Number 2885 and TaskType ShuffleMapTask
         Task taskShuffle = experimentRun.taskByTaskType("ShuffleMapTask");
         TaskInstance taskInstanceShuffle2885 = taskShuffle.taskInstanceBySubtaskNumber(2885);
         Date launchShuffle2885 = new Date(1414094815615L);
         Date finishedShuffle2885 = new Date(1414094817066L);
-        assertEquals(taskInstanceShuffle2885.getEventByName("Launch").getValueTimestamp(), launchShuffle2885);
-        assertEquals(taskInstanceShuffle2885.getEventByName("Finished").getValueTimestamp(), finishedShuffle2885);
+        Assert.assertEquals(taskInstanceShuffle2885.getEventByName("Launch").getValueTimestamp(), launchShuffle2885);
+        Assert.assertEquals(taskInstanceShuffle2885.getEventByName("Finished").getValueTimestamp(), finishedShuffle2885);
     }
 
     @Test
@@ -181,9 +182,9 @@ public class ParserSparkTest extends TestCase{
         parser.parse(reader);
         session.close();
 
-        assertEquals(submit, experimentRun.getSubmitTime());
-        assertEquals(deployed, experimentRun.getDeployed());
-        assertEquals(end, experimentRun.getFinished());
+        Assert.assertEquals(submit, experimentRun.getSubmitTime());
+        Assert.assertEquals(deployed, experimentRun.getDeployed());
+        Assert.assertEquals(end, experimentRun.getFinished());
     }
 
 }

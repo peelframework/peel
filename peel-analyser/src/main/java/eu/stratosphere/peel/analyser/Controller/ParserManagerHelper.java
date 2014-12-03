@@ -1,11 +1,11 @@
-package eu.stratosphere.peel.analyser.Controller;
+package eu.stratosphere.peel.analyser.controller;
 
-import eu.stratosphere.peel.analyser.Exception.PeelAnalyserException;
-import eu.stratosphere.peel.analyser.Model.Experiment;
-import eu.stratosphere.peel.analyser.Model.ExperimentRun;
-import eu.stratosphere.peel.analyser.Model.ExperimentSuite;
-import eu.stratosphere.peel.analyser.Model.System;
-import eu.stratosphere.peel.analyser.Util.HibernateUtil;
+import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
+import eu.stratosphere.peel.analyser.model.Experiment;
+import eu.stratosphere.peel.analyser.model.ExperimentRun;
+import eu.stratosphere.peel.analyser.model.ExperimentSuite;
+import eu.stratosphere.peel.analyser.model.System;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import org.hibernate.Session;
 import org.json.JSONObject;
 
@@ -17,18 +17,22 @@ import java.util.regex.Pattern;
 /**
  * Created by ubuntu on 08.11.14.
  */
-public class ParserManagerHelper {
+class ParserManagerHelper {
     /**
      * gets the system saved in the database by the systemName
-     * @param systemName
-     * @return
+     * @param systemName the name of the system
+     * @param version of the system
+     * @return the system
      */
-    public static System getSystem(String systemName){
+    public static System getSystem(String systemName, String version){
         List<System> systemList;
-        String query = "from System where name = :systemName";
+        String query = "from System where name = :systemName and version = :version";
         HibernateUtil.getSession().beginTransaction();
         systemList = HibernateUtil.getSession()
-                .createQuery(query).setParameter("systemName", systemName).list();
+                .createQuery(query)
+                .setParameter("systemName", systemName)
+                .setParameter("version", version)
+                .list();
         HibernateUtil.getSession().getTransaction().commit();
         if(systemList.iterator().hasNext()) {
             return systemList.iterator().next();
@@ -41,7 +45,7 @@ public class ParserManagerHelper {
         Session session = HibernateUtil.getSession();
         session.beginTransaction();
 
-        eu.stratosphere.peel.analyser.Model.System system = new System();
+        eu.stratosphere.peel.analyser.model.System system = new System();
         system.setName(stateJsonObj.getString("runnerName"));
         system.setVersion(stateJsonObj.getString("runnerVersion"));
         session.save(system);
@@ -108,7 +112,7 @@ public class ParserManagerHelper {
         return experiment;
     }
 
-    public static int parseExperimentRunCount(JSONObject stateJsonObj) throws PeelAnalyserException {
+    private static int parseExperimentRunCount(JSONObject stateJsonObj) throws PeelAnalyserException {
         Pattern pattern = Pattern.compile("(?<=.run)[0-9]+");
         Matcher matcher = pattern.matcher(stateJsonObj.getString("name"));
         if(matcher.find()) {
@@ -132,8 +136,8 @@ public class ParserManagerHelper {
 
     /**
      * this method checks if the given filename is the jobmanager logfile
-     * @param filename
-     * @return
+     * @param filename of the file you want to know if it's the jobmanager logfile
+     * @return true if this is the jobmanager logfile, false if not
      */
     public static boolean isJobmanager(String filename, String system){
         Pattern pattern = null;
@@ -148,22 +152,21 @@ public class ParserManagerHelper {
 
     /**
      * this method finds the jobmanager file in the logs directory of a given ExperimentRun directory
-     * @param experimentRunFile
-     * @return
-     * @throws Exception
+     * @param experimentRunFile the directory of the experimentRun
+     * @return the logfile of the jobmanager
      */
-    public static File findLogFile(File experimentRunFile, String system) throws Exception {
+    public static File findLogFile(File experimentRunFile, String system) {
         File[] files = experimentRunFile.listFiles();
         File logs = null;
-        for(int i = 0; i<files.length; i++){
-            if(files[i].getName().equals("logs")){
-                logs = files[i];
+        for (File file : files) {
+            if (file.getName().equals("logs")) {
+                logs = file;
             }
         }
         File[] logFiles = logs.listFiles();
-        for(int i = 0; i<logFiles.length; i++){
-            if(isJobmanager(logFiles[i].getName(), system)){
-                return logFiles[i];
+        for (File logFile : logFiles) {
+            if (isJobmanager(logFile.getName(), system)) {
+                return logFile;
             }
         }
         return null;
@@ -189,7 +192,7 @@ public class ParserManagerHelper {
 
     /**
      * checks if a ExperimentRun has failed.
-     * @param stateJsonObj
+     * @param stateJsonObj the state.json as a JSONObject
      * @return false if ExperimentRun finished correctly and true if ExperimentRun failed
      */
     public static boolean isFailedExperimentRun(JSONObject stateJsonObj){

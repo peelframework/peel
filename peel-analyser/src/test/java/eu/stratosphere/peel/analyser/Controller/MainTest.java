@@ -1,7 +1,7 @@
-package eu.stratosphere.peel.analyser.Controller;
+package eu.stratosphere.peel.analyser.controller;
 
-import eu.stratosphere.peel.analyser.Model.Experiment;
-import eu.stratosphere.peel.analyser.Util.HibernateUtil;
+import eu.stratosphere.peel.analyser.model.Experiment;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import org.junit.Test;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class MainTest {
 
-    @Test
+    /*@Test
     public void testMain() throws Exception{
         Main.main(new String[]{"--parse", "H:\\TUB Client Synch\\Schule\\Uni\\Bachelorarbeit\\Logs\\Mingliang wally Auswertungen\\results\\pagerank.twitter.wally"});
         //List<Experiment> experimentList = HibernateUtil.getSessionFACTORY().openSession().createQuery("from Experiment").list();
@@ -20,7 +20,7 @@ public class MainTest {
         //ExperimentRun experimentRun = experimentList.get(0).getExperimentRunSet().iterator().next();
         /*Task taskChain =  experimentRun.taskByTaskType("CHAIN");
         TaskInstance taskInstanceChain1 = taskChain.taskInstanceBySubtaskNumber(1);
-        TaskInstanceEvents deployed = taskInstanceChain1.getEventByName("to deployed");*/
+        TaskInstanceEvents deployed = taskInstanceChain1.getEventByName("to deployed");
     }
 
     @Test
@@ -28,5 +28,5 @@ public class MainTest {
         Main.main(new String[]{"--parse", "H:\\TUB Client Synch\\Schule\\Uni\\Bachelorarbeit\\Logs\\Mingliang wally Auswertungen\\tpch3\\results", "--skipInstances"});
         HibernateUtil.getSessionFACTORY().getCurrentSession().close();
         List<Experiment> experimentList = HibernateUtil.getSessionFACTORY().openSession().createQuery("from Experiment").list();
-    }
+    }*/
 }

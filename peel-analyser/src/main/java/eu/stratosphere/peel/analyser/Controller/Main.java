@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Controller;
+package eu.stratosphere.peel.analyser.controller;
 
 
 import java.io.File;

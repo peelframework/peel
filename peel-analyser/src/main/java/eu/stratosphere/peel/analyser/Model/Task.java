@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Model;
+package eu.stratosphere.peel.analyser.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -19,7 +19,7 @@ public class Task {
 
     public Task() {
         numberOfSubtasks = 0;
-        taskInstances = new HashSet<TaskInstance>();
+        taskInstances = new HashSet<>();
     }
 
     /* getter and setter*/
@@ -94,7 +94,7 @@ public class Task {
 
     public TaskInstance taskInstanceBySubtaskNumber(int subtaskNumber){
         Iterator<TaskInstance> taskInstanceIterator = taskInstances.iterator();
-        TaskInstance taskInstance = null;
+        TaskInstance taskInstance;
         while (taskInstanceIterator.hasNext()){
             taskInstance = taskInstanceIterator.next();
             if(taskInstance.getSubTaskNumber() == subtaskNumber){
