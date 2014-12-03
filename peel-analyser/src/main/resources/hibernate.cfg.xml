@@ -22,12 +22,12 @@
 
         <property name="hibernate.current_session_context_class">thread</property>
 
-        <mapping class="eu.stratosphere.peel.analyser.Model.TaskInstanceEvents" />
-        <mapping class="eu.stratosphere.peel.analyser.Model.TaskInstance" />
-        <mapping class="eu.stratosphere.peel.analyser.Model.Task" />
-        <mapping class="eu.stratosphere.peel.analyser.Model.ExperimentRun" />
-        <mapping class="eu.stratosphere.peel.analyser.Model.Experiment" />
-        <mapping class="eu.stratosphere.peel.analyser.Model.ExperimentSuite" />
-        <mapping class="eu.stratosphere.peel.analyser.Model.System" />
+        <mapping class="eu.stratosphere.peel.analyser.model.TaskInstanceEvents" />
+        <mapping class="eu.stratosphere.peel.analyser.model.TaskInstance" />
+        <mapping class="eu.stratosphere.peel.analyser.model.Task" />
+        <mapping class="eu.stratosphere.peel.analyser.model.ExperimentRun" />
+        <mapping class="eu.stratosphere.peel.analyser.model.Experiment" />
+        <mapping class="eu.stratosphere.peel.analyser.model.ExperimentSuite" />
+        <mapping class="eu.stratosphere.peel.analyser.model.System" />
     </session-factory>
 </hibernate-configuration>
