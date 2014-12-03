@@ -1,8 +1,6 @@
-package eu.stratosphere.peel.analyser.Model;
+package eu.stratosphere.peel.analyser.model;
 
-import eu.stratosphere.peel.analyser.Util.HibernateUtil;
-
-public class HibernateDatabaseTest {
+class HibernateDatabaseTest {
 /*
     @After
     public void cleanUp(){

@@ -1,6 +1,6 @@
-package eu.stratosphere.peel.analyser.Controller;
+package eu.stratosphere.peel.analyser.controller;
 
-import eu.stratosphere.peel.analyser.Util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.view.JasperViewer;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
@@ -15,7 +15,7 @@ import java.sql.SQLException;
 /**
  * Created by Fabian on 13.11.2014.
  */
-public class ReportManager {
+class ReportManager {
     public static void showReport(File report) throws FileNotFoundException, JRException, SQLException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new FileInputStream(report));
         SessionFactoryImplementor sessionFactoryImplementor = (SessionFactoryImplementor)HibernateUtil.getSessionFACTORY();

@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Parser;
+package eu.stratosphere.peel.analyser.parser;
 
 import org.junit.Test;
 

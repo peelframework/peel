@@ -1,9 +1,9 @@
-package eu.stratosphere.peel.analyser.Parser;
+package eu.stratosphere.peel.analyser.parser;
 
-import eu.stratosphere.peel.analyser.Exception.PeelAnalyserException;
-import eu.stratosphere.peel.analyser.Model.ExperimentRun;
-import eu.stratosphere.peel.analyser.Model.Task;
-import eu.stratosphere.peel.analyser.Model.TaskInstance;
+import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
+import eu.stratosphere.peel.analyser.model.ExperimentRun;
+import eu.stratosphere.peel.analyser.model.Task;
+import eu.stratosphere.peel.analyser.model.TaskInstance;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -22,7 +22,7 @@ public class ParserFlink implements Parser {
 
     private static final Pattern patternTaskType = Pattern.compile("(DataSink)|(Reduce)|(CHAIN)|(PartialSolution)|(Map)|(Combine)");
     private Session session = null;
-    boolean skipInstances;
+    private boolean skipInstances;
 
     public ParserFlink(boolean skipInstances) {
         this.skipInstances = skipInstances;
@@ -49,7 +49,7 @@ public class ParserFlink implements Parser {
     }
 
     public void parse(BufferedReader in) throws IOException, PeelAnalyserException {
-        String line = null;
+        String line;
         Transaction transaction = session.beginTransaction();
         while((line = in.readLine()) != null){
             if(ParserFlinkHelper.isJob(line)){
@@ -65,7 +65,7 @@ public class ParserFlink implements Parser {
 
     /**
      * this method handles a logfile line which specifies a job. It will add the statusChangeTime
-     * @param jobInput
+     * @param jobInput a logfile line describing a job
      */
     private void handleJobInput(String jobInput) throws PeelAnalyserException{
         if(ParserFlinkHelper.isReleasingInstance(jobInput)) { return;}       //not useful information
@@ -80,7 +80,6 @@ public class ParserFlink implements Parser {
         }
         if(ParserFlinkHelper.isFinishedJob(jobInput)){
             experimentRun.setFinished(ParserFlinkHelper.getTimeStamp(jobInput));
-            return;
         }
     }
 
@@ -91,8 +90,8 @@ public class ParserFlink implements Parser {
      * @param taskInstanceInput (a line of the logfile with the subtask)
      */
     private void handleTaskInstanceInput(String taskInstanceInput) throws PeelAnalyserException{
-        String taskTypeString = "";
-        Task task = null;
+        String taskTypeString;
+        Task task;
 
         Matcher matcherTaskType = patternTaskType.matcher(taskInstanceInput);
         if(matcherTaskType.find()){
@@ -116,7 +115,6 @@ public class ParserFlink implements Parser {
     }
 
     private void handleTaskInstance(Task task, String taskInstanceInput) throws PeelAnalyserException{
-        String taskType = "";
         TaskInstance taskInstance = null;
 
         int subTaskNumber = ParserFlinkHelper.getSubTaskNumber(taskInstanceInput);

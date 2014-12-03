@@ -1,10 +1,10 @@
-package eu.stratosphere.peel.analyser.Parser;
+package eu.stratosphere.peel.analyser.parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import eu.stratosphere.peel.analyser.Exception.PeelAnalyserException;
-import eu.stratosphere.peel.analyser.Model.ExperimentRun;
+import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
+import eu.stratosphere.peel.analyser.model.ExperimentRun;
 import org.hibernate.Session;
 
 /**

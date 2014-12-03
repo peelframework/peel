@@ -1,6 +1,6 @@
-package eu.stratosphere.peel.analyser.Parser;
+package eu.stratosphere.peel.analyser.parser;
 
-import eu.stratosphere.peel.analyser.Exception.PeelAnalyserException;
+import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Created by Fabsi on 25.10.2014.
  */
-public class ParserFlinkHelper {
+class ParserFlinkHelper {
 
     private static final Pattern patternSubtaskNumber = Pattern.compile("[0-9]+(?=/[0-9]+\\))");
     private static final Pattern patternTimestamp = Pattern.compile("([0-2][0-9]):([0-5][0-9]):([0-5][0-9])(,)([0-9]{3})");
@@ -26,8 +26,8 @@ public class ParserFlinkHelper {
     private static final Pattern patternFinishedJob = Pattern.compile("(changed to FINISHED)|(switched to FINISHED)");
 
     public static Date getTimeStamp(String input) throws PeelAnalyserException {
-        String timestamp = "";
-        Date timestampDate = null;
+        String timestamp;
+        Date timestampDate;
         Matcher matcherTimestamp = patternTimestamp.matcher(input);
         if (matcherTimestamp.find()){
             timestamp = matcherTimestamp.group();
@@ -44,7 +44,7 @@ public class ParserFlinkHelper {
     }
 
     public static int getSubTaskNumber(String input) throws PeelAnalyserException {
-        String subTaskNumber = "";
+        String subTaskNumber;
         Matcher matcherSubtaskNumber = patternSubtaskNumber.matcher(input);
         if(matcherSubtaskNumber.find()) {
             subTaskNumber = matcherSubtaskNumber.group();
@@ -94,15 +94,11 @@ public class ParserFlinkHelper {
 
     /**
      * this method looks if the logfile statement specifies a job or not.
-     * @param input
+     * @param input a logfile line
      * @return true if the logfile statement is a job and false if it's not
      */
     public static boolean isJob(String input){
         Matcher matcherIsJob = patternIsJob.matcher(input);
-        if(matcherIsJob.find()){
-            return true;
-        } else{
-            return false;
-        }
+        return matcherIsJob.find();
     }
 }

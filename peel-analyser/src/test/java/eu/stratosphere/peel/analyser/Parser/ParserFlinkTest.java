@@ -1,18 +1,17 @@
-package eu.stratosphere.peel.analyser.Parser;
+package eu.stratosphere.peel.analyser.parser;
 
-import eu.stratosphere.peel.analyser.Model.System;
-import eu.stratosphere.peel.analyser.Util.HibernateUtil;
+import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
+import eu.stratosphere.peel.analyser.model.*;
+import eu.stratosphere.peel.analyser.model.System;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import junit.framework.TestCase;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -21,33 +20,29 @@ public class ParserFlinkTest extends TestCase {
 
     private ExperimentRun experimentRun;
     private Task taskChain;
-    private Session session = null;
+    String experimentSuiteName = "wc.wordcount.single-run-run";
+    String experimentName = "wordcountRun";
+    int experimentRuns = 5;
+    int experimentRunRun = 1;
 
     //remember to close session!
     protected void setUp() throws Exception{
-        HibernateUtil.resetDatabase();
 
-        String experimentSuiteName = "wc.wordcount.single-run";
-        String experimentName = "wordcount";
-        int experimentRuns = 5;
-        int experimentRunRun = 1;
 
-        List resultSuite = null;
-        Iterator<Experiment> resultExperimentIterator = null;
-        TaskInstance taskInstance = null;
+
+
         try {
             //create session
-            session = HibernateUtil.getSessionFACTORY().openSession();
-            session.beginTransaction();
+            HibernateUtil.getSession().beginTransaction();
 
             //create Experiment Suite
             ExperimentSuite experimentSuite = new ExperimentSuite();
             experimentSuite.setName(experimentSuiteName);
-            session.save(experimentSuite);
+            HibernateUtil.getSession().save(experimentSuite);
 
             System system = new System();
             system.setName("flink");
-            session.save(system);
+            HibernateUtil.getSession().save(system);
 
             //create Experiment and connect it to ExperimentSuite
             Experiment experiment = new Experiment();
@@ -56,14 +51,14 @@ public class ParserFlinkTest extends TestCase {
             experiment.setRuns(experimentRuns);
             experiment.setSystem(system);
             system.getExperimentSet().add(experiment);
-            session.save(experiment);
+            HibernateUtil.getSession().save(experiment);
             experimentSuite.getExperimentSet().add(experiment);
 
             //create ExperimentRun and add it to Experiment
             experimentRun = new ExperimentRun();
             experimentRun.setExperiment(experiment);
             experimentRun.setRun(experimentRunRun);
-            session.save(experimentRun);
+            HibernateUtil.getSession().save(experimentRun);
             experiment.getExperimentRunSet().add(experimentRun);
 
 
@@ -73,12 +68,9 @@ public class ParserFlinkTest extends TestCase {
             //experimentRun.getTaskSet().add(taskChain);
 
             //commit the transaction
-            session.getTransaction().commit();
-            session.close();        //close session!
+            HibernateUtil.getSession().getTransaction().commit();
         } catch (Exception e){
-            if(session != null) {
-                session.getTransaction().rollback();
-            }
+            HibernateUtil.getSession().getTransaction().rollback();
             throw e;
         }
     }
@@ -148,13 +140,23 @@ public class ParserFlinkTest extends TestCase {
 
     @Test
     public void testFile() throws Exception {
-        session = HibernateUtil.getSessionFACTORY().openSession();
-        BufferedReader reader = new BufferedReader(new FileReader(new File("./src/test/resources/flink-ubuntu-jobmanager-ubuntu-SVP1321L1EBI")));
-        ParserFlink parserFlink = new ParserFlink(experimentRun, session);
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("flink-ubuntu-jobmanager-ubuntu-SVP1321L1EBI");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        ParserFlink parserFlink = new ParserFlink(experimentRun, HibernateUtil.getSession());
         parserFlink.parse(reader);
         DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
 
-        List<ExperimentRun> experimentRunList = session.createQuery("from ExperimentRun ").list();
+        String query = "select experimentRun from ExperimentRun as experimentRun join experimentRun.experiment as experiment join experiment.system as system join experiment.experimentSuite as experimentSuite where experiment.name = :experimentName AND system.name = :systemName AND experimentSuite.name = :experimentSuiteName";
+        HibernateUtil.getSession().beginTransaction();
+        List<ExperimentRun> experimentRunList = HibernateUtil.getSession().createQuery(query)
+                .setParameter("experimentName", experimentName)
+                .setParameter("systemName", "flink")
+                .setParameter("experimentSuiteName", experimentSuiteName)
+                .list();
+
+        HibernateUtil.getSession().getTransaction().commit();
         ExperimentRun experimentRunDatabase = experimentRunList.get(0);
 
         //test 1
@@ -162,8 +164,8 @@ public class ParserFlinkTest extends TestCase {
         Date resultScheduledReduce4 = experimentRunDatabase.
                 taskByTaskType("Reduce").
                 taskInstanceBySubtaskNumber(4).
-                                            getEventByName("created to Scheduled").
-                                            getValueTimestamp();
+                getEventByName("created to Scheduled").
+                getValueTimestamp();
         assertEquals(createScheduledReduce4, resultScheduledReduce4);
 
         //test 2

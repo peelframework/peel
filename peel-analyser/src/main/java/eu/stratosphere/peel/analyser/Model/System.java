@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Model;
+package eu.stratosphere.peel.analyser.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ public class System {
     private Set<Experiment> experimentSet;
 
     public System() {
-        experimentSet = new HashSet<Experiment>();
+        experimentSet = new HashSet<>();
     }
 
     @Id

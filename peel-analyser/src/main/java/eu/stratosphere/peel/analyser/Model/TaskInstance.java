@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Model;
+package eu.stratosphere.peel.analyser.model;
 
 import org.hibernate.Session;
 
@@ -20,7 +20,7 @@ public class TaskInstance
     private Task task;
 
     public TaskInstance() {
-        taskInstanceEventsSet = new HashSet<TaskInstanceEvents>();
+        taskInstanceEventsSet = new HashSet<>();
     }
 
     /*getter and setter */
@@ -117,8 +117,8 @@ public class TaskInstance
 
     /**
      * returns the event specified by this name.
-     * @param name
-     * @return
+     * @param name the eventName
+     * @return the corresponding taskInstanceEvents
      */
     public TaskInstanceEvents getEventByName(String name){
         Iterator<TaskInstanceEvents> events = taskInstanceEventsSet.iterator();

@@ -1,15 +1,15 @@
-package eu.stratosphere.peel.analyser.Controller;
+package eu.stratosphere.peel.analyser.controller;
 
-import eu.stratosphere.peel.analyser.Exception.PeelAnalyserException;
-import eu.stratosphere.peel.analyser.Model.Experiment;
-import eu.stratosphere.peel.analyser.Model.ExperimentRun;
-import eu.stratosphere.peel.analyser.Model.ExperimentSuite;
-import eu.stratosphere.peel.analyser.Model.System;
-import eu.stratosphere.peel.analyser.Parser.Parser;
-import eu.stratosphere.peel.analyser.Parser.ParserFlink;
-import eu.stratosphere.peel.analyser.Parser.ParserSpark;
-import eu.stratosphere.peel.analyser.Util.ExperimentRunFile;
-import eu.stratosphere.peel.analyser.Util.HibernateUtil;
+import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
+import eu.stratosphere.peel.analyser.model.Experiment;
+import eu.stratosphere.peel.analyser.model.ExperimentRun;
+import eu.stratosphere.peel.analyser.model.ExperimentSuite;
+import eu.stratosphere.peel.analyser.model.System;
+import eu.stratosphere.peel.analyser.parser.Parser;
+import eu.stratosphere.peel.analyser.parser.ParserFlink;
+import eu.stratosphere.peel.analyser.parser.ParserSpark;
+import eu.stratosphere.peel.analyser.util.ExperimentRunFile;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -23,10 +23,10 @@ import java.util.LinkedList;
  */
 public class ParserManager {
 
-    LinkedList<ExperimentRunFile> experimentRunFileList = new LinkedList<ExperimentRunFile>();
-    File rootPath;
-    Parser parser = null;
-    boolean skipInstances;
+    private final LinkedList<ExperimentRunFile> experimentRunFileList = new LinkedList<>();
+    private final File rootPath;
+    private Parser parser = null;
+    private final boolean skipInstances;
 
     public ParserManager(String path, boolean skipInstances){
         rootPath = new File(path);
@@ -41,31 +41,34 @@ public class ParserManager {
     public void parsePath() throws Exception {
         searchExperimentRuns();
 
-        for(int i = 0; i < experimentRunFileList.size(); i++){
+        for (ExperimentRunFile anExperimentRunFileList : experimentRunFileList) {
 
             //get experimentRun and system
 
-            ExperimentRun experimentRun = experimentRunFileList.get(i).getExperimentRun();
+            ExperimentRun experimentRun = anExperimentRunFileList.getExperimentRun();
             String system = ParserManagerHelper.getSystemOfExperimentRun(experimentRun);
 
-            File logFile = ParserManagerHelper.findLogFile(experimentRunFileList.get(i).getFile(), system);
-            if(logFile == null){
+            File logFile = ParserManagerHelper.findLogFile(anExperimentRunFileList.getFile(), system);
+            if (logFile == null) {
                 throw new PeelAnalyserException("Parser Manager - could not find a LogFile");
             }
             BufferedReader reader = new BufferedReader(new FileReader(logFile));
 
             //create parser
-            if(system.equals("flink")){
-                parser = new ParserFlink(skipInstances);
-            } else if(system.equals("spark")){
-                parser = new ParserSpark(skipInstances);
-            } else {
-                throw new PeelAnalyserException("ParserManager - could not identify the system of experimentRun. ExpRun: " + experimentRun.getExperiment().getName() + experimentRun.getRun() + " System: " + system);
+            switch (system) {
+                case "flink":
+                    parser = new ParserFlink(skipInstances);
+                    break;
+                case "spark":
+                    parser = new ParserSpark(skipInstances);
+                    break;
+                default:
+                    throw new PeelAnalyserException("ParserManager - could not identify the system of experimentRun. ExpRun: " + experimentRun.getExperiment().getName() + experimentRun.getRun() + " System: " + system);
             }
 
             //setup Parser
             parser.setSession(HibernateUtil.getSession());
-            if(experimentRun != null) {
+            if (experimentRun != null) {
                 parser.setExperimentRun(experimentRun);
             } else {
                 throw new PeelAnalyserException("ParserManager - ExperimentRun is null");
@@ -81,16 +84,16 @@ public class ParserManager {
      * this method will search for ExperimentRuns starting from the root Directory
      * @throws PeelAnalyserException
      */
-    public void searchExperimentRuns() throws PeelAnalyserException{
+    void searchExperimentRuns() throws PeelAnalyserException{
         if(!rootPath.isDirectory()) throw new PeelAnalyserException("Der angegebene Pfad ist kein Verzeichnis. Bitte geben Sie ein Verzeichnis an.");
 
         File[] experimentDirectory = rootPath.listFiles();
-        for(int i = 0; i < experimentDirectory.length; i++){
-            File[] experimentRunDirectories = experimentDirectory[i].listFiles();
-            for(int j = 0; j < experimentRunDirectories.length; j++){
-                ExperimentRun experimentRun = getExperimentRun(experimentRunDirectories[j]);
-                if(experimentRun != null) {
-                    experimentRunFileList.add(new ExperimentRunFile(experimentRun, experimentRunDirectories[j]));
+        for (File anExperimentDirectory : experimentDirectory) {
+            File[] experimentRunDirectories = anExperimentDirectory.listFiles();
+            for (File experimentRunDirectory : experimentRunDirectories) {
+                ExperimentRun experimentRun = getExperimentRun(experimentRunDirectory);
+                if (experimentRun != null) {
+                    experimentRunFileList.add(new ExperimentRunFile(experimentRun, experimentRunDirectory));
                 }
             }
         }
@@ -98,18 +101,18 @@ public class ParserManager {
 
     /**
      * this method will get the ExperimentRun object from the given ExperimentRun - Directory
-     * @param experimentRunDirectory
+     * @param experimentRunDirectory the directory of the experimentRun
      * @return ExperimentRun Object
      */
-    public ExperimentRun getExperimentRun(File experimentRunDirectory) throws PeelAnalyserException{
+    ExperimentRun getExperimentRun(File experimentRunDirectory) throws PeelAnalyserException{
         File[] experimentRunFiles = experimentRunDirectory.listFiles();
         File stateJson = null;
-        for(int i = 0; i < experimentRunFiles.length; i++) {
-            if (experimentRunFiles[i].getName().equals("state.json")) {
-                stateJson = experimentRunFiles[i];
+        for (File experimentRunFile : experimentRunFiles) {
+            if (experimentRunFile.getName().equals("state.json")) {
+                stateJson = experimentRunFile;
             }
         }
-        ExperimentRun result = null;
+        ExperimentRun result;
         try {
             result = parseStateJson(stateJson);
         } catch (Exception e){
@@ -120,13 +123,13 @@ public class ParserManager {
 
     /**
      * this method will parse a state.json file and will return the specific ExperimentRun
-     * @param stateJson
-     * @return
+     * @param stateJson the state.json file from a experimentRun
+     * @return the experimentRun
      */
-    public ExperimentRun parseStateJson(File stateJson) throws IOException, PeelAnalyserException{
+    ExperimentRun parseStateJson(File stateJson) throws IOException, PeelAnalyserException{
         BufferedReader stateJsonReader = new BufferedReader(new FileReader(stateJson));
         StringBuilder stringBuilder = new StringBuilder();
-        String line = "";
+        String line;
         while ((line = stateJsonReader.readLine()) != null){
             stringBuilder.append(line);
         }
@@ -137,7 +140,7 @@ public class ParserManager {
         }
 
         System system;
-        if((system = ParserManagerHelper.getSystem(stateJsonObj.getString("runnerName"))) == null){
+        if((system = ParserManagerHelper.getSystem(stateJsonObj.getString("runnerName"), stateJsonObj.getString("runnerVersion"))) == null){
             system = ParserManagerHelper.saveSystem(stateJsonObj);
         }
 

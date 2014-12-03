@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Model;
+package eu.stratosphere.peel.analyser.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -14,7 +14,7 @@ public class ExperimentSuite {
     private String name;
 
     public ExperimentSuite() {
-        experimentSet = new HashSet<Experiment>();
+        experimentSet = new HashSet<>();
     }
 
     @Column

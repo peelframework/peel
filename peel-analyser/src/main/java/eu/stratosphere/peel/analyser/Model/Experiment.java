@@ -1,4 +1,4 @@
-package eu.stratosphere.peel.analyser.Model;
+package eu.stratosphere.peel.analyser.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -19,7 +19,7 @@ public class Experiment {
     private long averageExperimentRunTime;
 
     public Experiment() {
-        experimentRunSet = new HashSet<ExperimentRun>();
+        experimentRunSet = new HashSet<>();
     }
 
     @ManyToOne

@@ -1,9 +1,9 @@
-package eu.stratosphere.peel.analyser.Controller;
+package eu.stratosphere.peel.analyser.controller;
 
 /**
  * Created by ubuntu on 19.10.14.
  */
-public class TestReportGeneratorExternalClass {
+class TestReportGeneratorExternalClass {
 
     /*public static void main(String[] args){
         try {
