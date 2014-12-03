@@ -10,3 +10,6 @@ target
 *.swp
 *.class
 *.iml
+*.mv.db
+*.trace.db
+*.db.old
