@@ -28,7 +28,7 @@ public class Peel {
         // load available commands
         HashMap<String, Command> commands = new HashMap<>();
         Reflections.log = null; // disable reflections log
-        Reflections reflections = new Reflections("eu.stratosphere.peel.core.cli.command");
+        Reflections reflections = new Reflections("eu.stratosphere.peel");
         for (Class<? extends Command> clazz : reflections.getSubTypesOf(Command.class)) {
             try {
                 // create command instance
