@@ -309,7 +309,7 @@
         <module>peel-dist</module>
         <module>peel-extensions</module>
         <module>peel-sketchbook</module>
-        <module>peelanalyser</module>
+        <module>peel-analyser</module>
     </modules>
 
 </project>
