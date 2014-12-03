@@ -11,7 +11,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public class TestReportGeneratorExternalClass {
 
-    public static void main(String[] args){
+    /*public static void main(String[] args){
         try {
             JasperReport jr = JasperCompileManager.compileReport("./src/main/resources/ReportExternalClass.jrxml");
             JRTableModelDataSource jrTableModelDataSource = new JRTableModelDataSource(new TestTableModel());
@@ -20,5 +20,6 @@ public class TestReportGeneratorExternalClass {
         } catch (JRException e) {
             e.printStackTrace();
         }
-    }
+
+    }*/
 }
