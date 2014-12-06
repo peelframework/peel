@@ -1,14 +1,13 @@
-package eu.stratosphere.peel.analyser.cli.command
+package eu.stratosphere.peel.core.cli.command.peelanalyser
 
 import java.lang.{System => Sys}
 import java.nio.file.Paths
 
-import eu.stratosphere.peel.analyser.controller.Main
+import eu.stratosphere.peel.analyser.controller.ParserManager
 import eu.stratosphere.peel.core.cli.command.Command
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
-import eu.stratosphere.peel.analyser.controller.ParserManager
 
 
 class Peelanalyser extends Command {
