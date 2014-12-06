@@ -78,6 +78,11 @@
             <artifactId>scalatest_${scala.tools.version}</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>eu.stratosphere</groupId>
+            <artifactId>peel-analyser</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

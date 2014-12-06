@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>peelanalyser</artifactId>
+    <artifactId>peel-analyser</artifactId>
     <dependencies>
         <dependency>
             <groupId>log4j</groupId>
@@ -50,10 +50,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>4.3.6.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.stratosphere</groupId>
-            <artifactId>peel-core</artifactId>
         </dependency>
     </dependencies>
 
