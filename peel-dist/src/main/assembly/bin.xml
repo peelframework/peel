@@ -14,7 +14,7 @@
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
-            <useProjectArtifact>true</useProjectArtifact>
+            <useProjectArtifact>false</useProjectArtifact>
             <useProjectAttachments>false</useProjectAttachments>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <useTransitiveFiltering>true</useTransitiveFiltering>
