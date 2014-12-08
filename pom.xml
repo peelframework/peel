@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.stratosphere</groupId>
     <artifactId>peel</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+    <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Peel is a framework for automatic large-scale experiments for massively-parallel systems
         and algorithms. It enables the conduction of fully automated and higly configurable experiments
         that can be executed from a simple command line interface.</description>
     <url>https://github.com/stratosphere/peel</url>
-    <packaging>pom</packaging>
 
     <licenses>
         <license>
@@ -65,6 +63,7 @@
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
+        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.3</nexus-staging-maven-plugin.version>
 
         <!-- Java -->
@@ -100,16 +99,6 @@
         <reflections.version>0.9.9-RC1</reflections.version>
     </properties>
 
-
-<!-- use of repositories is discouraded by sonatype
-    <repositories>
-        <repository>
-            <id>oss.sonatype.org</id>
-            <name>sonatype sapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>-->
-
     <!-- Sonatype distribution management -->
     <distributionManagement>
         <snapshotRepository>
@@ -141,17 +130,17 @@
             <dependency>
                 <groupId>eu.stratosphere</groupId>
                 <artifactId>peel-core</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
             <dependency>
                 <groupId>eu.stratosphere</groupId>
                 <artifactId>peel-extensions</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
             <dependency>
                 <groupId>eu.stratosphere</groupId>
                 <artifactId>peel-sketchbook</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
 
             <!-- Spring -->
