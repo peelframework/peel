@@ -1,13 +1,16 @@
-package eu.stratosphere.peel.core.cli.command.peelanalyser
+package eu.stratosphere.peel.analyser.cli
 
 import java.lang.{System => Sys}
 import java.nio.file.Paths
-
-import eu.stratosphere.peel.analyser.controller.ParserManager
 import eu.stratosphere.peel.core.cli.command.Command
+import eu.stratosphere.peel.core.beans.experiment.ExperimentSuite
+import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
+import eu.stratosphere.peel.core.config.{Configurable, loadConfig}
+import eu.stratosphere.peel.core.graph.createGraph
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import eu.stratosphere.peel.analyser.controller.ParserManager
 
 
 class Peelanalyser extends Command {
