@@ -1,0 +1,9 @@
+{
+  "name": "spark.dop320.men14G.run04",
+  "suiteName": "tpch3.50G.wally",
+  "command": "--class eu.stratosphere.procrustes.experiments.spark.tpch.TPCHQuery3 /home/peel/peel/jobs/procrustes-spark-1.0-SNAPSHOT.jar spark://wally001:7077 hdfs://wally001:45010//tmp/input/lineitem.tbl hdfs://wally001:45010//tmp/input/customer.tbl hdfs://wally001:45010//tmp/input/orders.tbl  hdfs://wally001:45010//tmp/output/tpch3",
+  "runnerName": "spark",
+  "runnerVersion": "1.1.0",
+  "runExitCode": 0,
+  "runTime": 72078
+}
