@@ -210,7 +210,10 @@ class ParserManagerHelper {
             long timeSum = 0;
 
             for(ExperimentRun experimentRun: experiment.getExperimentRunSet()){
-                timeSum += experimentRun.getFinished().getTime() -  experimentRun.getSubmitTime().getTime();
+                if(experimentRun.getFinished() != null && experimentRun.getSubmitTime() != null) {
+                    timeSum += experimentRun.getFinished().getTime()
+                                    - experimentRun.getSubmitTime().getTime();
+                }
             }
             long timeAvg = timeSum / experiment.getExperimentRunSet().size();
             experiment.setAverageExperimentRunTime(timeAvg);

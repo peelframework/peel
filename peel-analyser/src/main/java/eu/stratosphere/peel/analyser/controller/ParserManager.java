@@ -85,7 +85,7 @@ public class ParserManager {
      * @throws PeelAnalyserException
      */
     void searchExperimentRuns() throws PeelAnalyserException{
-        if(!rootPath.isDirectory()) throw new PeelAnalyserException("Der angegebene Pfad ist kein Verzeichnis. Bitte geben Sie ein Verzeichnis an.");
+        if(!rootPath.isDirectory()) throw new PeelAnalyserException("The path is no directory. Please enter a valid directory.");
 
         File[] experimentDirectory = rootPath.listFiles();
         for (File anExperimentDirectory : experimentDirectory) {
