@@ -4,7 +4,11 @@ import javax.persistence.*;
 import java.util.*;
 
 /**
- * Created by ubuntu on 18.10.14.
+ * A ExperimentRun is a specific run of a Experiment. The field run tells which one of the
+ * various runs of the experiment is this specific run.
+ * A ExperimentRun consists of many Tasks.
+ *
+ * Created by Fabian on 18.10.14.
  */
 @Entity
 public class ExperimentRun {

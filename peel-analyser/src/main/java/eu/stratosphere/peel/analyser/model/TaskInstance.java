@@ -9,7 +9,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Created by ubuntu on 15.10.14.
+ * A TaskInstance is a instance of a task that was executed in the experimentRun.
+ * A TaskInstance can have various events that may depend on the system the experiment was
+ * executed on.
+ * Created by Fabian on 15.10.14.
  */
 @Entity
 public class TaskInstance
