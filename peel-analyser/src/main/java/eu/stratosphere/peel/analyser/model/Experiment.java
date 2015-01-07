@@ -5,7 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by ubuntu on 15.10.14.
+ * Representing a Experiment. A Experiment consists of many ExperimentRuns.
+ * After parsing the field averageExperimentRunTime is set by calculating the
+ * average runtime of all experimentRuns relating to this experiment
+ * Created by Fabian on 15.10.14.
  */
 
 @Entity

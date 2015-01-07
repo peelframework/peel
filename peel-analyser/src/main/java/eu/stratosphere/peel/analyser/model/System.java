@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by ubuntu on 15.10.14.
+ * The system the experiment was executed on
+ * Created by Fabian on 15.10.14.
  */
 @Entity
 public class System {

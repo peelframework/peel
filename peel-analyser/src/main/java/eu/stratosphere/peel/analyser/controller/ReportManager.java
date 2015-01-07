@@ -16,6 +16,13 @@ import java.sql.SQLException;
  * Created by Fabian on 13.11.2014.
  */
 class ReportManager {
+    /**
+     * Shows a report JasperReports integrated preview mode
+     * @param report The file pointing to the Report
+     * @throws FileNotFoundException
+     * @throws JRException
+     * @throws SQLException
+     */
     public static void showReport(File report) throws FileNotFoundException, JRException, SQLException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new FileInputStream(report));
         SessionFactoryImplementor sessionFactoryImplementor = (SessionFactoryImplementor)HibernateUtil.getSessionFACTORY();
