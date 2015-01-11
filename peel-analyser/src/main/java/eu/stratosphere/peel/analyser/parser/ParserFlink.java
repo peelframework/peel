@@ -4,6 +4,8 @@ import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
 import eu.stratosphere.peel.analyser.model.ExperimentRun;
 import eu.stratosphere.peel.analyser.model.Task;
 import eu.stratosphere.peel.analyser.model.TaskInstance;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORMUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -21,15 +23,14 @@ public class ParserFlink implements Parser {
     private ExperimentRun experimentRun;
 
     private static final Pattern patternTaskType = Pattern.compile("(DataSink)|(Reduce)|(CHAIN)|(PartialSolution)|(Map)|(Combine)");
-    private Session session = null;
     private boolean skipInstances;
+    private ORMUtil orm = HibernateUtil.getORM();
 
     public ParserFlink(boolean skipInstances) {
         this.skipInstances = skipInstances;
     }
 
-    public ParserFlink(ExperimentRun experimentRun, Session session) {
-        this.session = session;
+    public ParserFlink(ExperimentRun experimentRun) {
         this.experimentRun = experimentRun;
     }
 
@@ -37,30 +38,23 @@ public class ParserFlink implements Parser {
         return experimentRun;
     }
 
-    public Session getSession() {
-        return session;
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
-    }
     public void setExperimentRun(ExperimentRun experimentRun) {
         this.experimentRun = experimentRun;
     }
 
     public void parse(BufferedReader in) throws IOException, PeelAnalyserException {
         String line;
-        Transaction transaction = session.beginTransaction();
+        orm.beginTransaction();
         while((line = in.readLine()) != null){
             if(ParserFlinkHelper.isJob(line)){
                 handleJobInput(line);
-                session.update(experimentRun);          //if not called the experimentRun will not be updated, since it was saved in another transaction. All other Objects are stored after all fields had been parsed
+                orm.update(experimentRun);          //if not called the experimentRun will not be updated, since it was saved in another transaction. All other Objects are stored after all fields had been parsed
             } else if(!skipInstances){
                 handleTaskInstanceInput(line);
-                session.update(experimentRun);
+                orm.update(experimentRun);
             }
         }
-        transaction.commit();
+        orm.commitTransaction();
     }
 
     /**
@@ -106,7 +100,7 @@ public class ParserFlink implements Parser {
             task.setTaskType(taskTypeString);
             task.setExperimentRun(experimentRun);
             experimentRun.getTaskSet().add(task);
-            session.save(task);
+            orm.save(task);
         }
 
         handleTaskInstance(task, taskInstanceInput);
@@ -126,12 +120,12 @@ public class ParserFlink implements Parser {
             taskInstance.setSubTaskNumber(subTaskNumber);
             taskInstance.setTask(task);
             task.getTaskInstances().add(taskInstance);
-            session.save(taskInstance);
-            taskInstance.addTimeStampToStatusChange(statusChange, timestampDate, session);
-            session.update(taskInstance);
+            orm.save(taskInstance);
+            orm.save(taskInstance.addTimeStampToStatusChange(statusChange, timestampDate));
+            orm.update(taskInstance);
         } else {
-            taskInstance.addTimeStampToStatusChange(statusChange, timestampDate, session);
-            session.update(taskInstance);
+            taskInstance.addTimeStampToStatusChange(statusChange, timestampDate);
+            orm.update(taskInstance);
         }
 
     }

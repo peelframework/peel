@@ -6,6 +6,8 @@ import eu.stratosphere.peel.analyser.model.ExperimentRun;
 import eu.stratosphere.peel.analyser.model.ExperimentSuite;
 import eu.stratosphere.peel.analyser.model.System;
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORMUtil;
+import eu.stratosphere.peel.analyser.util.QueryParameter;
 import org.hibernate.Session;
 import org.json.JSONObject;
 
@@ -18,6 +20,8 @@ import java.util.regex.Pattern;
  * Created by Fabian on 08.11.14.
  */
 class ParserManagerHelper {
+    private static final ORMUtil orm = HibernateUtil.getORM();
+
     /**
      * gets the system saved in the database by the systemName
      * @param systemName the name of the system
@@ -27,13 +31,11 @@ class ParserManagerHelper {
     protected static System getSystem(String systemName, String version){
         List<System> systemList;
         String query = "from System where name = :systemName and version = :version";
-        HibernateUtil.getSession().beginTransaction();
-        systemList = HibernateUtil.getSession()
-                .createQuery(query)
-                .setParameter("systemName", systemName)
-                .setParameter("version", version)
-                .list();
-        HibernateUtil.getSession().getTransaction().commit();
+        orm.beginTransaction();
+        systemList = orm.executeQuery(System.class, query,
+                        new QueryParameter("systemName", systemName),
+                        new QueryParameter("version", version));
+        orm.commitTransaction();
         if(systemList.iterator().hasNext()) {
             return systemList.iterator().next();
         } else {
@@ -47,15 +49,14 @@ class ParserManagerHelper {
      * @return the created system
      */
     protected static System saveSystem(JSONObject stateJsonObj){
-        Session session = HibernateUtil.getSession();
-        session.beginTransaction();
+        orm.beginTransaction();
 
         eu.stratosphere.peel.analyser.model.System system = new System();
         system.setName(stateJsonObj.getString("runnerName"));
         system.setVersion(stateJsonObj.getString("runnerVersion"));
-        session.save(system);
+        orm.save(system);
 
-        session.getTransaction().commit();
+        orm.commitTransaction();
         return system;
     }
 
@@ -66,9 +67,12 @@ class ParserManagerHelper {
      */
     protected static ExperimentSuite getExperimentSuite(String experimentSuiteName){
         String query = "from ExperimentSuite where name = :experimentSuiteName";
-        HibernateUtil.getSession().beginTransaction();
-        List<ExperimentSuite> experimentSuite = HibernateUtil.getSession().createQuery(query).setParameter("experimentSuiteName", experimentSuiteName).list();
-        HibernateUtil.getSession().getTransaction().commit();
+        orm.beginTransaction();
+        List<ExperimentSuite> experimentSuite = orm.executeQuery(
+                        ExperimentSuite.class,
+                        query, new QueryParameter("experimentSuiteName",
+                        experimentSuiteName));
+        orm.commitTransaction();
         if(experimentSuite.iterator().hasNext()){
             return experimentSuite.iterator().next();
         } else {
@@ -83,14 +87,13 @@ class ParserManagerHelper {
      * @return the experimentSuite that was created
      */
     protected static ExperimentSuite saveExperimentSuite(JSONObject stateJsonObj){
-        Session session = HibernateUtil.getSession();
-        session.beginTransaction();
+        orm.beginTransaction();
 
         ExperimentSuite experimentSuite = new ExperimentSuite();
         experimentSuite.setName(stateJsonObj.getString("suiteName"));
-        session.save(experimentSuite);
+        orm.save(experimentSuite);
 
-        session.getTransaction().commit();
+        orm.commitTransaction();
         return experimentSuite;
     }
 
@@ -103,13 +106,15 @@ class ParserManagerHelper {
      */
     protected static Experiment getExperiment(JSONObject stateJsonObj) throws PeelAnalyserException {
         String query = "select experiment from Experiment as experiment join experiment.system as system join experiment.experimentSuite as experimentSuite where experiment.name = :experimentName AND system.name = :systemName AND experimentSuite.name = :experimentSuiteName";
-        HibernateUtil.getSession().beginTransaction();
-        List<Experiment> experiment = HibernateUtil.getSession().createQuery(query)
-                .setParameter("experimentName", getExperimentName(stateJsonObj))
-                .setParameter("systemName", stateJsonObj.get("runnerName"))
-                .setParameter("experimentSuiteName", stateJsonObj.get("suiteName"))
-                .list();
-        HibernateUtil.getSession().getTransaction().commit();
+        orm.beginTransaction();
+        List<Experiment> experiment = orm.executeQuery(Experiment.class, query,
+                        new QueryParameter("experimentName",
+                                        getExperimentName(stateJsonObj)),
+                        new QueryParameter("systemName",
+                                        stateJsonObj.get("runnerName")),
+                        new QueryParameter("experimentSuiteName",
+                                        stateJsonObj.get("suiteName")));
+        orm.commitTransaction();
         if(experiment.iterator().hasNext()){
             return experiment.iterator().next();
         } else {
@@ -126,8 +131,7 @@ class ParserManagerHelper {
      * @return The created Experiment (is saved to database as well)
      */
     protected static Experiment saveExperiment(String experimentName, ExperimentSuite suite, System system){
-        Session session = HibernateUtil.getSession();
-        session.beginTransaction();
+        orm.beginTransaction();
 
         Experiment experiment = new Experiment();
         experiment.setName(experimentName);
@@ -135,11 +139,11 @@ class ParserManagerHelper {
         suite.getExperimentSet().add(experiment);
         experiment.setSystem(system);
         system.getExperimentSet().add(experiment);
-        session.save(experiment);
-        session.update(system);
-        session.update(suite);
+        orm.save(experiment);
+        orm.update(system);
+        orm.update(suite);
 
-        session.getTransaction().commit();
+        orm.commitTransaction();
         return experiment;
     }
 
@@ -235,15 +239,14 @@ class ParserManagerHelper {
      * @throws PeelAnalyserException
      */
     protected static ExperimentRun saveExperimentRun(Experiment experiment, JSONObject stateJsonObj) throws PeelAnalyserException{
-        Session session = HibernateUtil.getSession();
-        session.beginTransaction();
+        orm.beginTransaction();
         ExperimentRun experimentRun = new ExperimentRun();
         experimentRun.setExperiment(experiment);
         experimentRun.setRun(ParserManagerHelper.parseExperimentRunCount(stateJsonObj));
         experiment.getExperimentRunSet().add(experimentRun);
-        session.save(experimentRun);
-        session.update(experiment);
-        session.getTransaction().commit();
+        orm.save(experimentRun);
+        orm.update(experiment);
+        orm.commitTransaction();
         return experimentRun;
     }
 
@@ -261,8 +264,9 @@ class ParserManagerHelper {
      * ExperimentRunTime is defined as FinishTime - SubmitTime
      */
     protected static void setAverageExperimentRunTimes(){
-        HibernateUtil.getSession().beginTransaction();
-        List<Experiment> experimentList = HibernateUtil.getSession().createQuery("from Experiment").list();
+        orm.beginTransaction();
+        List<Experiment> experimentList = orm.executeQuery(Experiment.class,
+                        "from Experiment");
 
         for(Experiment experiment: experimentList){
             long timeSum = 0;
@@ -275,9 +279,9 @@ class ParserManagerHelper {
             }
             long timeAvg = timeSum / experiment.getExperimentRunSet().size();
             experiment.setAverageExperimentRunTime(timeAvg);
-            HibernateUtil.getSession().update(experiment);
+            orm.update(experiment);
         }
-        HibernateUtil.getSession().getTransaction().commit();
+        orm.commitTransaction();
     }
 
 }

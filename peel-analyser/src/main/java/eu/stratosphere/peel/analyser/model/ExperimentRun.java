@@ -34,7 +34,7 @@ public class ExperimentRun {
         this.experiment = experiment;
     }
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn
     public Set<Task> getTaskSet() {
         return taskSet;

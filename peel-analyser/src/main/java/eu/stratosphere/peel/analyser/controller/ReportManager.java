@@ -25,7 +25,7 @@ class ReportManager {
      */
     public static void showReport(File report) throws FileNotFoundException, JRException, SQLException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new FileInputStream(report));
-        SessionFactoryImplementor sessionFactoryImplementor = (SessionFactoryImplementor)HibernateUtil.getSessionFACTORY();
+        SessionFactoryImplementor sessionFactoryImplementor = (SessionFactoryImplementor)HibernateUtil.getORM().getSessionFactory();
         ConnectionProvider connectionProvider = sessionFactoryImplementor.getConnectionProvider();
         Connection connection = connectionProvider.getConnection();
         JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, getConnection());
@@ -35,7 +35,7 @@ class ReportManager {
     }
 
     private static Connection getConnection() throws SQLException {
-        SessionFactoryImplementor sessionFactoryImplementor = (SessionFactoryImplementor)HibernateUtil.getSessionFACTORY();
+        SessionFactoryImplementor sessionFactoryImplementor = (SessionFactoryImplementor)HibernateUtil.getORM().getSessionFactory();
         ConnectionProvider connectionProvider = sessionFactoryImplementor.getConnectionProvider();
         return connectionProvider.getConnection();
     }

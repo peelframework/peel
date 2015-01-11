@@ -57,7 +57,7 @@ public class TaskInstance
         this.TaskInstanceID = ID;
     }
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn
     public Set<TaskInstanceEvents> getTaskInstanceEventsSet() {
         return taskInstanceEventsSet;
@@ -68,54 +68,19 @@ public class TaskInstance
     }
 
     /**
-     * gets the time in milliseconds which took the task from creation to execution
-     * @return OverheadTime in milliseconds
-     */
-    /*
-    public long getManagementOverhead() throws PeelAnalyserException {
-        try {
-            return starting.getTime() - created.getTime();
-        } catch(NullPointerException e){
-            throw new PeelAnalyserException("Subtask Exception in getManagementOverhead - one of starting or created is null");
-        }
-    }
-
-    /**
-     * gets the time in milliseconds which took the task from starting to finishing
-     * @return the Calculation Time in milliseconds
-     */
-    /*
-    public long getCalculationTime() throws PeelAnalyserException {
-        try {
-            return finishingFinished.getTime() - starting.getTime();
-        } catch(NullPointerException e){
-            throw new PeelAnalyserException("Subtask NullPointerException in getCalculationTime - one of finishingFinished or starting is null");
-        }
-    }
-    @Override
-    public boolean equals(Object o){
-        if(!(o instanceof TaskInstance)){
-            return false;
-        }
-        if(!((TaskInstance) o).getTaskInstanceID().equals(this.getTaskInstanceID())){
-            return false;
-        }
-        return true;
-    }
-    /**
      * this method will change the statusChange attribute based on the "statusChange" parameter. It can handle both
      * the versions "statusA to statusB" as well as "statusAstatusB" (e.g. "SCHEDULED to STARTING" as well as "SCHEDULEDSTARTING")
      * @param statusChange
      * @param timestamp
      */
 
-    public void addTimeStampToStatusChange(String statusChange, Date timestamp, Session session){
+    public TaskInstanceEvents addTimeStampToStatusChange(String statusChange, Date timestamp){
         TaskInstanceEvents taskInstanceEvents = new TaskInstanceEvents();
         taskInstanceEvents.setTaskInstance(this);
         taskInstanceEvents.setEventName(statusChange.toLowerCase());
         taskInstanceEvents.setValueTimestamp(timestamp);
         this.taskInstanceEventsSet.add(taskInstanceEvents);
-        session.save(taskInstanceEvents);
+        return taskInstanceEvents;
     }
 
     /**

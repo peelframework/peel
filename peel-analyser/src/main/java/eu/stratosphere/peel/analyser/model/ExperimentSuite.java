@@ -28,7 +28,7 @@ public class ExperimentSuite {
         this.name = name;
     }
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn
     public Set<Experiment> getExperimentSet() {
         return experimentSet;

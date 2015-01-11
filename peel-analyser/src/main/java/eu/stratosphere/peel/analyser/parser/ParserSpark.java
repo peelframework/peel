@@ -5,6 +5,8 @@ import eu.stratosphere.peel.analyser.model.ExperimentRun;
 import eu.stratosphere.peel.analyser.model.Task;
 import eu.stratosphere.peel.analyser.model.TaskInstance;
 import eu.stratosphere.peel.analyser.model.TaskInstanceEvents;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORMUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.json.JSONObject;
@@ -18,17 +20,16 @@ import java.util.Date;
  */
 public class ParserSpark implements Parser{
     private ExperimentRun experimentRun;
-    private Session session = null;
     private Date firstEntry = null;
     private Date lastEntry = null;
     private boolean skipInstances;
+    private ORMUtil orm = HibernateUtil.getORM();
 
     public ParserSpark(boolean skipInstances) {
         this.skipInstances = skipInstances;
     }
 
-    public ParserSpark(ExperimentRun experimentRun, Session session) {
-        this.session = session;
+    public ParserSpark(ExperimentRun experimentRun) {
         this.experimentRun = experimentRun;
     }
 
@@ -36,27 +37,20 @@ public class ParserSpark implements Parser{
         return experimentRun;
     }
 
-    public Session getSession() {
-        return session;
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
-    }
     public void setExperimentRun(ExperimentRun experimentRun) {
         this.experimentRun = experimentRun;
     }
 
     public void parse(BufferedReader in) throws IOException, PeelAnalyserException {
         Task task;
-        Transaction transaction = session.beginTransaction();
+        orm.beginTransaction();
 
         String line;
         while((line = in.readLine()) != null){
             if(ParserSparkHelper.getEvent(line).equals("SparkListenerTaskEnd") && !skipInstances){
                 task = getTaskByLine(line);
                 task.getTaskInstances().add(getTaskInstanceByLine(line, task));
-                session.update(experimentRun);
+                orm.update(experimentRun);
             } else if(ParserSparkHelper.getEvent(line).equals("SparkListenerApplicationStart")){
                 setSubmitTime(line);
             } else if(ParserSparkHelper.getEvent(line).equals("SparkListenerTaskEnd") && skipInstances){
@@ -72,8 +66,8 @@ public class ParserSpark implements Parser{
         }
         experimentRun.setDeployed(firstEntry);
         experimentRun.setFinished(lastEntry);
-        session.update(experimentRun);
-        transaction.commit();
+        orm.update(experimentRun);
+        orm.commitTransaction();
     }
 
     /**
@@ -85,14 +79,14 @@ public class ParserSpark implements Parser{
         TaskInstance taskInstance = new TaskInstance();
         taskInstance.setTask(task);
         taskInstance.setSubTaskNumber(ParserSparkHelper.getTaskID(input));
-        session.save(taskInstance);
+        orm.save(taskInstance);
 
         TaskInstanceEvents eventLaunch = new TaskInstanceEvents();
         eventLaunch.setEventName("Launch");
         eventLaunch.setValueTimestamp(ParserSparkHelper.getLaunchTime(input));
         taskInstance.getTaskInstanceEventsSet().add(eventLaunch);
         eventLaunch.setTaskInstance(taskInstance);
-        session.save(eventLaunch);
+        orm.save(eventLaunch);
 
         if(firstEntry == null){
             firstEntry = eventLaunch.getValueTimestamp();
@@ -104,7 +98,7 @@ public class ParserSpark implements Parser{
         eventFinished.setValueTimestamp(ParserSparkHelper.getFinishTime(input));
         taskInstance.getTaskInstanceEventsSet().add(eventFinished);
         eventFinished.setTaskInstance(taskInstance);
-        session.save(eventFinished);
+        orm.save(eventFinished);
 
         if(lastEntry == null){
             lastEntry = eventFinished.getValueTimestamp();
@@ -128,7 +122,7 @@ public class ParserSpark implements Parser{
             task.setExperimentRun(experimentRun);
             task.setTaskType(taskType);
             experimentRun.getTaskSet().add(task);
-            session.save(task);
+            orm.save(task);
         }
         return task;
     }

@@ -15,9 +15,5 @@ public interface Parser {
 
     public ExperimentRun getExperimentRun();
 
-    public Session getSession();
-
-    public void setSession(Session session);
-
     public void setExperimentRun(ExperimentRun experimentRun);
 }

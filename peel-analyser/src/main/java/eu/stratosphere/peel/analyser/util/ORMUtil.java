@@ -21,18 +21,18 @@ import java.util.Set;
  */
 public class ORMUtil {
 
-  private static final SessionFactory SESSION_FACTORY;
+  private static SessionFactory SESSION_FACTORY;
   private static final Logger LOGGER = LoggerFactory.getLogger(ORMUtil.class);
 
   /**
    * creates a new ORMUtil.
    */
   public ORMUtil() {
-
+    createSessionFactory();
   }
 
   //this is to initialize the HibernateConfiguration
-  static {
+  public static void createSessionFactory() {
     try {
       //the Hibernate configuration
       Configuration configuration = new Configuration();
@@ -63,6 +63,10 @@ public class ORMUtil {
   private Session getSession() {
     Session session = SESSION_FACTORY.getCurrentSession();
     return session != null ? session : SESSION_FACTORY.openSession();
+  }
+
+  public SessionFactory getSessionFactory() {
+    return SESSION_FACTORY;
   }
 
   /**
@@ -130,6 +134,10 @@ public class ORMUtil {
     }
     result = (List<T>) databaseQuery.list();
     return result;
+  }
+
+  public void executeQueryWithoutList(String query){
+    getSession().createQuery(query).executeUpdate();
   }
 
   /**
