@@ -1,12 +1,14 @@
 package eu.stratosphere.peel.analyser.model;
 
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORMUtil;
 import org.hibernate.Session;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 
 public class TaskTest {
+    private ORMUtil orm = HibernateUtil.getORM();
 
     @Test
     public void testGetTaskInstanceBySubtaskNumber() throws Exception {
@@ -18,21 +20,19 @@ public class TaskTest {
         Integer taskNumberOfSubtask = 1;
         Task task;
 
-        Session session = null;
         TaskInstance taskInstance;
         try {
             //create session
-            session = HibernateUtil.getSessionFACTORY().openSession();
-            session.beginTransaction();
+            orm.beginTransaction();
 
             //create Experiment Suite
             ExperimentSuite experimentSuite = new ExperimentSuite();
             experimentSuite.setName(experimentSuiteName);
-            session.save(experimentSuite);
+            orm.save(experimentSuite);
 
             System system = new System();
             system.setName("flink");
-            session.save(system);
+            orm.save(system);
 
             //create Experiment and connect it to ExperimentSuite
             Experiment experiment = new Experiment();
@@ -41,14 +41,14 @@ public class TaskTest {
             experiment.setRuns(experimentRuns);
             experiment.setSystem(system);
             system.getExperimentSet().add(experiment);
-            session.save(experiment);
+            orm.save(experiment);
             experimentSuite.getExperimentSet().add(experiment);
 
             //create ExperimentRun and add it to Experiment
             ExperimentRun experimentRun = new ExperimentRun();
             experimentRun.setExperiment(experiment);
             experimentRun.setRun(experimentRunRun);
-            session.save(experimentRun);
+            orm.save(experimentRun);
             experiment.getExperimentRunSet().add(experimentRun);
 
 
@@ -57,7 +57,7 @@ public class TaskTest {
             task.setTaskType("CHAIN");
             task.setExperimentRun(experimentRun);
             task.setNumberOfSubtasks(taskNumberOfSubtask);
-            session.save(task);
+            orm.save(task);
             task.getTaskID();
             experimentRun.getTaskSet().add(task);
 
@@ -65,15 +65,12 @@ public class TaskTest {
             taskInstance = new TaskInstance();
             taskInstance.setTask(task);
             taskInstance.setSubTaskNumber(subtaskNumber);
-            session.save(taskInstance);
+            orm.save(taskInstance);
             task.getTaskInstances().add(taskInstance);
 
             //commit the transaction
-            session.getTransaction().commit();
+            orm.commitTransaction();
         } catch (Exception e){
-            if(session != null) {
-                session.getTransaction().rollback();
-            }
             throw e;
         }
 

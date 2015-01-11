@@ -1,7 +1,9 @@
 package eu.stratosphere.peel.analyser.controller;
 
 import eu.stratosphere.peel.analyser.parser.ParserSpark;
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import org.easymock.EasyMock;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
@@ -32,6 +34,7 @@ public class ParserManagerTest {
 
   @Test
   public void testParserManager() throws Exception{
+    HibernateUtil.deleteAll();
     mockPeelFolder();
     ParserManager parserManager = new ParserManager(path, true);
     parserManager.parsePath();

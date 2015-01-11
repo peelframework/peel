@@ -8,8 +8,8 @@ import eu.stratosphere.peel.analyser.util.ORMUtil;
 import eu.stratosphere.peel.analyser.util.QueryParameter;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
-import org.hibernate.Session;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
@@ -30,14 +30,10 @@ public class ParserFlinkTest extends TestCase {
     int experimentRunRun = 1;
     ORMUtil orm = HibernateUtil.getORM();
 
-    //remember to close session!
+    @Before
     protected void setUp() throws Exception{
-
-
-
-
         try {
-            //create session
+            HibernateUtil.deleteAll();
             orm.beginTransaction();
 
             //create Experiment Suite
@@ -66,8 +62,10 @@ public class ParserFlinkTest extends TestCase {
             orm.save(experimentRun);
             experiment.getExperimentRunSet().add(experimentRun);
 
-        } finally {
             orm.commitTransaction();
+        } catch (Exception e) {
+            orm.commitTransaction();
+            throw e;
         }
     }
 
@@ -86,7 +84,7 @@ public class ParserFlinkTest extends TestCase {
         Date date = dateFormat.parse("15:34:12,930");
         Integer subTaskNumber = 1;
 
-        ParserFlink parserFlink = new ParserFlink(experimentRun, HibernateUtil.getSession());
+        ParserFlink parserFlink = new ParserFlink(experimentRun);
         parserFlink.parse(reader);
 
         orm.beginTransaction();
@@ -98,7 +96,7 @@ public class ParserFlinkTest extends TestCase {
             TaskInstance taskInstanceResult = taskResult.getTaskInstances().iterator().next();
 
             EasyMock.verify(reader);
-            assertEquals(date, taskInstanceResult.getEventByName("startingRunning").getValueTimestamp());
+            assertEquals(date, taskInstanceResult.getEventByName("starting to running").getValueTimestamp());
             assertEquals(subTaskNumber, taskInstanceResult.getSubTaskNumber());
             assertEquals(1, taskResult.getTaskInstances().size());
         } finally {
@@ -124,7 +122,7 @@ public class ParserFlinkTest extends TestCase {
         Date scheduling = dateFormat.parse("15:32:25,650");
         Date finished = dateFormat.parse("15:32:27,819");
 
-        ParserFlink parserFlink = new ParserFlink(experimentRun, HibernateUtil.getSession());
+        ParserFlink parserFlink = new ParserFlink(experimentRun);
         parserFlink.parse(reader);
 
         orm.beginTransaction();
@@ -132,7 +130,7 @@ public class ParserFlinkTest extends TestCase {
 
             List<ExperimentRun> experimentRunList = orm.executeQuery(
                             ExperimentRun.class, "from ExperimentRun");
-            ExperimentRun experimentRunResult = experimentRunList.get(1);
+            ExperimentRun experimentRunResult = experimentRunList.get(0);
 
             EasyMock.verify(reader);
             assertEquals(creating, experimentRunResult.getSubmitTime());
@@ -149,7 +147,7 @@ public class ParserFlinkTest extends TestCase {
         InputStream inputStream = classLoader.getResourceAsStream("flink-ubuntu-jobmanager-ubuntu-SVP1321L1EBI");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-        ParserFlink parserFlink = new ParserFlink(experimentRun, HibernateUtil.getSession());
+        ParserFlink parserFlink = new ParserFlink(experimentRun);
         parserFlink.parse(reader);
         DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
 
@@ -170,7 +168,7 @@ public class ParserFlinkTest extends TestCase {
         Date resultScheduledReduce4 = experimentRunDatabase.
                 taskByTaskType("Reduce").
                 taskInstanceBySubtaskNumber(4).
-                getEventByName("created to Scheduled").
+                getEventByName("created to scheduled").
                 getValueTimestamp();
         assertEquals(createScheduledReduce4, resultScheduledReduce4);
 
@@ -193,9 +191,6 @@ public class ParserFlinkTest extends TestCase {
         assertEquals(startingChain1, resultStartingChain1);
     }
 
-    @After
-    public void deleteDatabaseEntries(){
-        HibernateUtil.deleteAll();
-    }
+
 
 }
