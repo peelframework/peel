@@ -5,6 +5,7 @@ import eu.stratosphere.peel.analyser.model.ExperimentRun;
 import eu.stratosphere.peel.analyser.model.Task;
 import eu.stratosphere.peel.analyser.model.TaskInstance;
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORM;
 import eu.stratosphere.peel.analyser.util.ORMUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -24,7 +25,7 @@ public class ParserFlink implements Parser {
 
     private static final Pattern patternTaskType = Pattern.compile("(DataSink)|(Reduce)|(CHAIN)|(PartialSolution)|(Map)|(Combine)");
     private boolean skipInstances;
-    private ORMUtil orm = HibernateUtil.getORM();
+    private ORM orm = HibernateUtil.getORM();
 
     public ParserFlink(boolean skipInstances) {
         this.skipInstances = skipInstances;

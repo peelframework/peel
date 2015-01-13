@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * Enable various ORM Operations based on hibernate
  */
-public class ORMUtil {
+public class ORMUtil implements ORM{
 
   private static SessionFactory SESSION_FACTORY;
   private static final Logger LOGGER = LoggerFactory.getLogger(ORMUtil.class);
@@ -27,19 +27,20 @@ public class ORMUtil {
   /**
    * creates a new ORMUtil.
    */
-  public ORMUtil() {
+  public ORMUtil()  {
     createSessionFactory();
   }
 
   //this is to initialize the HibernateConfiguration
   public static void createSessionFactory() {
     try {
+      if(SESSION_FACTORY != null)
+        SESSION_FACTORY.close();
       //the Hibernate configuration
       Configuration configuration = new Configuration();
 
       //Hibernate will search for the hibernate.cfg.xml configuration and Hibernate will load the default properties there into the configuration.
       configuration.configure("hibernate.cfg.xml");
-
 
       //register the Hibernate configuration
       StandardServiceRegistryBuilder registry = new StandardServiceRegistryBuilder();

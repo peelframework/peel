@@ -6,6 +6,7 @@ import eu.stratosphere.peel.analyser.model.Task;
 import eu.stratosphere.peel.analyser.model.TaskInstance;
 import eu.stratosphere.peel.analyser.model.TaskInstanceEvents;
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORM;
 import eu.stratosphere.peel.analyser.util.ORMUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -23,7 +24,7 @@ public class ParserSpark implements Parser{
     private Date firstEntry = null;
     private Date lastEntry = null;
     private boolean skipInstances;
-    private ORMUtil orm = HibernateUtil.getORM();
+    private ORM orm = HibernateUtil.getORM();
 
     public ParserSpark(boolean skipInstances) {
         this.skipInstances = skipInstances;

@@ -4,6 +4,7 @@ import eu.stratosphere.peel.analyser.exception.PeelAnalyserException;
 import eu.stratosphere.peel.analyser.model.*;
 import eu.stratosphere.peel.analyser.model.System;
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORM;
 import eu.stratosphere.peel.analyser.util.ORMUtil;
 import eu.stratosphere.peel.analyser.util.QueryParameter;
 import junit.framework.TestCase;
@@ -28,7 +29,7 @@ public class ParserFlinkTest extends TestCase {
     String experimentName = "wordcountRun";
     int experimentRuns = 5;
     int experimentRunRun = 1;
-    ORMUtil orm = HibernateUtil.getORM();
+    ORM orm = HibernateUtil.getORM();
 
     @Before
     protected void setUp() throws Exception{

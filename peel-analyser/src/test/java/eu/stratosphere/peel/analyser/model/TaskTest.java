@@ -1,6 +1,7 @@
 package eu.stratosphere.peel.analyser.model;
 
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORM;
 import eu.stratosphere.peel.analyser.util.ORMUtil;
 import org.hibernate.Session;
 import org.junit.Test;
@@ -8,7 +9,7 @@ import static org.junit.Assert.*;
 
 
 public class TaskTest {
-    private ORMUtil orm = HibernateUtil.getORM();
+    private ORM orm = HibernateUtil.getORM();
 
     @Test
     public void testGetTaskInstanceBySubtaskNumber() throws Exception {
