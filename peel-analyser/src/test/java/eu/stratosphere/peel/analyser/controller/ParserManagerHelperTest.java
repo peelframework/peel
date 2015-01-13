@@ -1,7 +1,10 @@
 package eu.stratosphere.peel.analyser.controller;
 
+import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import org.easymock.EasyMock;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -58,6 +61,11 @@ public class ParserManagerHelperTest {
         result = ParserManagerHelper.isFailedExperimentRun(jsonObject);
         assertTrue(result);
         EasyMock.verify(jsonObject);
+    }
+
+    @After
+    public void setDatabaseToMem(){
+        HibernateUtil.deleteAll();
     }
 
 }

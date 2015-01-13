@@ -6,6 +6,7 @@ import eu.stratosphere.peel.analyser.model.ExperimentRun;
 import eu.stratosphere.peel.analyser.model.ExperimentSuite;
 import eu.stratosphere.peel.analyser.model.System;
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORM;
 import eu.stratosphere.peel.analyser.util.ORMUtil;
 import eu.stratosphere.peel.analyser.util.QueryParameter;
 import org.hibernate.Session;
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
  * Created by Fabian on 08.11.14.
  */
 class ParserManagerHelper {
-    private static final ORMUtil orm = HibernateUtil.getORM();
+    public static final ORM orm = HibernateUtil.getORM();
 
     /**
      * gets the system saved in the database by the systemName

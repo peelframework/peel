@@ -3,6 +3,7 @@ package eu.stratosphere.peel.analyser.parser;
 import eu.stratosphere.peel.analyser.model.*;
 import eu.stratosphere.peel.analyser.model.System;
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
+import eu.stratosphere.peel.analyser.util.ORM;
 import eu.stratosphere.peel.analyser.util.ORMUtil;
 import org.easymock.EasyMock;
 import org.hibernate.Session;
@@ -18,7 +19,7 @@ import java.util.Date;
 public class ParserSparkTest {
 
     private ExperimentRun experimentRun;
-    private ORMUtil orm = HibernateUtil.getORM();
+    private ORM orm = HibernateUtil.getORM();
 
     //remember to close session!
     @Before
