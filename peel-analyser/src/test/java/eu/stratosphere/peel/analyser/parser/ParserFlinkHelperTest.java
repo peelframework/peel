@@ -1,6 +1,9 @@
 package eu.stratosphere.peel.analyser.parser;
 
+import org.json.JSONObject;
 import org.junit.Test;
+
+import java.util.Iterator;
 
 import static org.junit.Assert.*;
 
@@ -71,5 +74,30 @@ public class ParserFlinkHelperTest {
         int subtaskNumber = 12;
         int result = ParserFlinkHelper.getSubTaskNumber(input);
         assertEquals(subtaskNumber, result);
+    }
+
+    @Test
+    /**
+     * just to count all JSON fields of a Spark logfile line
+     */
+    public void test() {
+        String string = "{\"Event\":\"SparkListenerTaskEnd\",\"Stage ID\":0,\"Stage Attempt ID\":0,\"Task Type\":\"ResultTask\",\"Task End Reason\":{\"Reason\":\"Success\"},\"Task Info\":{\"Task ID\":63,\"Index\":75,\"Attempt\":0,\"Launch Time\":1414094711673,\"Executor ID\":\"4\",\"Host\":\"wally109.cit.tu-berlin.de\",\"Locality\":\"NODE_LOCAL\",\"Speculative\":false,\"Getting Result Time\":0,\"Finish Time\":1414094742308,\"Failed\":false,\"Accumulables\":[]},\"Task Metrics\":{\"Host Name\":\"wally109.cit.tu-berlin.de\",\"Executor Deserialize Time\":350,\"Executor Run Time\":30035,\"Result Size\":2562,\"JVM GC Time\":2329,\"Result Serialization Time\":0,\"Memory Bytes Spilled\":0,\"Disk Bytes Spilled\":0,\"Shuffle Read Metrics\":{\"Shuffle Finish Time\":-1,\"Remote Blocks Fetched\":0,\"Local Blocks Fetched\":0,\"Fetch Wait Time\":0,\"Remote Bytes Read\":0},\"Input Metrics\":{\"Data Read Method\":\"Memory\",\"Bytes Read\":134468792},\"Updated Blocks\":[{\"Block ID\":\"rdd_2_75\",\"Status\":{\"Storage Level\":{\"Use Disk\":false,\"Use Memory\":true,\"Use Tachyon\":false,\"Deserialized\":true,\"Replication\":1},\"Memory Size\":134468792,\"Tachyon Size\":0,\"Disk Size\":0}},{\"Block ID\":\"rdd_3_75\",\"Status\":{\"Storage Level\":{\"Use Disk\":false,\"Use Memory\":true,\"Use Tachyon\":false,\"Deserialized\":true,\"Replication\":1},\"Memory Size\":55369512,\"Tachyon Size\":0,\"Disk Size\":0}}]}}";
+        JSONObject jsonObject = new JSONObject(string);
+        int numberOfKeys = numberOfKeys(jsonObject);
+        System.out.println(numberOfKeys);
+    }
+
+    private int numberOfKeys(JSONObject jsonObject){
+        Iterator<String> objectIterator = jsonObject.keys();
+        int sum = 0;
+        while (objectIterator.hasNext()){
+            String key = (String)objectIterator.next();
+            if(jsonObject.get(key) instanceof JSONObject){
+                sum += numberOfKeys(jsonObject.getJSONObject(key));
+            } else {
+                sum++;
+            }
+        }
+        return sum;
     }
 }
