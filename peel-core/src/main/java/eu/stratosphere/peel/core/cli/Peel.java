@@ -105,6 +105,7 @@ public class Peel {
             System.exit(-1);
         } catch (Throwable e) {
             System.err.println(String.format("Unexpected error: %s", e.getMessage()));
+            e.printStackTrace();
             System.exit(-1);
         }
         System.exit(0);
