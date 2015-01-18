@@ -20,6 +20,10 @@
         </dependency>
         <dependency>
             <groupId>eu.stratosphere</groupId>
+            <artifactId>peel-analyser</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.stratosphere</groupId>
             <artifactId>peel-extensions</artifactId>
         </dependency>
     </dependencies>
