@@ -141,8 +141,6 @@ class ParserManagerHelper {
         experiment.setSystem(system);
         system.getExperimentSet().add(experiment);
         orm.save(experiment);
-        orm.update(system);
-        orm.update(suite);
 
         orm.commitTransaction();
         return experiment;
