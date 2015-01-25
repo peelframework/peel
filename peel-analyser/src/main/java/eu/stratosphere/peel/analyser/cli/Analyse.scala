@@ -13,7 +13,7 @@ import org.springframework.context.ApplicationContext
 import eu.stratosphere.peel.analyser.controller.ParserManager
 
 
-class Peelanalyser extends Command {
+class Analyse extends Command {
 
   override def name() = "analyse"
 
