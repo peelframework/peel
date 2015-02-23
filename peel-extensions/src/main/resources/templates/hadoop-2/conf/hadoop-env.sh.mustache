@@ -33,7 +33,10 @@ export HADOOP_MAPRED_HOME=$HADOOP_INSTALL
 export HADOOP_COMMON_HOME=$HADOOP_INSTALL
 export HADOOP_HDFS_HOME=$HADOOP_INSTALL
 export YARN_HOME=$HADOOP_INSTALL
-export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_INSTALL/lib/native
+
+# if HADOOP_COMMON_LIB_NATIVE_DIR is set, the native library can not be found even if the correct path is set
+# without setting the environment variable, loading the nl works perfectly fine...
+export HADOOP_COMMON_LIB_NATIVE_DIR={{HADOOP_COMMON_LIB_NATIVE_DIR}}
 
 # The jsvc implementation to use. Jsvc is required to run secure datanodes.
 #export JSVC_HOME=${JSVC_HOME}
@@ -52,6 +55,9 @@ done
 # The maximum amount of heap to use, in MB. Default is 1000.
 #export HADOOP_HEAPSIZE=
 #export HADOOP_NAMENODE_INIT_HEAPSIZE=""
+
+# Root logger log level (default is INFO)
+# {{#HADOOP_ROOT_LOGGER}}export HADOOP_ROOT_LOGGER={{HADOOP_ROOT_LOGGER}}{{/HADOOP_ROOT_LOGGER}}{{^HADOOP_ROOT_LOGGER}}export HADOOP_ROOT_LOGGER=INFO,console{{/HADOOP_ROOT_LOGGER}}
 
 # Extra Java runtime options.  Empty by default.
 {{#HADOOP_OPTS}}export HADOOP_OPTS={{HADOOP_OPTS}}{{/HADOOP_OPTS}}{{^HADOOP_OPTS}}export HADOOP_OPTS="$HADOOP_OPTS -Djava.net.preferIPv4Stack=true"{{/HADOOP_OPTS}}

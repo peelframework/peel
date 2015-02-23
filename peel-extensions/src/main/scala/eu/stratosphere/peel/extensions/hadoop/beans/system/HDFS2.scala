@@ -63,7 +63,11 @@ class HDFS2(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
           // wait a bit
           Thread.sleep(config.getInt(s"system.$configKey.startup.polling.interval"))
           // get new values
-          curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
+          // depending on the log level its either in *.log or *.out (debug)
+          curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.out | grep 'registerDatanode:' | wc -l""").trim())
+          if (curr == 0) {
+            curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
+          }
           safe = !(shell !! s"${config.getString(s"system.$configKey.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
           // timeout if counter goes below zero
           cntr = cntr - 1

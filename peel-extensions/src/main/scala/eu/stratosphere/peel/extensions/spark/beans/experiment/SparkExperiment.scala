@@ -1,10 +1,10 @@
 package eu.stratosphere.peel.extensions.spark.beans.experiment
 
-import java.io.{IOException, FileWriter}
-import java.nio.file._
-
+import java.io.{FileWriter, IOException}
 import java.lang.{System => Sys}
+import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
+
 import com.typesafe.config.Config
 import eu.stratosphere.peel.core.beans.data.{DataSet, ExperimentOutput}
 import eu.stratosphere.peel.core.beans.experiment.Experiment
@@ -68,7 +68,7 @@ object SparkExperiment {
 
     override def isSuccessful = state.runExitCode.getOrElse(-1) == 0
 
-    override protected def logFilePatterns = List(s"$runnerLogPath/*/")
+    override protected def logFilePatterns = List(s"$runnerLogPath/spark-*.out*")
 
     override protected def loadState(): State = {
       if (Files.isRegularFile(Paths.get(s"$home/state.json"))) {
@@ -82,51 +82,26 @@ object SparkExperiment {
       }
     }
 
-    var latestFolderBeforeRun: Option[String] = None
+    var latestEventLogBeforeRun: Option[String] = None
+
+    val eventLogPattern = s"$runnerLogPath/app-*"
 
     override protected def beforeRun(): Unit = {
-      // get current latest folder
-      latestFolderBeforeRun = (for (pattern <- logFilePatterns; f <- (shell !! s"ls -tc $pattern").split(Sys.lineSeparator)) yield f).headOption
+      super.beforeRun()
+      try {
+        latestEventLogBeforeRun = (for (f <- (shell !! s"ls -t $eventLogPattern").split(Sys.lineSeparator).map(_.trim)) yield f).headOption
+      } catch {
+        case e: Exception => latestEventLogBeforeRun = None
+      }
     }
 
     override protected def afterRun(): Unit = {
-      try {
-        val logFolder = (for (pattern <- logFilePatterns; f <- (shell !! s"ls -tc $pattern").split(Sys.lineSeparator)) yield f).headOption
-        logFolder match {
-          case Some(dir) => {
-            // check if folder is actually new
-            latestFolderBeforeRun match {
-              case Some(pathBeforeRun) => if (dir != pathBeforeRun) println(s"No new event log created, got $dir")
-              case None => // experiment is first result
-            }
-
-            val path = Paths.get(dir.substring(0, dir.length - 1))
-
-            shell ! s"rm -Rf $home/logs/*"
-            val logPath = Paths.get(s"$home/logs/")
-            if (!Files.exists(logPath)) {
-              Files.createDirectory(logPath)
-            }
-
-            Files.walkFileTree(path, new FileVisitor[Path] {
-              override def visitFileFailed(file: Path, exc: IOException): FileVisitResult = FileVisitResult.CONTINUE
-              override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-                Files.copy(file, logPath.resolve(file.getFileName))
-                FileVisitResult.CONTINUE
-              }
-              override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = FileVisitResult.CONTINUE
-              override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = FileVisitResult.CONTINUE
-            })
-          }
-          case None => throw new IllegalArgumentException("No event log folder found.")
-        }
-      } catch {
-        case e: Exception => e.printStackTrace()
+      super.afterRun()
+      val eventLog = (for (f <- (shell !! s"ls -t $eventLogPattern").split(Sys.lineSeparator).map(_.trim)) yield f).headOption
+      if (eventLog.isEmpty || eventLog == latestEventLogBeforeRun) logger.warn("No event log created for experiment")
+      else {
+        shell ! s"cp ${eventLog.head} $home/logs/${Paths.get(eventLog.head).getFileName}"
       }
-
-      // copy logs
-
-//      for ((file, count) <- logFileCounts) shell ! s"tail -n +${count + 1} $file > $home/logs/${Paths.get(file).getFileName}"
     }
 
     override protected def writeState() = {
@@ -148,7 +123,8 @@ object SparkExperiment {
 
     private def !(command: String, outFile: String, errFile: String) = {
       val master = exp.config.getString("system.spark.config.defaults.spark.master")
-      shell ! s"${exp.config.getString("system.spark.path.home")}/bin/spark-submit --master $master $command > $outFile 2> $errFile"
+//      shell ! s"${exp.config.getString("system.spark.path.home")}/bin/spark-submit --master $master $command > $outFile 2> $errFile"
+      shell ! s"${exp.config.getString("system.spark.path.home")}/bin/spark-submit $command"
     }
   }
 

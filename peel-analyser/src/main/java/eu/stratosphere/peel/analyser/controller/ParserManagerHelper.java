@@ -192,7 +192,7 @@ class ParserManagerHelper {
         if(system.equals("flink")) {
             pattern = Pattern.compile("([A-z0-9-])+(-jobmanager-)([A-z0-9-])+(?=.log)");
         } else if(system.equals("spark")){
-            pattern = Pattern.compile("EVENT_LOG_1");
+            pattern = Pattern.compile("app-*");
         }
         Matcher matcher = pattern.matcher(filename);
         return matcher.find();
