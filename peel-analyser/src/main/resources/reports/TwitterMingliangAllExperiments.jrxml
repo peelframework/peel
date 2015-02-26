@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="TestReport" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="98d0a932-114d-4e4c-b641-a9234f3e4457">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="101"/>
+	<property name="ireport.y" value="0"/>
 	<style name="table">
 		<box>
 			<pen lineWidth="1.0" lineColor="#000000"/>
@@ -89,17 +89,36 @@
      EXPERIMENT."NAME" AS EXPERIMENT_NAME,
      EXPERIMENTSUITE."NAME" AS EXPERIMENTSUITE_NAME,
      SYSTEM."NAME" AS SYSTEM_NAME,
-     EXPERIMENT."AVERAGEEXPERIMENTRUNTIME" AS EXPERIMENT_AVERAGEEXPERIMENTRUNTIME
+     ExperimentRun."DEPLOYED" AS ExperimentRun_DEPLOYED,
+     ExperimentRun."FINISHED" AS ExperimentRun_FINISHED,
+     DATEDIFF(millisecond, ExperimentRun."DEPLOYED", ExperimentRun."FINISHED") As Runtime,
+     (
+         SELECT @rownum:=@rownum+1 as row_number, DATEDIFF(millisecond, ExperimentRun."DEPLOYED", ExperimentRun."FINISHED") As Runtime
+         FROM "EXPERIMENTRUN" ExperimentRun, (SELECT @rownum:=0) r
+         WHERE 1
+         Order By Runtime
+     ) as t1,
+     (
+     SELECT count(*) as total_rows
+     FROM "EXPERIMENTRUN" ExperimentRun
+     WHERE 1
+     ) as t2
 FROM
-     "EXPERIMENT" EXPERIMENT LEFT OUTER JOIN "SYSTEM" SYSTEM ON EXPERIMENT."EXPERIMENTSET_SYSTEMID" = SYSTEM."SYSTEMID"
+     "EXPERIMENTRUN" ExperimentRun LEFT OUTER JOIN "EXPERIMENT" EXPERIMENT ON EXPERIMENT."EXPERIMENTID" = ExperimentRun."EXPERIMENTRUNSET_EXPERIMENTID"
+     LEFT OUTER JOIN "SYSTEM" SYSTEM ON EXPERIMENT."EXPERIMENTSET_SYSTEMID" = SYSTEM."SYSTEMID"
      LEFT OUTER JOIN "EXPERIMENTSUITE" EXPERIMENTSUITE ON EXPERIMENT."EXPERIMENTSET_EXPERIMENTSUITEID" = EXPERIMENTSUITE."EXPERIMENTSUITEID"
-WHERE
-     EXPERIMENT.NAME LIKE '%men14%' AND ExperimentSuite.name LIKE '%200G%']]>
+WHERE 1
+     AND t1.row_number in (floor((total_rows+1)/2), floor((total_rows+2)/2) ) AND
+     EXPERIMENT.NAME LIKE '%men14%'
+ AND ExperimentSuite.name LIKE '%200G%']]>
 		</queryString>
 		<field name="EXPERIMENT_NAME" class="java.lang.String"/>
 		<field name="EXPERIMENTSUITE_NAME" class="java.lang.String"/>
 		<field name="SYSTEM_NAME" class="java.lang.String"/>
-		<field name="EXPERIMENT_AVERAGEEXPERIMENTRUNTIME" class="java.lang.Long"/>
+		<field name="EXPERIMENTRUN_DEPLOYED" class="java.sql.Timestamp"/>
+		<field name="EXPERIMENTRUN_FINISHED" class="java.sql.Timestamp"/>
+		<field name="RUNTIME" class="java.lang.Long"/>
+		<field name="T2" class="java.lang.Long"/>
 	</subDataset>
 	<subDataset name="EventRunFixDop=320" uuid="381d5db7-f4a5-42be-b955-a7323843e17d">
 		<queryString>
@@ -107,17 +126,68 @@ WHERE
      EXPERIMENT."NAME" AS EXPERIMENT_NAME,
      EXPERIMENTSUITE."NAME" AS EXPERIMENTSUITE_NAME,
      SYSTEM."NAME" AS SYSTEM_NAME,
-     EXPERIMENT."AVERAGEEXPERIMENTRUNTIME" AS EXPERIMENT_AVERAGEEXPERIMENTRUNTIME
+     Runtime,
+     @t1 as rows
 FROM
      "EXPERIMENT" EXPERIMENT LEFT OUTER JOIN "SYSTEM" SYSTEM ON EXPERIMENT."EXPERIMENTSET_SYSTEMID" = SYSTEM."SYSTEMID"
-     LEFT OUTER JOIN "EXPERIMENTSUITE" EXPERIMENTSUITE ON EXPERIMENT."EXPERIMENTSET_EXPERIMENTSUITEID" = EXPERIMENTSUITE."EXPERIMENTSUITEID"
+     LEFT OUTER JOIN "EXPERIMENTSUITE" EXPERIMENTSUITE ON EXPERIMENT."EXPERIMENTSET_EXPERIMENTSUITEID" = EXPERIMENTSUITE."EXPERIMENTSUITEID",
+     ( SELECT DATEDIFF(millisecond, ExperimentRun."DEPLOYED", ExperimentRun."FINISHED") As Runtime FROM "EXPERIMENTRUN" ExperimentRun
+     INNER JOIN "EXPERIMENT" EXPERIMENT ON Experiment.ExperimentID = ExperimentRun.ExperimentRunSet_ExperimentID
+       WHERE EXPERIMENT.NAME LIKE '%.dop320.%'
+       Order By Runtime limit @t1:= (SELECT CEIL(COUNT(*)*50/100) FROM "EXPERIMENTRUN" ExperimentRun
+                              INNER JOIN "EXPERIMENT" EXPERIMENT ON Experiment.ExperimentID =
+                              ExperimentRun.ExperimentRunSet_ExperimentID
+                              WHERE EXPERIMENT.NAME LIKE '%.dop320.%'
+                              )
+      )
 WHERE
      EXPERIMENT.NAME LIKE '%.dop320.%']]>
 		</queryString>
 		<field name="EXPERIMENT_NAME" class="java.lang.String"/>
 		<field name="EXPERIMENTSUITE_NAME" class="java.lang.String"/>
 		<field name="SYSTEM_NAME" class="java.lang.String"/>
-		<field name="EXPERIMENT_AVERAGEEXPERIMENTRUNTIME" class="java.lang.Long"/>
+		<field name="RUNTIME" class="java.lang.Long"/>
+		<field name="ROWS" class="java.lang.Double"/>
+	</subDataset>
+	<subDataset name="EventRunDataset_1" uuid="c116ddd7-e769-4cd1-998f-3897027b8215">
+		<queryString>
+			<![CDATA[SELECT
+     avg(DATEDIFF(millisecond,ExperimentRun."DEPLOYED",ExperimentRun."FINISHED")) AS Runtime,
+     Experiment.Name
+FROM
+     "EXPERIMENT" Experiment INNER JOIN "EXPERIMENTRUN" ExperimentRun ON Experiment."EXPERIMENTID" =
+     ExperimentRun."EXPERIMENTRUNSET_EXPERIMENTID"
+Group By Experiment.ExperimentID]]>
+		</queryString>
+		<field name="RUNTIME" class="java.lang.Long"/>
+		<field name="NAME" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+	</subDataset>
+	<subDataset name="EventRunDataset_1_1" uuid="a9d90bd4-b494-4e70-9bc9-7971df9c489b">
+		<queryString>
+			<![CDATA[SELECT max(Runtime) as medianRuntime, @t1 as row, (select count(*) FROM "EXPERIMENTRUN" ExperimentRun) as total_rows
+     FROM ( SELECT DATEDIFF(millisecond, ExperimentRun."DEPLOYED", ExperimentRun."FINISHED") As Runtime FROM "EXPERIMENTRUN" ExperimentRun
+             Order By Runtime limit @t1:= (SELECT CEIL(COUNT(*)*50/100) FROM "EXPERIMENTRUN" ExperimentRun ))]]>
+		</queryString>
+		<field name="MEDIANRUNTIME" class="java.lang.Long"/>
+		<field name="ROW" class="java.lang.Double"/>
+		<field name="TOTAL_ROWS" class="java.lang.Long"/>
+	</subDataset>
+	<subDataset name="EventRunDataset_1_2" uuid="b01e9140-1bbe-4e70-9a48-157f024c4474">
+		<queryString>
+			<![CDATA[SELECT
+     avg(DATEDIFF(millisecond,ExperimentRun."DEPLOYED",ExperimentRun."FINISHED")) AS Runtime,
+     Experiment.Name
+FROM
+     "EXPERIMENT" Experiment INNER JOIN "EXPERIMENTRUN" ExperimentRun ON Experiment."EXPERIMENTID" =
+     ExperimentRun."EXPERIMENTRUNSET_EXPERIMENTID"
+Group By Experiment.ExperimentID]]>
+		</queryString>
+		<field name="RUNTIME" class="java.lang.Long"/>
+		<field name="NAME" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
 	</subDataset>
 	<queryString>
 		<![CDATA[SELECT

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:complexType name="pattern">
+        <xs:sequence>
+            <xs:element name="eventName" type="xs:string"/>
+            <xs:simpleType name="eventType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="date" />
+                    <xs:enumeration value="integer" />
+                    <xs:enumeration value="string" />
+                    <xs:enumeration value="double" />
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:element name="eventPattern" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="system">
+        <xs:sequence>
+            <xs:simpleType name="name">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="spark"/>
+                    <xs:enumeration value="flink" />
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:element name="version" type="xs:string"/>
+            <xs:simpleType name="patternType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="regex" />
+                    <xs:enumeration value="json" />
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="patterns">
+                <xs:list itemType="pattern"/>
+            </xs:simpleType>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
