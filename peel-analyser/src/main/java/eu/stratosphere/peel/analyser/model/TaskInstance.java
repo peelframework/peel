@@ -85,7 +85,7 @@ public class TaskInstance
 
     /**
      * returns the event specified by this name.
-     * @param name the eventName
+     * @param name the getEventName
      * @return the corresponding taskInstanceEvents
      */
     public TaskInstanceEvents getEventByName(String name){

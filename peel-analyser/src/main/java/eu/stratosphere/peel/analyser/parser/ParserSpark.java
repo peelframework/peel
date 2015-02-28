@@ -5,18 +5,16 @@ import eu.stratosphere.peel.analyser.model.ExperimentRun;
 import eu.stratosphere.peel.analyser.model.Task;
 import eu.stratosphere.peel.analyser.model.TaskInstance;
 import eu.stratosphere.peel.analyser.model.TaskInstanceEvents;
-import eu.stratosphere.peel.analyser.parser.events.Event;
+import eu.stratosphere.peel.analyser.parser.events.EventConverter;
 import eu.stratosphere.peel.analyser.util.HibernateUtil;
 import eu.stratosphere.peel.analyser.util.ORM;
 import org.json.JSONObject;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -28,17 +26,19 @@ public class ParserSpark implements Parser {
   private Date lastEntry = null;
   private boolean skipInstances;
   private ORM orm = HibernateUtil.getORM();
-  Set<Event> events = new HashSet<>();
+  private EventConverter eventConverter;
+
   private static final Logger LOGGER = LoggerFactory
 		  .getLogger(ParserSpark.class);
 
   public ParserSpark(boolean skipInstances) {
     this.skipInstances = skipInstances;
-    findEvents();
+    eventConverter = new EventConverter();
   }
 
   public ParserSpark(ExperimentRun experimentRun) {
     this.experimentRun = experimentRun;
+    eventConverter = new EventConverter();
   }
 
   public ExperimentRun getExperimentRun() {
@@ -120,7 +120,8 @@ public class ParserSpark implements Parser {
       lastEntry = eventFinished.getValueTimestamp();
     }
 
-    Set<TaskInstanceEvents> otherEvents = getTaskInstanceEventsByLine(input);
+    Set<TaskInstanceEvents> otherEvents = eventConverter.getTaskInstanceEventsByLine(
+		    input);
     for (TaskInstanceEvents event : otherEvents) {
       event.setTaskInstance(taskInstance);
       taskInstance.getTaskInstanceEventsSet().add(event);
@@ -152,77 +153,5 @@ public class ParserSpark implements Parser {
   private void setSubmitTime(String line) {
     JSONObject jsonObject = new JSONObject(line);
     experimentRun.setSubmitTime(new Date(jsonObject.getLong("Timestamp")));
-  }
-
-  private Set<TaskInstanceEvents> getTaskInstanceEventsByLine(String line) {
-    JSONObject jsonObject = new JSONObject(line);
-    HashSet<TaskInstanceEvents> taskInstanceEventsHashSet = new HashSet<>();
-    for (Event event : events) {
-      String result = getJsonEntry(jsonObject, event.eventName());
-      if (result != null) {
-	taskInstanceEventsHashSet.add(convertToEvent(line, event.eventName(),
-			event.eventType()));
-      }
-    }
-    return taskInstanceEventsHashSet;
-  }
-
-  private String getJsonEntry(JSONObject jsonObject, String name) {
-    String result = jsonObject.getString(name);
-    if (result != null) {
-      return result;
-    }
-    Set<String> childObjects = jsonObject.keySet();
-    for (String child : childObjects) {
-      JSONObject childJSON = jsonObject.getJSONObject(child);
-      if (childJSON != null) {
-	result = getJsonEntry(childJSON, name);
-	if (result != null) {
-	  return result;
-	}
-      }
-    }
-    return null;
-  }
-
-  private TaskInstanceEvents convertToEvent(String input, String name,
-		  Class<?> convertType) {
-    TaskInstanceEvents event = new TaskInstanceEvents();
-    event.setEventName(name);
-    try {
-      if (convertType == String.class) {
-	event.setValueVarchar(input);
-	return event;
-      } else if (convertType == Double.class) {
-	event.setValueDouble(Double.valueOf(input));
-	return event;
-      } else if (convertType == Integer.class) {
-	event.setValueInt(Integer.valueOf(input));
-	return event;
-      } else if (convertType == Date.class) {
-	event.setValueTimestamp(new Date(Long.valueOf(input)));
-	return event;
-      }
-    } catch (Exception e) {
-      LOGGER.error("Error in converting the input value " + input
-		      + " into type " + convertType.getCanonicalName(), e);
-    }
-    LOGGER.error("Wasn't able to convert to type " + convertType);
-    return null;
-  }
-
-  private void findEvents() {
-    Reflections reflections = new Reflections("eu.stratosphere.peel.analyser");
-    Set<Class<? extends Event>> eventClasses = reflections
-		    .getSubTypesOf(Event.class);
-    for (Class<? extends Event> eventClass : eventClasses) {
-      try {
-	events.add(eventClass.newInstance());
-      } catch (InstantiationException e) {
-	LOGGER.error("could not instantiate the event", e);
-      } catch (IllegalAccessException e) {
-	LOGGER.error("could not access the event", e);
-      }
-    }
   }
 }
