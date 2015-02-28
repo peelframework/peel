@@ -13,82 +13,92 @@ import java.util.Set;
 
 @Entity
 public class Experiment {
-    private Integer ExperimentID;
-    private System system;
-    private String name;
-    private int runs;
-    private Set<ExperimentRun> experimentRunSet;
-    private ExperimentSuite experimentSuite;
-    private long averageExperimentRunTime;
+  private Integer ExperimentID;
+  private System system;
+  private String name;
+  private int runs;
+  private Set<ExperimentRun> experimentRunSet;
+  private ExperimentSuite experimentSuite;
+  private long averageExperimentRunTime;
+  private long medianExperimentRunTime;
 
-    public Experiment() {
-        experimentRunSet = new HashSet<>();
-    }
+  public Experiment() {
+    experimentRunSet = new HashSet<>();
+  }
 
-    @ManyToOne
-    @JoinColumn
-    public ExperimentSuite getExperimentSuite() {
-        return experimentSuite;
-    }
+  @ManyToOne
+  @JoinColumn
+  public ExperimentSuite getExperimentSuite() {
+    return experimentSuite;
+  }
 
-    public void setExperimentSuite(ExperimentSuite experimentSuite) {
-        this.experimentSuite = experimentSuite;
-    }
+  public void setExperimentSuite(ExperimentSuite experimentSuite) {
+    this.experimentSuite = experimentSuite;
+  }
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn
-    public Set<ExperimentRun> getExperimentRunSet() {
-        return experimentRunSet;
-    }
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JoinColumn
+  public Set<ExperimentRun> getExperimentRunSet() {
+    return experimentRunSet;
+  }
 
-    public void setExperimentRunSet(Set<ExperimentRun> experimentRunSet) {
-        this.experimentRunSet = experimentRunSet;
-    }
+  public void setExperimentRunSet(Set<ExperimentRun> experimentRunSet) {
+    this.experimentRunSet = experimentRunSet;
+  }
 
-    @Id
-    @GeneratedValue
-    public Integer getExperimentID() {
-        return ExperimentID;
-    }
+  @Id
+  @GeneratedValue
+  public Integer getExperimentID() {
+    return ExperimentID;
+  }
 
-    public void setExperimentID(Integer ID) {
-        this.ExperimentID = ID;
-    }
+  public void setExperimentID(Integer ID) {
+    this.ExperimentID = ID;
+  }
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn
-    public System getSystem() {
-        return system;
-    }
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn
+  public System getSystem() {
+    return system;
+  }
 
-    public void setSystem(System system) {
-        this.system = system;
-    }
+  public void setSystem(System system) {
+    this.system = system;
+  }
 
-    @Column
-    public String getName() {
-        return name;
-    }
+  @Column
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    @Column
-    public int getRuns() {
-        return runs;
-    }
+  @Column
+  public int getRuns() {
+    return runs;
+  }
 
-    public void setRuns(int runs) {
-        this.runs = runs;
-    }
+  public void setRuns(int runs) {
+    this.runs = runs;
+  }
 
-    @Column
-    public long getAverageExperimentRunTime() {
-        return averageExperimentRunTime;
-    }
+  @Column
+  public long getAverageExperimentRunTime() {
+    return averageExperimentRunTime;
+  }
 
-    public void setAverageExperimentRunTime(long averageExperimentRunTime) {
-        this.averageExperimentRunTime = averageExperimentRunTime;
-    }
+  public void setAverageExperimentRunTime(long averageExperimentRunTime) {
+    this.averageExperimentRunTime = averageExperimentRunTime;
+  }
+
+  @Column
+  public long getMedianExperimentRunTime() {
+    return medianExperimentRunTime;
+  }
+
+  public void setMedianExperimentRunTime(long medianExperimentRunTime) {
+    this.medianExperimentRunTime = medianExperimentRunTime;
+  }
 }
