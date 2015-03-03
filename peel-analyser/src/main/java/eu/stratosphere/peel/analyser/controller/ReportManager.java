@@ -44,7 +44,7 @@ public class ReportManager {
         Properties properties = new Properties();
         properties.put("user", "");
         properties.put("password", "");
-        connection = DriverManager.getConnection("jdbc:h2:./src/main/resources/PeelanalyserDatabase;", properties);
+        connection = DriverManager.getConnection("jdbc:h2:./peel-analyser/PeelanalyserDatabase;", properties);
         return connection;
     }
 }

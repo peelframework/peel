@@ -83,6 +83,12 @@
                 <exclude>**/*</exclude>
             </excludes>
         </fileSet>
+        <!-- create a folder where the peelanalyser database and sample reports will be stored-->
+        <fileSet>
+            <directory>src/main/sample_reports</directory>
+            <outputDirectory>peel-analyser</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
     </fileSets>
 
     <files>
