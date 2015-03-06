@@ -90,17 +90,27 @@
      EXPERIMENTSUITE."NAME" AS EXPERIMENTSUITE_NAME,
      SYSTEM."NAME" AS SYSTEM_NAME,
      EXPERIMENT."MEDIANEXPERIMENTRUNTIME" AS EXPERIMENT_MEDIANEXPERIMENTRUNTIME,
-     EXPERIMENT."AVERAGEEXPERIMENTRUNTIME" AS EXPERIMENT_AVERAGEEXPERIMENTRUNTIME
+     EXPERIMENT."AVERAGEEXPERIMENTRUNTIME" AS EXPERIMENT_AVERAGEEXPERIMENTRUNTIME,
+     Substring(ExperimentSuite.Name, 10, Length(ExperimentSuite.Name) - 15) as DatasetName,
+     case when Experiment.Name Like '%mem14G%' OR Experiment.Name Like '%mem11G%' then
+     Substring(Experiment.Name, 7, Length(Experiment.Name) - 13) else Substring(Experiment.Name, 7, Length(Experiment.Name) - 12)
+     end as DegreeOfParallism,
+     case when Experiment.Name Like '%mem14G%' OR Experiment.Name Like '%mem11G%'
+     then substring(Experiment.Name, Length(Experiment.Name) - 5, Length(Experiment.Name)) else substring(Experiment.Name,
+     Length(Experiment.Name) - 4, Length(Experiment.Name)) end as MemorySize
 FROM
-     "EXPERIMENT" EXPERIMENT LEFT OUTER JOIN "EXPERIMENTRUN" ExperimentRun ON EXPERIMENT."EXPERIMENTID" = ExperimentRun."EXPERIMENTRUNSET_EXPERIMENTID"
-     RIGHT OUTER JOIN "SYSTEM" SYSTEM ON EXPERIMENT."SYSTEM_SYSTEMID" = SYSTEM."SYSTEMID"
-     RIGHT OUTER JOIN "EXPERIMENTSUITE" EXPERIMENTSUITE ON EXPERIMENT."EXPERIMENTSUITE_EXPERIMENTSUITEID" = EXPERIMENTSUITE."EXPERIMENTSUITEID"]]>
+     "EXPERIMENT" EXPERIMENT RIGHT OUTER JOIN "SYSTEM" SYSTEM ON EXPERIMENT."SYSTEM_SYSTEMID" = SYSTEM."SYSTEMID"
+     RIGHT OUTER JOIN "EXPERIMENTSUITE" EXPERIMENTSUITE ON EXPERIMENT."EXPERIMENTSUITE_EXPERIMENTSUITEID"
+     = EXPERIMENTSUITE."EXPERIMENTSUITEID"]]>
 		</queryString>
 		<field name="EXPERIMENT_NAME" class="java.lang.String"/>
 		<field name="EXPERIMENTSUITE_NAME" class="java.lang.String"/>
 		<field name="SYSTEM_NAME" class="java.lang.String"/>
 		<field name="EXPERIMENT_MEDIANEXPERIMENTRUNTIME" class="java.lang.Long"/>
 		<field name="EXPERIMENT_AVERAGEEXPERIMENTRUNTIME" class="java.lang.Long"/>
+		<field name="DATASETNAME" class="java.lang.String"/>
+		<field name="DEGREEOFPARALLISM" class="java.lang.String"/>
+		<field name="MEMORYSIZE" class="java.lang.String"/>
 	</subDataset>
 	<subDataset name="EventRunFixDop=320" uuid="381d5db7-f4a5-42be-b955-a7323843e17d">
 		<queryString>
