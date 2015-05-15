@@ -43,7 +43,7 @@ public class ParserManagerHelperTest {
         result = ParserManagerHelper.isJobmanager(input, "flink");
         assertEquals(false, result);
 
-        input = "EVENT_LOG_1";
+        input = "app-20150506160041-0000";
         result = ParserManagerHelper.isJobmanager(input, "spark");
         assertEquals(true, result);
     }
