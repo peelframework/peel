@@ -98,6 +98,11 @@
             <destName>peel</destName>
             <fileMode>0700</fileMode>
         </file>
+        <file>
+            <source>src/main/assembly/bin/peel.bat</source>
+            <destName>peelWindows.bat</destName>
+            <fileMode>0700</fileMode>
+        </file>
 
         <!-- create a VERSION file to the project root -->
         <file>
