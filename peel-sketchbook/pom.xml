@@ -8,7 +8,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>peel-sketchbook</artifactId>
     <name>${project.artifactId}</name>
 
