@@ -66,4 +66,10 @@
         <constructor-arg name="lifespan" value="EXPERIMENT"/>
     </bean>
 
+    <!-- H2O -->
+    <bean id="h2o" class="eu.stratosphere.peel.extensions.h2o.beans.system.H2O" parent="system">
+        <constructor-arg name="version" value="3.0.0.12"/>
+        <constructor-arg name="lifespan" value="EXPERIMENT"/>
+    </bean>
+
 </beans>

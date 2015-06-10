@@ -92,6 +92,10 @@ object Model {
     val hosts = c.getStringList(key)
   }
 
+  class HostsWithPort(val c: Config, val prefix: String) extends Model {
+    val hosts = (for (host <- c.getStringList(s"$prefix.slaves").asScala) yield s"$host:${c.getInt(s"$prefix.cli.dataport")}").asJava
+  }
+
   def factory[T <: Model](config: Config, prefix: String)(implicit m: Manifest[T]) = {
     val constructor = m.runtimeClass.getConstructor(classOf[Config], classOf[String])
     constructor.newInstance(config, prefix)
