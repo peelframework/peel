@@ -7,7 +7,7 @@ import eu.stratosphere.peel.core.beans.experiment.{Experiment, ExperimentSuite}
 import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
 import eu.stratosphere.peel.core.cli.command.Command
 import eu.stratosphere.peel.core.config.{Configurable, loadConfig}
-import eu.stratosphere.peel.core.graph.createGraph
+import eu.stratosphere.peel.core.graph.{Node, createGraph}
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
@@ -70,6 +70,11 @@ class Run extends Command {
     try {
       logger.info("Executing experiments in suite")
       for (exp <- exps) {
+
+        val allSystems = for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) yield n
+        val inpSystems: Set[Node] = for (in <- exp.inputs; sys <- in.dependencies) yield sys
+        val expSystems = (graph.descendants(exp, exp.inputs) diff Seq(exp)).toSet
+
         // EXPERIMENT lifespan
         try {
           logger.info("#" * 60)
@@ -81,21 +86,9 @@ class Run extends Command {
             case _ => Unit
           }
 
-          logger.info("Setting up systems with SUITE lifespan")
-          for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System if (Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) && !s.isUp => s.setUp()
-            case _ => Unit
-          }
-
-          logger.info("Updating systems with PROVIDED or SUITE lifespan")
-          for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System if Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan => s.update()
-            case _ => Unit
-          }
-
-          logger.info("Setting up systems with EXPERIMENT lifespan")
-          for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System if Lifespan.EXPERIMENT :: Nil contains s.lifespan => s.setUp()
+          logger.info("Setting up systems required for input data sets")
+          for (n <- inpSystems) n match {
+            case s: System => s.setUp()
             case _ => Unit
           }
 
@@ -103,10 +96,26 @@ class Run extends Command {
           for (n <- exp.inputs) n.materialize()
 
           logger.info("Tearing down redundant systems before conducting experiment runs")
-          val required = graph.descendants(exp, exp.inputs).diff(Seq(exp)).toSet
-          val redundant = graph.descendants(exp, required)
-          for (n <- graph.traverse(); if redundant.contains(n)) n match {
-            case s: System => s.tearDown()
+          for (n <- inpSystems diff expSystems) n match {
+            case s: System if !(Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) => s.tearDown()
+            case _ => Unit
+          }
+
+          logger.info("Setting up systems with SUITE lifespan")
+          for (n <- allSystems) n match {
+            case s: System if (Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) && !s.isUp => s.setUp()
+            case _ => Unit
+          }
+
+          logger.info("Updating systems with PROVIDED or SUITE lifespan")
+          for (n <- allSystems) n match {
+            case s: System if Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan => s.update()
+            case _ => Unit
+          }
+
+          logger.info("Setting up systems with EXPERIMENT lifespan")
+          for (n <- expSystems) n match {
+            case s: System if s.lifespan == Lifespan.EXPERIMENT => s.setUp()
             case _ => Unit
           }
 
@@ -123,7 +132,7 @@ class Run extends Command {
 
         } finally {
           logger.info("Tearing down systems with EXPERIMENT lifespan")
-          for (n <- graph.traverse(); if graph.descendants(exp).contains(n)) n match {
+          for (n <- expSystems) n match {
             case s: System if s.lifespan == Lifespan.EXPERIMENT => s.tearDown()
             case _ => Unit
           }

@@ -13,7 +13,7 @@ import eu.stratosphere.peel.core.beans.system.{FileSystem, Job, System}
   * @param dst The path where the data is stored. The job has to make sure that the data is actually stored at that location.
   * @param fs Filesystem that is used to check if this dataset already exists.
   */
-class GeneratedDataSet(val src: Job[System], val dst: String, fs: System with FileSystem) extends DataSet(dst, Set[System](fs)) {
+class GeneratedDataSet(val src: Job[System], val dst: String, fs: System with FileSystem) extends DataSet(dst, Set[System](fs, src.runner)) {
 
   import scala.language.implicitConversions
 

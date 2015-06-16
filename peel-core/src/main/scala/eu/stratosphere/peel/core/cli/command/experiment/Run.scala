@@ -7,7 +7,7 @@ import eu.stratosphere.peel.core.beans.experiment.ExperimentSuite
 import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
 import eu.stratosphere.peel.core.cli.command.Command
 import eu.stratosphere.peel.core.config.{Configurable, loadConfig}
-import eu.stratosphere.peel.core.graph.createGraph
+import eu.stratosphere.peel.core.graph.{Node, createGraph}
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
@@ -86,6 +86,11 @@ class Run extends Command {
     if (exps.size != 1) throw new RuntimeException(s"Experiment '$expName' either not found or ambigous in suite '$suiteName'")
 
     for (exp <- exps; r <- Some(exp.run(expRun, force = true))) {
+
+      val allSystems = for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) yield n
+      val inpSystems: Set[Node] = for (in <- exp.inputs; sys <- in.dependencies) yield sys
+      val expSystems = (graph.descendants(exp, exp.inputs) diff Seq(exp)).toSet
+
       try {
         logger.info("Executing experiment '%s'".format(exp.name))
 
@@ -96,34 +101,45 @@ class Run extends Command {
         }
 
         if (!justRun) {
-          logger.info("Setting up systems with SUITE or EXPERIMENT lifespan")
-          for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System if (Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan) && !s.isUp => s.setUp()
+          logger.info("Setting up systems required for input data sets")
+          for (n <- inpSystems) n match {
+            case s: System => s.setUp()
+            case _ => Unit
+          }
+
+          logger.info("Materializing experiment input data sets")
+          for (n <- exp.inputs) n.materialize()
+
+          logger.info("Tearing down redundant systems before conducting experiment runs")
+          for (n <- inpSystems diff expSystems) n match {
+            case s: System if !(Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) => s.tearDown()
+            case _ => Unit
+          }
+
+          logger.info("Setting up systems with SUITE lifespan")
+          for (n <- allSystems) n match {
+            case s: System if s.lifespan == Lifespan.SUITE && !s.isUp => s.setUp()
             case _ => Unit
           }
 
           logger.info("Updating systems with PROVIDED lifespan")
-          for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-            case s: System if Lifespan.PROVIDED :: Nil contains s.lifespan => s.update()
+          for (n <- allSystems) n match {
+            case s: System if s.lifespan == Lifespan.PROVIDED => s.update()
             case _ => Unit
           }
+
+          logger.info("Setting up systems with EXPERIMENT lifespan")
+          for (n <- expSystems) n match {
+            case s: System if s.lifespan == Lifespan.EXPERIMENT => s.setUp()
+            case _ => Unit
+          }
+
         } else {
           logger.info("Updating all systems")
-          for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
+          for (n <- allSystems) n match {
             case s: System => s.update()
             case _ => Unit
           }
-        }
-
-        logger.info("Materializing experiment input data sets")
-        for (n <- exp.inputs) n.materialize()
-
-        logger.info("Tearing down redundant systems before conducting experiment runs")
-        val required = graph.descendants(exp, exp.inputs).diff(Seq(exp)).toSet
-        val redundant = graph.descendants(exp, required)
-        for (n <- graph.traverse(); if redundant.contains(n)) n match {
-          case s: System => s.tearDown()
-          case _ => Unit
         }
 
         for (n <- exp.outputs) n.clean()
@@ -136,7 +152,7 @@ class Run extends Command {
       } finally {
         if (!justRun) {
           logger.info("Tearing down systems with SUITE or EXPERIMENT lifespan")
-          for (n <- graph.traverse(); if graph.descendants(exp).contains(n)) n match {
+          for (n <- allSystems) n match {
             case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan => s.tearDown()
             case _ => Unit
           }
