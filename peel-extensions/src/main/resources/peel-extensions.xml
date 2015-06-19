@@ -48,15 +48,6 @@
         </constructor-arg>
     </bean>
 
-    <!-- Stratosphere -->
-    <bean id="stratosphere" class="eu.stratosphere.peel.extensions.stratosphere.beans.system.Stratosphere" parent="system">
-        <constructor-arg name="version" value="0.5.1"/>
-        <constructor-arg name="lifespan" value="SUITE"/>
-        <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System"/>
-        </constructor-arg>
-    </bean>
-
     <!-- Flink -->
     <bean id="flink" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
         <constructor-arg name="version" value="0.6"/>
