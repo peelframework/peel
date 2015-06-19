@@ -130,11 +130,6 @@
             </dependency>
             <dependency>
                 <groupId>eu.stratosphere</groupId>
-                <artifactId>peel-sketchbook</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.stratosphere</groupId>
                 <artifactId>peel-analyser</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -455,7 +450,6 @@
         <module>peel-core</module>
         <module>peel-dist</module>
         <module>peel-extensions</module>
-        <module>peel-sketchbook</module>
         <module>peel-analyser</module>
     </modules>
 
