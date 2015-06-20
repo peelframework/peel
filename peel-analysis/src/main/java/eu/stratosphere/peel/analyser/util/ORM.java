@@ -53,16 +53,6 @@ public interface ORM {
   public void commitTransaction();
 
   /**
-   * Executes a Query by a example object. The query will be created to return all objects
-   * that have the same fields as the example object.
-   * @param clazz The type of the resulting objects
-   * @param example The example object
-   * @param <T> The type parameter
-   * @return A list of all objects that fit the example
-   */
-  public <T> List<T> executeQueryByExample(Class<T> clazz, T example);
-
-  /**
    * This method gets all Objects of classT that are stored in the database
    *
    * @param classT The class of the objects you want to have
@@ -72,7 +62,4 @@ public interface ORM {
   public <T> List<T> getEntriesOfType(Class<T> classT);
 
   public SessionFactory getSessionFactory();
-
-
-
 }

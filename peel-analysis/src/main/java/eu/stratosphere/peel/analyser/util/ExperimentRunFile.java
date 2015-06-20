@@ -4,14 +4,11 @@ import eu.stratosphere.peel.analyser.model.ExperimentRun;
 
 import java.io.File;
 
-/**
- * Created by ubuntu on 08.11.14.
- */
 public class ExperimentRunFile {
     private ExperimentRun experimentRun;
     private File file;
 
-    public ExperimentRunFile(ExperimentRun experimentRun, File file){
+    public ExperimentRunFile(ExperimentRun experimentRun, File file) {
         this.experimentRun = experimentRun;
         this.file = file;
     }

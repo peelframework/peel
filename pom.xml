@@ -130,10 +130,9 @@
             </dependency>
             <dependency>
                 <groupId>eu.stratosphere</groupId>
-                <artifactId>peel-analyser</artifactId>
+                <artifactId>peel-analysis</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
 
             <!-- Spring -->
             <dependency>
@@ -450,7 +449,7 @@
         <module>peel-core</module>
         <module>peel-dist</module>
         <module>peel-extensions</module>
-        <module>peel-analyser</module>
+        <module>peel-analysis</module>
     </modules>
 
 </project>

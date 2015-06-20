@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by Fabian on 08.11.14.
- */
 class ParserManagerHelper {
   public static final ORM orm = HibernateUtil.getORM();
 

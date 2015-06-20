@@ -8,35 +8,24 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>peel-analyser</artifactId>
+    <artifactId>peel-analysis</artifactId>
     <name>${project.artifactId}</name>
 
     <dependencies>
+        <!-- Peel -->
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <groupId>eu.stratosphere</groupId>
+            <artifactId>peel-core</artifactId>
         </dependency>
+
+        <!-- Data Model -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20131018</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-        </dependency>
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>3.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.0.1</version>
-        </dependency>
+
+        <!-- Database -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -46,6 +35,18 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>4.3.6.Final</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
@@ -59,10 +60,11 @@
             <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>eu.stratosphere</groupId>
-            <artifactId>peel-core</artifactId>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

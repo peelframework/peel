@@ -17,9 +17,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 
-/**
- * Created by ubuntu on 08.11.14.
- */
 public class ParserManager {
 
     private final LinkedList<ExperimentRunFile> experimentRunFileList = new LinkedList<>();
