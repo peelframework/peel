@@ -26,6 +26,11 @@ public class Peel {
     @SuppressWarnings("resource")
     public static void main(String... args) throws Exception {
 
+        // empty args calls help
+        if (args.length == 0) {
+            args = new String[] { "--help" };
+        }
+
         // load available commands
         HashMap<String, Command> commands = new HashMap<>();
         Reflections.log = null; // disable reflections log
