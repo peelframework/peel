@@ -31,12 +31,9 @@
     <fileSets>
         <!-- create an empty config directory -->
         <fileSet>
-            <directory>src/main/assembly</directory>
+            <directory>src/main/assembly/config</directory>
             <outputDirectory>config</outputDirectory>
             <fileMode>0644</fileMode>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
         </fileSet>
         <!-- create an empty datagens directory -->
         <fileSet>
@@ -49,21 +46,15 @@
         </fileSet>
         <!-- create an empty datasets directory -->
         <fileSet>
-            <directory>src/main/assembly</directory>
+            <directory>src/main/assembly/datasets</directory>
             <outputDirectory>datasets</outputDirectory>
             <fileMode>0644</fileMode>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
         </fileSet>
         <!-- create an empty downloads directory -->
         <fileSet>
-            <directory>src/main/assembly</directory>
+            <directory>src/main/assembly/downloads</directory>
             <outputDirectory>downloads</outputDirectory>
             <fileMode>0644</fileMode>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
         </fileSet>
         <!-- create an empty jobs directory -->
         <fileSet>

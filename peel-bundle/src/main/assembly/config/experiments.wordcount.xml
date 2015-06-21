@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--************************************************************************
+    * Data Sets
+    *************************************************************************-->
+
+    <bean id="dataset.rubbish" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet">
+        <constructor-arg name="src" value="${app.path.datasets}/rubbish.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/rubbish.txt"/>
+        <constructor-arg name="fs" ref="hdfs-2.4.1"/>
+    </bean>
+
+    <!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+
+    <!-- k-means output -->
+    <bean id="wordcount.output" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
+        <constructor-arg name="path" value="${system.hadoop-2.path.output}/wordcount"/>
+        <constructor-arg name="fs" ref="hdfs-2.4.1"/>
+    </bean>
+
+    <!-- k-means experiment (flink) -->
+    <bean id="experiment.flink.wordcount" parent="experiment.flink-0.9.0" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c org.apache.flink.examples.java.wordcount.WordCount ${system.flink.path.home}/examples/flink-java-examples-0.9-SNAPSHOT-WordCount.jar ${system.hadoop-2.path.input}/rubbish.txt ${system.hadoop-2.path.output}/wordcount</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.DataSet">
+                <ref bean="dataset.rubbish"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="outputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
+                <ref bean="wordcount.output"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- k-means experiment (spark) -->
+    <bean id="experiment.spark.wordcount" parent="experiment.spark-1.3.1" abstract="true">
+        <constructor-arg name="command">
+            <value>--class org.apache.spark.examples.JavaWordCount ${system.spark.path.home}/lib/spark-examples-1.3.1-hadoop2.4.0.jar ${system.hadoop-2.path.input}/rubbish.txt</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.DataSet">
+                <ref bean="dataset.rubbish"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="outputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput"/>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Suites
+    *************************************************************************-->
+
+    <!-- suite for local development and testing -->
+    <bean id="wordcount.default" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list value-type="eu.stratosphere.peel.core.beans.experiment.Experiment">
+                <bean parent="experiment.flink.wordcount">
+                    <constructor-arg name="name" value="wordcount.flink"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.wordcount">
+                    <constructor-arg name="name" value="wordcount.spark"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+</beans>
