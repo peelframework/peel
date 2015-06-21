@@ -22,10 +22,6 @@
             <groupId>eu.stratosphere</groupId>
             <artifactId>peel-extensions</artifactId>
         </dependency>
-        <dependency>
-            <groupId>eu.stratosphere</groupId>
-            <artifactId>peel-analysis</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
