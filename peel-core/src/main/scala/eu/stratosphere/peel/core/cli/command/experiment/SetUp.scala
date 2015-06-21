@@ -22,11 +22,11 @@ class SetUp extends Command {
 
   override def register(parser: Subparser) = {
     // options
-    parser.addArgument("--fixtures")
+    parser.addArgument("--experiments")
       .`type`(classOf[String])
-      .dest("app.path.fixtures")
-      .metavar("FIXTURES")
-      .help("fixtures file (default: config/fixtures.xml)")
+      .dest("app.path.experiments")
+      .metavar("EXPFILE")
+      .help("experiments file (default: config/experiments.xml)")
     // arguments
     parser.addArgument("suite")
       .`type`(classOf[String])
@@ -40,12 +40,12 @@ class SetUp extends Command {
       .help("experiment to run")
 
     // option defaults
-    parser.setDefault("app.path.fixtures", "config/fixtures.xml")
+    parser.setDefault("app.path.experiments", "config/experiments.xml")
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
-    Sys.setProperty("app.path.fixtures", Paths.get(ns.getString("app.path.fixtures")).normalize.toAbsolutePath.toString)
+    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
     Sys.setProperty("app.suite.name", ns.getString("app.suite.name"))
     Sys.setProperty("app.suite.experiment.name", ns.getString("app.suite.experiment.name"))
   }

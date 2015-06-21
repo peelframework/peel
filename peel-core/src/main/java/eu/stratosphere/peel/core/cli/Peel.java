@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import eu.stratosphere.peel.core.cli.command.Command;
 
@@ -95,8 +94,8 @@ public class Peel {
 
             // 3) construct application context
             //@formatter:off
-            AbstractApplicationContext context = new ClassPathXmlApplicationContext((null != System.getProperty("app.path.fixtures"))
-                    ? new String[] {"classpath:peel-core.xml", "classpath:peel-extensions.xml", "file:" + System.getProperty("app.path.fixtures")}
+            AbstractApplicationContext context = new ClassPathXmlApplicationContext((null != System.getProperty("app.path.experiments"))
+                    ? new String[] {"classpath:peel-core.xml", "classpath:peel-extensions.xml", "file:" + System.getProperty("app.path.experiments")}
                     : new String[] {"classpath:peel-core.xml", "classpath:peel-extensions.xml"});
             context.registerShutdownHook();
             //@formatter:on

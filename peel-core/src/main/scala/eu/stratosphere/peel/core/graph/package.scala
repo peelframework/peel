@@ -6,7 +6,7 @@ import eu.stratosphere.peel.core.beans.system.System
 import org.slf4j.LoggerFactory
 
 /** Package object that holds the functionality to create the dependency graph
-  * from the specified experiment-fixtures and their dependencies.
+  * from the specified experiment-experiments and their dependencies.
   *
   */
 package object graph {

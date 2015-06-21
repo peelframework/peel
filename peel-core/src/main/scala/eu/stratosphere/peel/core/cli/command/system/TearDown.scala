@@ -21,30 +21,33 @@ class TearDown extends Command {
 
   override def register(parser: Subparser) = {
     // options
-    parser.addArgument("--fixtures")
+    parser.addArgument("--experiments")
       .`type`(classOf[String])
-      .dest("app.path.fixtures")
-      .metavar("FIXTURES")
-      .help("fixtures file")
+      .dest("app.path.experiments")
+      .metavar("EXPFILE")
+      .help("experiments file (default: config/experiments.xml)")
     // arguments
     parser.addArgument("system")
       .`type`(classOf[String])
-      .dest("app.system.name")
+      .dest("app.system.id")
       .metavar("SYSTEM")
       .help("system bean ID")
+
+    // option defaults
+    parser.setDefault("app.path.experiments", "config/experiments.xml")
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
-    if (ns.getString("app.path.fixtures") != null) Sys.setProperty("app.path.fixtures", Paths.get(ns.getString("app.path.fixtures")).normalize.toAbsolutePath.toString)
-    Sys.setProperty("app.system.name", ns.getString("app.system.name"))
+    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
+    Sys.setProperty("app.system.id", ns.getString("app.system.id"))
   }
 
   override def run(context: ApplicationContext) = {
-    val systemName = Sys.getProperty("app.system.name")
+    val systemID = Sys.getProperty("app.system.id")
 
-    logger.info(s"Tearing down system '$systemName' and dependencies with SUITE or EXPERIMENT lifespan")
-    val sys = context.getBean(systemName, classOf[System])
+    logger.info(s"Tearing down system '$systemID' and dependencies with SUITE or EXPERIMENT lifespan")
+    val sys = context.getBean(systemID, classOf[System])
     val graph = createGraph(sys)
 
     // update config

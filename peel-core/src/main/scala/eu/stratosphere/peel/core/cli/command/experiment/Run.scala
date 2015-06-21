@@ -23,11 +23,11 @@ class Run extends Command {
 
   override def register(parser: Subparser) = {
     // options
-    parser.addArgument("--fixtures")
+    parser.addArgument("--experiments")
       .`type`(classOf[String])
-      .dest("app.path.fixtures")
-      .metavar("FIXTURES")
-      .help("fixtures file (default: config/fixtures.xml)")
+      .dest("app.path.experiments")
+      .metavar("EXPFILE")
+      .help("experiments file (default: config/experiments.xml)")
     parser.addArgument("--just")
       .`type`(classOf[Boolean])
       .dest("app.suite.experiment.just")
@@ -51,13 +51,13 @@ class Run extends Command {
       .help("experiment to run")
 
     // option defaults
-    parser.setDefault("app.path.fixtures", "config/fixtures.xml")
+    parser.setDefault("app.path.experiments", "config/experiments.xml")
     parser.setDefault("app.suite.experiment.run", 1)
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
-    Sys.setProperty("app.path.fixtures", Paths.get(ns.getString("app.path.fixtures")).normalize.toAbsolutePath.toString)
+    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
     Sys.setProperty("app.suite.experiment.just", if (ns.getBoolean("app.suite.experiment.just")) "true" else "false")
     Sys.setProperty("app.suite.experiment.run", ns.getInt("app.suite.experiment.run").toString)
     Sys.setProperty("app.suite.name", ns.getString("app.suite.name"))

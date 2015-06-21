@@ -2,15 +2,12 @@ package eu.stratosphere.peel.analyser.cli
 
 import java.lang.{System => Sys}
 import java.nio.file.Paths
+
+import eu.stratosphere.peel.analyser.controller.ParserManager
 import eu.stratosphere.peel.core.cli.command.Command
-import eu.stratosphere.peel.core.beans.experiment.ExperimentSuite
-import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
-import eu.stratosphere.peel.core.config.{Configurable, loadConfig}
-import eu.stratosphere.peel.core.graph.createGraph
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
-import eu.stratosphere.peel.analyser.controller.ParserManager
 
 
 class Analyse extends Command {
@@ -24,7 +21,7 @@ class Analyse extends Command {
     parser.addArgument("--path")
       .`type`(classOf[String])
       .dest("app.peelanalyser.path")
-      .metavar("FIXTURES")
+      .metavar("EXPFILE")
       .help("path to the logfile to analyse")
     parser.addArgument("--skipInstances")
       .`type`(classOf[Boolean])
@@ -33,7 +30,7 @@ class Analyse extends Command {
       .help("skip parsing the details in the logfile. If you make just benchmarking, set this to true")
 
     // option defaults
-    parser.setDefault("app.path.fixtures", "config/fixtures.xml")
+    parser.setDefault("app.path.experiments", "config/experiments.xml")
   }
 
   override def configure(ns: Namespace) = {
