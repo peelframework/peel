@@ -447,7 +447,7 @@
 
     <modules>
         <module>peel-core</module>
-        <module>peel-dist</module>
+        <module>peel-bundle</module>
         <module>peel-extensions</module>
         <module>peel-analysis</module>
     </modules>
