@@ -134,6 +134,8 @@ class HDFS1(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
     logger.info(s"Fixing data directories")
     for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
       for (dataDir <- config.getString(s"system.$configKey.config.hdfs.dfs.data.dir").split(',')) {
+        logger.info(s"Ensuring 0755 permissions for directory $dataDir at datanode $dataNode")
+        shell ! s""" ssh $user@$dataNode "chmod 0755 $dataDir" """
         logger.info(s"Initializing data directory $dataDir at datanode $dataNode")
         shell ! s""" ssh $user@$dataNode "rm -Rf $dataDir/current" """
         shell ! s""" ssh $user@$dataNode "mkdir -p $dataDir/current" """

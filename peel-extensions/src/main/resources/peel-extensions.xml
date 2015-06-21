@@ -8,96 +8,48 @@
     *************************************************************************-->
 
     <!-- Zookeeper -->
-    <bean id="zookeeper" class="eu.stratosphere.peel.extensions.zookeeper.beans.system.Zookeeper" parent="system">
+    <bean id="zookeeper-3.4.5" class="eu.stratosphere.peel.extensions.zookeeper.beans.system.Zookeeper" parent="system">
         <constructor-arg name="version" value="3.4.5"/>
-        <constructor-arg name="lifespan" value="SUITE"/>
-        <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-            </set>
-        </constructor-arg>
     </bean>
 
     <!-- Hadoop Distributed File System -->
-    <bean id="hdfs-1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS1" parent="system">
+    <bean id="hdfs-1.2.1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS1" parent="system">
         <constructor-arg name="version" value="1.2.1"/>
-        <constructor-arg name="lifespan" value="SUITE"/>
-        <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-            </set>
-        </constructor-arg>
     </bean>
-
-    <!-- Hadoop Distributed File System -->
-    <bean id="hdfs-2" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS2" parent="system">
+    <bean id="hdfs-2.4.1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS2" parent="system">
         <constructor-arg name="version" value="2.4.1"/>
-        <constructor-arg name="lifespan" value="SUITE"/>
-        <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-            </set>
-        </constructor-arg>
     </bean>
 
-    <!-- Hadoop MapReduce1 -->
-    <bean id="mapred-1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.MapReduce1" parent="system">
+    <!-- Hadoop MapReduce -->
+    <bean id="mapred-1.2.1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.MapReduce1" parent="system">
         <constructor-arg name="version" value="1.2.1"/>
-        <constructor-arg name="lifespan" value="SUITE"/>
-        <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System">
-                <ref bean="hdfs-1"/>
-            </set>
-        </constructor-arg>
     </bean>
+    <!-- TODO
+    <bean id="mapred-2.4.1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.MapReduce2" parent="system">
+        <constructor-arg name="version" value="2.4.1"/>
+    </bean>
+    -->
 
     <!-- Flink -->
-    <bean id="flink" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
-        <constructor-arg name="version" value="0.6"/>
-        <constructor-arg name="lifespan" value="SUITE"/>
-        <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System"/>
-        </constructor-arg>
+    <bean id="flink-0.8.0" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
+        <constructor-arg name="version" value="0.8.0"/>
+    </bean>
+    <bean id="flink-0.8.1" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
+        <constructor-arg name="version" value="0.8.1"/>
+    </bean>
+    <bean id="flink-0.9.0" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
+        <constructor-arg name="version" value="0.9.0"/>
+    </bean>
+    <bean id="flink-0.10" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
+        <constructor-arg name="version" value="0.10-SNAPSHOT"/>
     </bean>
 
     <!-- Spark -->
-    <bean id="spark" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system">
-        <constructor-arg name="version" value="1.0"/>
-        <constructor-arg name="lifespan" value="SUITE"/>
-        <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System.System"/>
-        </constructor-arg>
+    <bean id="spark-1.3.1" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system">
+        <constructor-arg name="version" value="1.3.1"/>
     </bean>
-
-    <!--************************************************************************
-    * Data Sets and Experiment Outputs
-    *************************************************************************-->
-
-    <!-- HDFS1 data sets copied from a local file system -->
-    <bean id="dataset.static.hdfs-1" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet" abstract="true">
-        <constructor-arg name="fs" ref="hdfs-1"/>
-    </bean>
-
-    <!-- HDFS2 data sets copied from a local file system -->
-    <bean id="dataset.static.hdfs-2" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet" abstract="true">
-        <constructor-arg name="fs" ref="hdfs-2"/>
-    </bean>
-
-    <!-- HDFS1 data sets generated from a DataGenerator -->
-    <bean id="dataset.generated.hdfs-1" class="eu.stratosphere.peel.core.beans.data.GeneratedDataSet" abstract="true">
-        <constructor-arg name="fs" ref="hdfs-1"/>
-    </bean>
-
-    <!-- HDFS2 data sets generated from a DataGenerator -->
-    <bean id="dataset.generated.hdfs-2" class="eu.stratosphere.peel.core.beans.data.GeneratedDataSet" abstract="true">
-        <constructor-arg name="fs" ref="hdfs-2"/>
-    </bean>
-
-    <!-- Experiment output written in the HDFS1 -->
-    <bean id="experiment.output.hdfs-1" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput" abstract="true">
-        <constructor-arg name="fs" ref="hdfs-1"/>
-    </bean>
-
-    <!-- Experiment output written in the HDFS2 -->
-    <bean id="experiment.output.hdfs-2" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput" abstract="true">
-        <constructor-arg name="fs" ref="hdfs-2"/>
+    <bean id="spark-1.4.0" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system">
+        <constructor-arg name="version" value="1.4.0"/>
     </bean>
 
 </beans>

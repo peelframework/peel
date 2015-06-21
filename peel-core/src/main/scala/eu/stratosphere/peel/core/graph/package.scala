@@ -18,7 +18,7 @@ package object graph {
    * @return Graph with systems as vertices and dependencies as edges
    */
   def createGraph(system: System): DependencyGraph[Node] = {
-    logger.info(s"Constructing dependency graph for system '${system.name}'")
+    logger.info(s"Constructing dependency graph for system '${system.beanName}'")
 
     // initial graph
     implicit val g = new DependencyGraph[Node]

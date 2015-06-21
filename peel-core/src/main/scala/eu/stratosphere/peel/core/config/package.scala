@@ -26,7 +26,7 @@ package object config {
   final val logger = LoggerFactory.getLogger(this.getClass)
 
   def loadConfig(graph: DependencyGraph[Node], sys: System) = {
-    logger.info(s"Loading configuration for system '${sys.name}'")
+    logger.info(s"Loading configuration for system '${sys.beanName}'")
 
     // initial empty configuration
     val cb = new ConfigBuilder
@@ -38,7 +38,7 @@ package object config {
     for (n <- graph.reverse.traverse(); if graph.descendants(sys).contains(n)) n match {
       case s: System =>
         // load reference.{system.defaultName}.conf
-        cb.loadResource(s"reference.${s.name}.conf")
+        cb.loadResource(s"reference.${s.beanName}.conf")
         // load {app.path.config}/{system.name}.conf
         cb.loadFile(s"${Sys.getProperty("app.path.config")}/${s.beanName}.conf")
         // load {app.path.config}/{app.hostname}/{system.name}.conf
@@ -77,7 +77,7 @@ package object config {
     for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
       case s: System =>
         // load reference.{system.defaultName}.conf
-        cb.loadResource(s"reference.${s.name}.conf")
+        cb.loadResource(s"reference.${s.beanName}.conf")
         // load {app.path.config}/{system.name}.conf
         cb.loadFile(s"${Sys.getProperty("app.path.config")}/${s.beanName}.conf")
         // load {app.path.config}/{app.hostname}/{system.name}.conf
