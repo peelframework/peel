@@ -143,7 +143,7 @@ class Run extends Command {
         }
         
         logger.info("Setting up systems with JOB lifespan")
-        for (n <- expSystems) n match {
+        for (n <- allSystems) n match {
           case s: System if s.lifespan == Lifespan.JOB => s.setUp()
           case _ => Unit
         }
@@ -165,10 +165,10 @@ class Run extends Command {
         }
         
         logger.info("Tearing down systems with JOB lifespan")
-          for (n <- allSystems) n match {
-            case s: System if Lifespan.JOB :: Nil contains s.lifespan => s.tearDown()
-            case _ => Unit
-          }
+        for (n <- allSystems) n match {
+          case s: System if s.lifespan == Lifespan.JOB => s.tearDown()
+          case _ => Unit
+        }
       }
     }
 
