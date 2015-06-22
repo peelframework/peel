@@ -26,7 +26,7 @@ object shell {
     plog.out(cmd)
     plog.err("-" * 60)
     plog.err(cmd)
-    val exit = Process("/bin/bash", Seq("-c", cmd)) ! plog
+    val exit = Process("/bin/bash", Seq("-c", s"CLASSPATH=;$cmd")) ! plog
     plog.flush()
     plog.close()
     exit
@@ -39,7 +39,7 @@ object shell {
    */
   def !!(cmd: String) = {
     val plog = processLogger()
-    val exit = Process("/bin/bash", Seq("-c", cmd)) !! plog
+    val exit = Process("/bin/bash", Seq("-c", s"CLASSPATH=;$cmd")) !! plog
     plog.flush()
     plog.close()
     exit
