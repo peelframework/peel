@@ -121,7 +121,24 @@ class Run extends Command {
 
           for (r <- runs if r.exp == exp) {
             for (n <- exp.outputs) n.clean()
-            r.execute() // run experiment
+            
+            logger.info("Setting up systems with JOB lifespan")
+            for (n <- allSystems) n match {
+              case s: System if s.lifespan == Lifespan.JOB => s.setUp()
+              case _ => Unit
+            }
+            
+            try {
+              r.execute() // run experiment
+            }
+            finally {
+              logger.info("Tearing down systems with JOB lifespan")
+              for (n <- allSystems) n match {
+                case s: System if s.lifespan == Lifespan.JOB => s.tearDown()
+                case _ => Unit
+              }
+            }
+            
             for (n <- exp.outputs) n.clean()
           }
 

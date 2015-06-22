@@ -18,6 +18,9 @@ class StringToLifespan extends Converter[String, Lifespan.Value]{
     else if (s == "EXPERIMENT") {
       Lifespan.EXPERIMENT
     }
+    else if (s == "JOB") {
+      Lifespan.JOB
+    }
     else {
       throw new IllegalArgumentException(s + " can not be converted to Scala Lifecycle Value!")
     }

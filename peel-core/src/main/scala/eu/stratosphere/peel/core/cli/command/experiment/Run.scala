@@ -141,6 +141,12 @@ class Run extends Command {
             case _ => Unit
           }
         }
+        
+        logger.info("Setting up systems with JOB lifespan")
+        for (n <- allSystems) n match {
+          case s: System if s.lifespan == Lifespan.JOB => s.setUp()
+          case _ => Unit
+        }
 
         for (n <- exp.outputs) n.clean()
         r.execute() // run experiment
@@ -156,6 +162,12 @@ class Run extends Command {
             case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan => s.tearDown()
             case _ => Unit
           }
+        }
+        
+        logger.info("Tearing down systems with JOB lifespan")
+        for (n <- allSystems) n match {
+          case s: System if s.lifespan == Lifespan.JOB => s.tearDown()
+          case _ => Unit
         }
       }
     }
