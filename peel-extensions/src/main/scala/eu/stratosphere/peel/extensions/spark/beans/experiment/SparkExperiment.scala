@@ -51,13 +51,14 @@ object SparkExperiment {
   case class State(name: String,
                    suiteName: String,
                    command: String,
+                   runnerID: String,
                    runnerName: String,
                    runnerVersion: String,
                    var runExitCode: Option[Int] = None,
                    var runTime: Long = 0) extends Experiment.RunState {}
 
   object StateProtocol extends DefaultJsonProtocol with NullOptions {
-    implicit val stateFormat = jsonFormat7(State)
+    implicit val stateFormat = jsonFormat8(State)
   }
 
   /**
@@ -78,10 +79,10 @@ object SparkExperiment {
         try {
           io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
         } catch {
-          case e: Throwable => State(name, Sys.getProperty("app.suite.name"), command, exp.runner.name, exp.runner.version)
+          case e: Throwable => State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
         }
       } else {
-        State(name, Sys.getProperty("app.suite.name"), command, exp.runner.name, exp.runner.version)
+        State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
       }
     }
 
