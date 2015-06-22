@@ -14,24 +14,24 @@ import spray.json._
 /** Flink Experiment class
   *
   * Run Experiments in Flink.
- *
- * @param command The command that specifies the execution of the experiment in terms of the underlying system's way of
- *                submitting jobs. Example command for a Flink-experiment:
- *
- *                <code>-p 16 ./examples/flink-java-examples-0.7.0-incubating-WordCount.jar
- *                file:///home/user/hamlet.txt file:///home/user/wordcount_out
- *                </code>
- *
- *                You do not have to state the command that is used to 'run' the command (e.g. in Flink
- *                <code> ./bin/flink run </code>
- *
- * @param runner The system that is used to run the experiment (e.g. Flink, Spark, ...)
- * @param runs The number of runs/repetitions of this experiment
- * @param inputs Input Datasets for the experiment
- * @param outputs The output of the Experiment
- * @param name Name of the Experiment
- * @param config Config Object for the experiment
- */
+  *
+  * @param command The command that specifies the execution of the experiment in terms of the underlying system's way of
+  *                submitting jobs. Example command for a Flink-experiment:
+  *
+  *                <code>-p 16 ./examples/flink-java-examples-0.7.0-incubating-WordCount.jar
+  *                file:///home/user/hamlet.txt file:///home/user/wordcount_out
+  *                </code>
+  *
+  *                You do not have to state the command that is used to 'run' the command (e.g. in Flink
+  *                <code> ./bin/flink run </code>
+  *
+  * @param runner The system that is used to run the experiment (e.g. Flink, Spark, ...)
+  * @param runs The number of runs/repetitions of this experiment
+  * @param inputs Input Datasets for the experiment
+  * @param outputs The output of the Experiment
+  * @param name Name of the Experiment
+  * @param config Config Object for the experiment
+  */
 class FlinkExperiment(command: String,
                       runner: Flink,
                       runs: Int,
@@ -93,7 +93,11 @@ object FlinkExperiment {
 
     override protected def runJob() = {
       // try to get the experiment run plan
-      val (plnExit, _) = Experiment.time(this !(s"info -e $command", s"$home/run.pln", s"$home/run.pln"))
+      val (plnExit, _) = if (exp.runner.version < "0.9") {
+        Experiment.time(this !(s"info -e $command", s"$home/run.pln", s"$home/run.pln"))
+      } else {
+        Experiment.time(this !(s"info $command", s"$home/run.pln", s"$home/run.pln"))
+      }
       state.plnExitCode = Some(plnExit)
       // try to execute the experiment run plan
       val (runExit, t) = Experiment.time(this !(s"run $command", s"$home/run.out", s"$home/run.err"))
