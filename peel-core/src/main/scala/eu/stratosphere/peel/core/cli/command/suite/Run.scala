@@ -121,7 +121,26 @@ class Run extends Command {
 
           for (r <- runs if r.exp == exp) {
             for (n <- exp.outputs) n.clean()
-            r.execute() // run experiment
+            
+            logger.info("Setting up systems with JOB lifespan")
+            for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
+              case s: System if Lifespan.JOB :: Nil contains s.lifespan => s.setUp()
+              case _ => Unit
+            }
+            
+            try {
+              r.execute() // run experiment
+              
+              for (n <- exp.outputs) n.clean()
+            }
+            finally {
+              logger.info("Tearing down systems with JOB lifespan")
+              for (n <- graph.traverse(); if graph.descendants(exp).contains(n)) n match {
+                case s: System if s.lifespan == Lifespan.JOB => s.tearDown()
+                case _ => Unit
+              }
+            }
+            
             for (n <- exp.outputs) n.clean()
           }
 
