@@ -54,6 +54,16 @@
             <artifactId>config</artifactId>
         </dependency>
 
+        <!-- Database -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>anorm_${scala.tools.version}</artifactId>
+        </dependency>
+
         <!-- JSON support -->
         <dependency>
             <groupId>io.spray</groupId>
@@ -82,10 +92,22 @@
             <artifactId>argparse4j</artifactId>
         </dependency>
 
-        <!-- test -->
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.specs2</groupId>
+            <artifactId>specs2_${scala.tools.version}</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.tools.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.scalacheck</groupId>
+            <artifactId>scalacheck_${scala.tools.version}</artifactId>
         </dependency>
     </dependencies>
 

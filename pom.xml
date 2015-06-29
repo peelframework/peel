@@ -80,8 +80,12 @@
         <junit.version>4.11</junit.version>
         <scalatest.version>2.1.7</scalatest.version>
         <specs2.version>2.3.10</specs2.version>
+        <scalacheck.version>1.12.2</scalacheck.version>
         <!-- Config -->
         <config.version>1.2.1</config.version>
+        <!-- Database -->
+        <com.h2database.version>1.4.187</com.h2database.version>
+        <anorm.version>2.4.0</anorm.version>
         <!-- JSON support -->
         <spray.version>1.2.6</spray.version>
         <!-- Apache Commons -->
@@ -158,6 +162,18 @@
                 <version>${config.version}</version>
             </dependency>
 
+            <!-- Database -->
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${com.h2database.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.play</groupId>
+                <artifactId>anorm_${scala.tools.version}</artifactId>
+                <version>${anorm.version}</version>
+            </dependency>
+
             <!-- JSON support -->
             <dependency>
                 <groupId>io.spray</groupId>
@@ -225,6 +241,12 @@
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest_${scala.tools.version}</artifactId>
                 <version>${scalatest.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.scalacheck</groupId>
+                <artifactId>scalacheck_${scala.tools.version}</artifactId>
+                <version>${scalacheck.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
