@@ -42,7 +42,7 @@ public class ORMUtil implements ORM {
             //Hibernate will search for the hibernate.cfg.xml configuration and Hibernate will load the default properties there into the configuration.
             configuration.configure("hibernate.cfg.xml");
 
-            //register the Hibernate configuration
+            //format the Hibernate configuration
             StandardServiceRegistryBuilder registry = new StandardServiceRegistryBuilder();
             registry.applySettings(configuration.getProperties());
             ServiceRegistry serviceRegistry = registry.build();
