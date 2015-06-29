@@ -71,6 +71,10 @@ abstract class Experiment[+R <: System](
 /** Object that holds Experiment run properties and utilities. */
 object Experiment {
 
+  /** A base trait for experiment runs.
+    *
+    * @tparam R The type of the associated runner system.
+    */
   trait Run[+R <: System] {
 
     final val logger = LoggerFactory.getLogger(this.getClass)
@@ -79,8 +83,8 @@ object Experiment {
     val exp: Experiment[R]
     val force: Boolean
 
-    val home = f"${exp.config.getString("app.path.results")}/${exp.config.getString("app.suite.name")}/${exp.name}.run$id%02d"
-    val name = f"${exp.name}.run$id%02d"
+    val name = RunName(exp.name, id)
+    val home = f"${exp.config.getString("app.path.results")}/${exp.config.getString("app.suite.name")}/$name"
 
     // ensure experiment folder structure in the constructor
     {
@@ -108,6 +112,18 @@ object Experiment {
       } else {
         Files.createDirectories(folder)
       }
+    }
+  }
+
+  /* Encoding of the experiment run name */
+  object RunName {
+    private val format = """(.+)\.run(\d{2})""".r
+
+    def apply(expName: String, runNo: Int): String = f"$expName.run$runNo%02d"
+
+    def unapply(runName: String): Option[(String, Int)] = runName match {
+      case format(expName, runNo) => Some(expName, runNo.toInt)
+      case _ => None
     }
   }
 
