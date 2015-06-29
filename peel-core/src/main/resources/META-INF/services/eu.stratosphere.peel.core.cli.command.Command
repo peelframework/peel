@@ -1,3 +1,4 @@
+eu.stratosphere.peel.core.cli.command.db.Initialize
 eu.stratosphere.peel.core.cli.command.experiment.Run
 eu.stratosphere.peel.core.cli.command.experiment.SetUp
 eu.stratosphere.peel.core.cli.command.experiment.TearDown
