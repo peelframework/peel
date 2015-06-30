@@ -137,6 +137,8 @@ package object config {
       if (Option(this.getClass.getResource(s"/$name")).isDefined) {
         logger.info(s"Loading resource $name")
         config = ConfigFactory.parseResources(name, options).withFallback(config)
+      } else {
+        logger.info(s"Skipping resource $name (does not exist)")
       }
     }
     // helper function: append file to current config
@@ -144,6 +146,8 @@ package object config {
       if (Files.isReadable(Paths.get(path))) {
         logger.info(s"Loading file $path")
         config = ConfigFactory.parseFile(new File(path), options).withFallback(config)
+      } else {
+        logger.info(s"Skipping file $path (does not exist)")
       }
     }
 
