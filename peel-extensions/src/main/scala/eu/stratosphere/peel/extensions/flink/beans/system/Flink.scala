@@ -1,7 +1,5 @@
 package eu.stratosphere.peel.extensions.flink.beans.system
 
-import java.nio.file.{Files, Paths}
-
 import com.samskivert.mustache.Mustache
 import com.typesafe.config.ConfigException
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
@@ -36,17 +34,19 @@ class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
 
     // check if tmp dir exists and create if not
     try {
-      val tmpDir = config.getString("system.flink.config.yaml.taskmanager.tmp.dirs")
-      // check if tmp dir exists on jobmanager node
-      val jobNode = config.getString("system.flink.config.yaml.jobmanager.rpc.address")
-      logger.info(s"Initializing tmp directory $tmpDir at jobmanager node $jobNode")
-      shell ! s""" ssh $user@$jobNode "rm -Rf $tmpDir" """
-      shell ! s""" ssh $user@$jobNode "mkdir -p $tmpDir" """
+      val tmpDirs = config.getString("system.flink.config.yaml.taskmanager.tmp.dirs")
+      val jmHost = config.getString("system.flink.config.yaml.jobmanager.rpc.address")
 
-      for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-        logger.info(s"Initializing tmp directory $tmpDir at taskmanager node $dataNode")
-        shell ! s""" ssh $user@$dataNode "rm -Rf $tmpDir" """
-        shell ! s""" ssh $user@$dataNode "mkdir -p $tmpDir" """
+      for (tmpDir <- tmpDirs.split(':')) {
+        logger.info(s"Initializing tmp directory $tmpDir at jobmanager host $jmHost")
+        shell ! s""" ssh $user@$jmHost "rm -Rf $tmpDir" """
+        shell ! s""" ssh $user@$jmHost "mkdir -p $tmpDir" """
+
+        for (tmHost <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
+          logger.info(s"Initializing tmp directory $tmpDir at taskmanager host $tmHost")
+          shell ! s""" ssh $user@$tmHost "rm -Rf $tmpDir" """
+          shell ! s""" ssh $user@$tmHost "mkdir -p $tmpDir" """
+        }
       }
     } catch {
       case _: ConfigException => // ignore not set explicitly, java default is taken
