@@ -135,14 +135,14 @@ class HDFS2(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
 
   private def format() = {
     val user = config.getString(s"system.$configKey.user")
-    val nameDir = config.getString(s"system.$configKey.config.hdfs.dfs.name.dir")
+    val nameDir = config.getString(s"system.$configKey.config.hdfs.dfs.namenode.name.dir")
 
     logger.info(s"Formatting namenode")
     shell ! "echo 'Y' | %s/bin/hadoop namenode -format".format(config.getString(s"system.$configKey.path.home"))
 
     logger.info(s"Fixing data directories")
     for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-      for (dataDir <- config.getString(s"system.$configKey.config.hdfs.dfs.data.dir").split(',')) {
+      for (dataDir <- config.getString(s"system.$configKey.config.hdfs.dfs.datanode.data.dir").split(',')) {
         logger.info(s"Initializing data directory $dataDir at datanode $dataNode")
         shell ! s""" ssh $user@$dataNode "rm -Rf $dataDir" """
         shell ! s""" ssh $user@$dataNode "mkdir -p $dataDir/current" """
