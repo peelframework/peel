@@ -13,11 +13,11 @@ import scala.collection.JavaConverters._
   *
   * Implements Flink as a [[eu.stratosphere.peel.core.beans.system.System System]] class and provides setup and teardown methods.
   *
- * @param version Version of the system (e.g. "7.1")
- * @param lifespan [[eu.stratosphere.peel.core.beans.system.Lifespan Lifespan]] of the system
- * @param dependencies Set of dependencies that this system needs
- * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
- */
+  * @param version Version of the system (e.g. "7.1")
+  * @param lifespan [[eu.stratosphere.peel.core.beans.system.Lifespan Lifespan]] of the system
+  * @param dependencies Set of dependencies that this system needs
+  * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
+  */
 class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("flink", version, lifespan, dependencies, mc) {
 
   override def configuration() = SystemConfig(config, {
@@ -32,24 +32,18 @@ class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
     val user = config.getString("system.flink.user")
     val logDir = config.getString("system.flink.path.log")
 
-    // check if tmp dir exists and create if not
     try {
-      val tmpDirs = config.getString("system.flink.config.yaml.taskmanager.tmp.dirs")
-      val jmHost = config.getString("system.flink.config.yaml.jobmanager.rpc.address")
-
-      for (tmpDir <- tmpDirs.split(':')) {
-        logger.info(s"Initializing tmp directory $tmpDir at jobmanager host $jmHost")
-        shell ! s""" ssh $user@$jmHost "rm -Rf $tmpDir" """
-        shell ! s""" ssh $user@$jmHost "mkdir -p $tmpDir" """
-
-        for (tmHost <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-          logger.info(s"Initializing tmp directory $tmpDir at taskmanager host $tmHost")
-          shell ! s""" ssh $user@$tmHost "rm -Rf $tmpDir" """
-          shell ! s""" ssh $user@$tmHost "mkdir -p $tmpDir" """
-        }
-      }
+      val tmpDir = config.getString("system.flink.config.yaml.taskmanager.tmp.dirs")
+      createDirectory(user, tmpDir, false)
     } catch {
-      case _: ConfigException => // ignore not set explicitly, java default is taken
+      case _: ConfigException.Missing => logger.warn("No tmp directory specified.")
+    }
+
+    try {
+      val blobDir = config.getString("system.flink.config.yaml.blob.storage.directory")
+      createDirectory(user, blobDir)
+    } catch {
+      case _: ConfigException.Missing => logger.warn("No blob directory specified.")
     }
 
     var failedStartUpAttempts = 0
@@ -93,12 +87,30 @@ class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
   }
 
   override protected def stop() = {
-    shell ! s"${config.getString("system.flink.path.home")}/bin/stop-cluster.sh"
-    shell ! s"${config.getString("system.flink.path.home")}/bin/stop-webclient.sh"
+    shell ! s"${
+      config.getString("system.flink.path.home")
+    }/bin/stop-cluster.sh"
+    shell ! s"${
+      config.getString("system.flink.path.home")
+    }/bin/stop-webclient.sh"
     isUp = false
   }
 
   def isRunning = {
     (shell ! s"""ps -ef | grep 'flink' | grep 'java' | grep 'jobmanager' | grep -v 'grep' """) == 0 // TODO: fix using PID
+  }
+
+
+  private def createDirectory(user: String, dir: String, truncate: Boolean = true): Unit = {
+    val jobNode = config.getString("system.flink.config.yaml.jobmanager.rpc.address")
+    logger.info(s"Initializing directory $dir at jobmanager node $jobNode")
+    if (truncate) shell ! s""" ssh $user@$jobNode "rm -Rf $dir" """
+    shell ! s""" ssh $user@$jobNode "mkdir -p $dir" """
+
+    for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
+      logger.info(s"Initializing directory $dir at taskmanager node $dataNode")
+      if (truncate) shell ! s""" ssh $user@$dataNode "rm -Rf $dir" """
+      shell ! s""" ssh $user@$dataNode "mkdir -p $dir" """
+    }
   }
 }
