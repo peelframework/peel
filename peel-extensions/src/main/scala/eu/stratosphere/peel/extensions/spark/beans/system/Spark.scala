@@ -13,12 +13,12 @@ import scala.collection.JavaConverters._
   *
   * Implements Spark as a [[eu.stratosphere.peel.core.beans.system.System System]] class and provides setup and teardown methods.
   *
- *
- * @param version Version of the system (e.g. "7.1")
- * @param lifespan [[eu.stratosphere.peel.core.beans.system.Lifespan Lifespan]] of the system
- * @param dependencies Set of dependencies that this system needs
- * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
- */
+  *
+  * @param version Version of the system (e.g. "7.1")
+  * @param lifespan [[eu.stratosphere.peel.core.beans.system.Lifespan Lifespan]] of the system
+  * @param dependencies Set of dependencies that this system needs
+  * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
+  */
 class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("spark", version, lifespan, dependencies, mc) {
 
   /**
@@ -30,11 +30,12 @@ class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
   override def configuration() = SystemConfig(config, {
     val conf = config.getString("system.spark.path.config")
     //rename template files - strip the .template
-    shell ! s"mv $conf/spark-env.sh.template $conf/spark-env.sh"
-    shell ! s"mv $conf/spark-defaults.conf.template $conf/spark-defaults.conf"
+    // TODO: this needs to be done only on demand
+    shell ! s"""if [ ! -e "$conf/spark-env.sh" ]; then mv "$conf/spark-env.sh.template" "$conf/spark-env.sh"; fi """
+    shell ! s"""if [ ! -e "$conf/spark-defaults.conf" ]; then mv "$conf/spark-defaults.conf.template" "$conf/spark-defaults.conf"; fi """
     List(
       SystemConfig.Entry[Model.Hosts]("system.spark.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
-      SystemConfig.Entry[Model.Env]("system.spark.config.env", s"$conf/spark-env.sh",templatePath("conf/spark-env.sh"), mc),
+      SystemConfig.Entry[Model.Env]("system.spark.config.env", s"$conf/spark-env.sh", templatePath("conf/spark-env.sh"), mc),
       SystemConfig.Entry[Model.Site]("system.spark.config.defaults", s"$conf/spark-defaults.conf", templatePath("conf/spark-defaults.conf"), mc)
     )
   })

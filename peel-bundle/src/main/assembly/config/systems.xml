@@ -7,13 +7,13 @@
     -->
 
     <!-- Use lifespan "PROVIDED" if you want to start the systems manually   -->
-    <!-- Use lifespan "SUITE" if you want Peel to deploy to start them for you once per suite -->
+    <!-- Use lifespan "SUITE" if you want Peel to deploy to start them for you once per suite (deafult for most systems) -->
     <!-- Use lifespan "EXPERIMENT" if you want Peel to deploy to start them for you  once per experiment -->
 
     <!-- Flink (overridden 'flink-0.9.0' bean that depends on 'hdfs-2.4.1') -->
     <bean id="flink-0.9.0" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
         <constructor-arg name="version" value="0.9.0"/>
-        <constructor-arg name="lifespan" value="EXPERIMENT"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System">
                 <ref bean="hdfs-2.4.1"/>
@@ -24,7 +24,7 @@
     <!-- Spark (overridden 'spark-1.3.1' bean that depends on 'hdfs-2.4.1' -->
     <bean id="spark-1.3.1" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system">
         <constructor-arg name="version" value="1.3.1"/>
-        <constructor-arg name="lifespan" value="EXPERIMENT"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System">
                 <ref bean="hdfs-2.4.1"/>

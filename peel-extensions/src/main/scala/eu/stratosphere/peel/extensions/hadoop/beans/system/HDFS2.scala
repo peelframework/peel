@@ -138,7 +138,7 @@ class HDFS2(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
     val nameDir = config.getString(s"system.$configKey.config.hdfs.dfs.namenode.name.dir")
 
     logger.info(s"Formatting namenode")
-    shell ! "echo 'Y' | %s/bin/hadoop namenode -format".format(config.getString(s"system.$configKey.path.home"))
+    shell ! "%s/bin/hdfs namenode -format -nonInteractive -force".format(config.getString(s"system.$configKey.path.home"))
 
     logger.info(s"Fixing data directories")
     for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {

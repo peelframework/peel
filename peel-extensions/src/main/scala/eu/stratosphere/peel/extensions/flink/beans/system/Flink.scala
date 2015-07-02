@@ -1,7 +1,6 @@
 package eu.stratosphere.peel.extensions.flink.beans.system
 
 import com.samskivert.mustache.Mustache
-import com.typesafe.config.ConfigException
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
 import eu.stratosphere.peel.core.beans.system.{SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
@@ -32,18 +31,20 @@ class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
     val user = config.getString("system.flink.user")
     val logDir = config.getString("system.flink.path.log")
 
-    try {
-      val tmpDir = config.getString("system.flink.config.yaml.taskmanager.tmp.dirs")
-      createDirectory(user, tmpDir, false)
-    } catch {
-      case _: ConfigException.Missing => logger.warn("No tmp directory specified.")
-    }
+    // check if tmp dir exists and create if not
+    val tmpDirs = config.getString("system.flink.config.yaml.taskmanager.tmp.dirs")
+    val jmHost = config.getString("system.flink.config.yaml.jobmanager.rpc.address")
 
-    try {
-      val blobDir = config.getString("system.flink.config.yaml.blob.storage.directory")
-      createDirectory(user, blobDir)
-    } catch {
-      case _: ConfigException.Missing => logger.warn("No blob directory specified.")
+    for (tmpDir <- tmpDirs.split(':')) {
+      logger.info(s"Initializing tmp directory $tmpDir at jobmanager host $jmHost")
+      shell ! s""" ssh $user@$jmHost "rm -Rf $tmpDir" """
+      shell ! s""" ssh $user@$jmHost "mkdir -p $tmpDir" """
+
+      for (tmHost <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
+        logger.info(s"Initializing tmp directory $tmpDir at taskmanager host $tmHost")
+        shell ! s""" ssh $user@$tmHost "rm -Rf $tmpDir" """
+        shell ! s""" ssh $user@$tmHost "mkdir -p $tmpDir" """
+      }
     }
 
     var failedStartUpAttempts = 0
@@ -87,30 +88,12 @@ class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
   }
 
   override protected def stop() = {
-    shell ! s"${
-      config.getString("system.flink.path.home")
-    }/bin/stop-cluster.sh"
-    shell ! s"${
-      config.getString("system.flink.path.home")
-    }/bin/stop-webclient.sh"
+    shell ! s"${config.getString("system.flink.path.home")}/bin/stop-cluster.sh"
+    shell ! s"${config.getString("system.flink.path.home")}/bin/stop-webclient.sh"
     isUp = false
   }
 
   def isRunning = {
     (shell ! s"""ps -ef | grep 'flink' | grep 'java' | grep 'jobmanager' | grep -v 'grep' """) == 0 // TODO: fix using PID
-  }
-
-
-  private def createDirectory(user: String, dir: String, truncate: Boolean = true): Unit = {
-    val jobNode = config.getString("system.flink.config.yaml.jobmanager.rpc.address")
-    logger.info(s"Initializing directory $dir at jobmanager node $jobNode")
-    if (truncate) shell ! s""" ssh $user@$jobNode "rm -Rf $dir" """
-    shell ! s""" ssh $user@$jobNode "mkdir -p $dir" """
-
-    for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-      logger.info(s"Initializing directory $dir at taskmanager node $dataNode")
-      if (truncate) shell ! s""" ssh $user@$dataNode "rm -Rf $dir" """
-      shell ! s""" ssh $user@$dataNode "mkdir -p $dir" """
-    }
   }
 }

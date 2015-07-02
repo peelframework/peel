@@ -142,6 +142,30 @@
 {{#taskmanager.debug.memory.logIntervalMs}}taskmanager.debug.memory.logIntervalMs: {{taskmanager.debug.memory.logIntervalMs}}{{/taskmanager.debug.memory.logIntervalMs}}{{^taskmanager.debug.memory.logIntervalMs}}# taskmanager.debug.memory.logIntervalMs: 5000L{{/taskmanager.debug.memory.logIntervalMs}}
 
 #==============================================================================
+# BLOB / Cache
+#==============================================================================
+
+# The storage directory to be used by the BLOB server.
+#
+{{#blob.storage.directory}}blob.storage.directory: {{blob.storage.directory}}{{/blob.storage.directory}}{{^blob.storage.directory}}# blob.storage.directory: /tmp{{/blob.storage.directory}}
+
+# The number of retires for failed BLOB fetches.
+#
+{{#blob.fetch.retries}}blob.fetch.retries: {{blob.fetch.retries}}{{/blob.fetch.retries}}{{^blob.fetch.retries}}# blob.fetch.retries: 5{{/blob.fetch.retries}}
+
+# The maximum number of concurrent BLOB fetches that the JobManager serves.
+#
+{{#blob.fetch.num-concurrent}}blob.fetch.num-concurrent: {{blob.fetch.num-concurrent}}{{/blob.fetch.num-concurrent}}{{^blob.fetch.num-concurrent}}# blob.fetch.num-concurrent: 50{{/blob.fetch.num-concurrent}}
+
+# The backlog of BLOB fetches on the JobManager.
+#
+{{#blob.fetch.backlog}}blob.fetch.backlog: {{blob.fetch.backlog}}{{/blob.fetch.backlog}}{{^blob.fetch.backlog}}# blob.fetch.backlog: 1000{{/blob.fetch.backlog}}
+
+# The cleanup interval of the library cache manager.
+#
+{{#library-cache-manager.cleanup.interval}}library-cache-manager.cleanup.interval: {{library-cache-manager.cleanup.interval}}{{/library-cache-manager.cleanup.interval}}{{^library-cache-manager.cleanup.interval}}# library-cache-manager.cleanup.interval: 3600{{/library-cache-manager.cleanup.interval}}
+
+#==============================================================================
 # JobManager Web Frontend
 #==============================================================================
 
