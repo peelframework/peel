@@ -26,7 +26,7 @@
     <!-- k-means experiment (flink) -->
     <bean id="experiment.flink.wordcount" parent="experiment.flink-0.9.0" abstract="true">
         <constructor-arg name="command">
-            <value>-v -c org.apache.flink.examples.java.wordcount.WordCount ${system.flink.path.home}/examples/flink-java-examples-0.9-SNAPSHOT-WordCount.jar ${system.hadoop-2.path.input}/rubbish.txt ${system.hadoop-2.path.output}/wordcount</value>
+            <value>-v -c org.apache.flink.examples.java.wordcount.WordCount ${system.flink.path.home}/examples/flink-java-examples-0.9.0-WordCount.jar ${system.hadoop-2.path.input}/rubbish.txt ${system.hadoop-2.path.output}/wordcount</value>
         </constructor-arg>
         <constructor-arg name="inputs">
             <set value-type="eu.stratosphere.peel.core.beans.data.DataSet">
