@@ -1,6 +1,5 @@
 package eu.stratosphere.peel.analyser.parser.events;
 
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

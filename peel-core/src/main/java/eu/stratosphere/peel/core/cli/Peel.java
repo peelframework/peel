@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.ServiceLoader;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -12,7 +13,6 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.internal.HelpScreenException;
 
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -32,17 +32,10 @@ public class Peel {
 
         // load available commands
         HashMap<String, Command> commands = new HashMap<>();
-        Reflections.log = null; // disable reflections log
-        Reflections reflections = new Reflections("eu.stratosphere.peel");
-        for (Class<? extends Command> clazz : reflections.getSubTypesOf(Command.class)) {
+        for (Command command : ServiceLoader.load(Command.class)) {
             try {
-                // create command instance
-                Command command = clazz.newInstance();
                 // put command in map
                 commands.put(command.name(), command);
-            } catch (InstantiationException | IllegalAccessException e) {
-                System.out.println(String.format("ERROR: Cannot instantiate command '%s'", clazz.getCanonicalName()));
-                System.exit(1);
             } catch (Throwable e) {
                 System.out.println(String.format("ERROR: %s", e.getMessage()));
                 System.exit(1);
