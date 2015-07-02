@@ -43,7 +43,7 @@ abstract class Job[+R <: System](val command: String, val runner: R, timeout: Lo
       if (exitCode != 0) throw new RuntimeException("Data generation job did not finish successfully")
     } catch {
       case e: TimeoutException =>
-        logger.warn(s"Job did not finish within the given time limit of ${config.getLong("datagen.timeout")} seconds")
+        logger.warn(s"Job did not finish within the given time limit of $timeout seconds")
         cancelJob()
         throw e
       case e: InterruptedException =>
