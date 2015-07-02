@@ -93,7 +93,15 @@ class Run extends Command {
           }
 
           logger.info("Materializing experiment input data sets")
-          for (n <- exp.inputs) n.materialize()
+          for (n <- exp.inputs; path = n.resolve(n.path)) if (!n.fs.exists(path)) {
+            try {
+              n.materialize()
+            } catch {
+              case e: Throwable => n.fs.rmr(path); throw e // make sure the path is cleaned for the next try
+            }
+          } else {
+            logger.info(s"Skipping already materialized path '$path}'")
+          }
 
           logger.info("Tearing down redundant systems before conducting experiment runs")
           for (n <- inpSystems diff expSystems) n match {
@@ -121,13 +129,13 @@ class Run extends Command {
 
           for (r <- runs if r.exp == exp) {
             for (n <- exp.outputs) n.clean()
-            
+
             logger.info("Setting up systems with JOB lifespan")
             for (n <- allSystems) n match {
               case s: System if s.lifespan == Lifespan.JOB => s.setUp()
               case _ => Unit
             }
-            
+
             try {
               r.execute() // run experiment
             }
@@ -138,7 +146,7 @@ class Run extends Command {
                 case _ => Unit
               }
             }
-            
+
             for (n <- exp.outputs) n.clean()
           }
 

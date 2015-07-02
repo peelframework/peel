@@ -87,7 +87,16 @@ class SetUp extends Command {
         }
 
         logger.info("Materializing experiment input data sets")
-        for (n <- exp.inputs) n.materialize()
+        for (n <- exp.inputs; path = n.resolve(n.path)) if (!n.fs.exists(path)) {
+          try {
+            n.materialize()
+          } catch {
+            case e: Throwable => n.fs.rmr(path); throw e // make sure the path is cleaned for the next try
+          }
+        } else {
+          logger.info(s"Skipping already materialized path '$path}'")
+        }
+
 
         logger.info("Tearing down redundant systems before conducting experiment runs")
         for (n <- inpSystems diff expSystems) n match {
