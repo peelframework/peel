@@ -1,8 +1,7 @@
-peel
-====
+Peel Experiments Execution Framework
+====================================
 
-Peel is a framework for automatic large-scale experiments for massively-parallel systems and algorithms. 
-It enables the conduction of fully automated and higly configurable experiments that can be executed from a simple command line interface.
+Peel is a framework that assists you in the execution and results analysis of experiments evaluating massively-parallel algorithms and systems.
 
 ### The main features are
 

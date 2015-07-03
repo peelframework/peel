@@ -152,7 +152,7 @@ public class Peel {
 
     private static void printHeader(Logger logger) {
         logger.info("############################################################");
-        logger.info("#              PEEL TEST EXECUTION FRAMEWORK               #");
+        logger.info("#           PEEL EXPERIMENTS EXECUTION FRAMEWORK           #");
         logger.info("############################################################");
     }
 }
