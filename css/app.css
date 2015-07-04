@@ -1,0 +1,92 @@
+/**
+ * Peel Website Custom CSS
+ */
+
+body {
+    margin-top: 60px;
+}
+
+.content-container h1,
+.content-container h2,
+.content-container h3 {
+    padding-top: 60px;
+    margin-top: -60px;
+}
+
+h4 {
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #0F4959;
+}
+
+.side-nav li.active > a:first-child:not(.button) {
+    color: #167411;
+}
+
+.side-nav .side-nav {
+    margin-top: -1ex;
+}
+
+.side-nav .side-nav li {
+    margin-bottom: 0;
+}
+
+.side-nav li a:not(.button) {
+    padding: 0.4375rem 0 0.4375rem 0.875rem;
+}
+
+.side-nav li a:hover:not(.button), .side-nav li a:focus:not(.button) {
+    color: #045300;
+}
+
+#main-container img {
+    width: 100%;
+}
+
+.top-bar .right i {
+    font-size: 1.5em;
+    line-height: 1em;
+    vertical-align: middle;
+}
+
+.teaser-row img {
+    margin-bottom: 1em;
+}
+
+.page-footer {
+    background: rgba(0, 0, 0, 0.024);
+    height: 50vh;
+}
+
+figure {
+    margin: 2ex 0 2ex 0;
+}
+
+figure figcaption {
+    margin: 1ex 0 3ex 0;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+}
+
+pre {
+    background: #ffffff none repeat scroll 0 0;
+    border: 0 solid #ccc;
+    border-radius: 2px;
+    font-family: "Consolas", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+    letter-spacing: 0.015em;
+    line-height: 120%;
+    padding: 0.5em;
+    margin: 1ex 0 2ex 0;
+}
+
+code {
+    background-color: transparent;
+    font-family: "Consolas", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+    border: 0;
+    padding: 0;
+}
