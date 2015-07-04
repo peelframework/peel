@@ -1,0 +1,52 @@
+<div class="fixed">
+    <div class="contain-to-grid">
+        <nav class="top-bar" data-topbar role="navigation">
+            <ul class="title-area">
+                <li class="name">
+                    <h1><a href="{{ site.baseurl }}/index.html">Peel Framework<sup>beta</sup></a></h1>
+                </li>
+            </ul>
+
+            <section class="top-bar-section">
+                <!-- Right Nav Section -->
+                <ul class="left">
+                    <li class="{% if include.nav == 'getting-started' %}active{% endif %}"><a href="{{ site.baseurl }}/getting-started.html">Getting
+                        Started</a></li>
+                    <li class="divider"></li>
+                    <li class="{% if include.nav contains 'manual' %}active{% endif %} has-dropdown">
+                        <a href="#">Manual</a>
+                        <ul class="dropdown">
+                            <li><a href="{{ site.baseurl }}/manual/motivation.html">Motivation</a></li>
+                            <li><a href="{{ site.baseurl }}/manual/bundle-basics.html">Bundle Basics</a></li>
+                            <li><a href="{{ site.baseurl }}/manual/environment-configurations.html">Environment Configurations</a></li>
+                            <li><a href="{{ site.baseurl }}/manual/experiments-definitions.html">Experiments Definitions</a></li>
+                            <li><a href="{{ site.baseurl }}/manual/execution-workflow.html">Execution Workflow</a></li>
+                            <li><a href="{{ site.baseurl }}/manual/results-analysis.html">Results Analysis</a></li>
+                            <li><a href="{{ site.baseurl }}/manual/troubleshooting.html">Troubleshooting</a></li>
+                        </ul>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="{% if include.nav == 'repository' %}active{% endif %} has-dropdown">
+                        <a href="#">Repository</a>
+                        <ul class="dropdown">
+                            <li><a href="{{ site.baseurl }}/repository/bundles.html">Bundles</a></li>
+                            <li><a href="{{ site.baseurl }}/repository/environment-configurations.html">Environment Configurations</a></li>
+                            <li><a href="{{ site.baseurl }}/repository/data-generators.html">Data Generators</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Right Nav Section -->
+                <ul class="right">
+                    <li class="{% if include.nav == 'blog' %}active{% endif %}"><a href="{{ site.baseurl }}/blog/index.html">Blog</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://github.com/stratosphere/peel"><i class="fi-social-github medium"></i></a></li>
+                    <li class="divider"></li>
+                    <li><a href="#"><i class="fi-social-twitter medium"></i></a></li>
+                    <li class="divider"></li>
+                    <li><a href="#"><i class="fi-social-google-plus medium"></i></a></li>
+                </ul>
+            </section>
+        </nav>
+    </div>
+</div>

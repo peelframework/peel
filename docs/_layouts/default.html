@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!--[if IE 9]>
+<html class="lt-ie10" lang="en"><![endif]-->
+<html class="no-js" lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8"/>
+
+    <title>Peel Framework &middot; {{ page.title }}</title>
+
+    <!-- Reset browser styles -->
+    <link rel="stylesheet" href="{{ site.baseurl }}/css/normalize.css"/>
+    <!-- Foundation CSS -->
+    <link rel="stylesheet" href="{{ site.baseurl }}/css/foundation.css"/>
+    <!-- Foundation Icons -->
+    <link rel="stylesheet" href="{{ site.baseurl }}/assets/foundation-icons/foundation-icons.css"/>
+    <!-- Pygments -->
+    <link rel="stylesheet" href="{{ site.baseurl }}/css/pygments.css"/>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ site.baseurl }}/css/app.css"/>
+
+    <!-- Modernizr JS -->
+    <script src="{{ site.baseurl }}/js/vendor/modernizr.js"></script>
+    <!-- JQuery -->
+    <script src="{{ site.baseurl }}/js/vendor/jquery.js"></script>
+    <!-- Foundation -->
+    <script src="{{ site.baseurl }}/js/foundation.min.js"></script>
+</head>
+<body>
+
+{% include navigation.top.html nav=page.nav %}
+
+{{ content }}
+
+{% include footer.html nav=page.nav %}
+
+<script>
+    $(document).foundation();
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<h4 style="padding-left: 0.875rem">Peel Manual</h4>
+
+<ul id="man-nav" class="side-nav">
+    <li data-section="motivation">
+        <a href="{{ site.baseurl }}/manual/motivation.html"><strong>Motivation</strong></a>
+        <ul class="side-nav">
+            <li><a href="{{ site.baseurl }}/manual/motivation.html#system-experiments-basics">System Experiments Basics</a></li>
+            <li><a href="{{ site.baseurl }}/manual/motivation.html#running-example">Running Example</a></li>
+            <li><a href="{{ site.baseurl }}/manual/motivation.html#challenges">Challenges</a></li>
+            <li><a href="{{ site.baseurl }}/manual/motivation.html#solution">Solution</a></li>
+        </ul>
+    </li>
+    <li class="divider"></li>
+    <li data-section="bundle-basics">
+        <a href="{{ site.baseurl }}/manual/bundle-basics.html"><strong>Bundle Basics</strong></a>
+        <ul class="side-nav">
+            <li><a href="{{ site.baseurl }}/manual/bundle-basics.html#folder-structure">Folder Structure</a></li>
+            <li><a href="{{ site.baseurl }}/manual/bundle-basics.html#components">Components</a>
+            <li><a href="{{ site.baseurl }}/manual/bundle-basics.html#example">Example</a></li>
+        </ul>
+    </li>
+    <li class="divider"></li>
+    <li data-section="environment-configurations">
+        <a href="{{ site.baseurl }}/manual/environment-configurations.html"><strong>Environment Configurations</strong></a>
+        <ul class="side-nav">
+            <li><a href="{{ site.baseurl }}/manual/environment-configurations.html#challenges">Challenges</a></li>
+            <li><a href="{{ site.baseurl }}/manual/environment-configurations.html#approach">Approach</a></li>
+            <li><a href="{{ site.baseurl }}/manual/environment-configurations.html#configuration-layers">Configuration Layers</a></li>
+            <li><a href="{{ site.baseurl }}/manual/environment-configurations.html#sharing-configurations">Sharing Configurations</a></li>
+            <li><a href="{{ site.baseurl }}/manual/environment-configurations.html#example">Example</a></li>
+        </ul>
+    </li>
+    <li class="divider"></li>
+    <li data-section="experiments-definitions">
+        <a href="{{ site.baseurl }}/manual/experiments-definitions.html"><strong>Experiments Definitions</strong></a>
+        <ul class="side-nav">
+            <li><a href="{{ site.baseurl }}/manual/experiments-definitions.html#domain-model">Domain Model</a></li>
+            <li><a href="{{ site.baseurl }}/manual/experiments-definitions.html#dependency-graph">Dependency Graph</a></li>
+            <li><a href="{{ site.baseurl }}/manual/experiments-definitions.html#example">Example</a></li>
+        </ul>
+    </li>
+    <li class="divider"></li>
+    <li data-section="execution-workflow">
+        <a href="{{ site.baseurl }}/manual/execution-workflow.html"><strong>Execution Workflow</strong></a>
+    </li>
+    <li class="divider"></li>
+    <li data-section="results-analysis">
+        <a href="{{ site.baseurl }}/manual/results-analysis.html"><strong>Results Analysis</strong></a>
+    </li>
+    <li class="divider"></li>
+    <li data-section="troubleshooting">
+        <a href="{{ site.baseurl }}/manual/troubleshooting.html"><strong>Troubleshooting</strong></a>
+    </li>
+</ul>
+
+<script>
+    var topItems = $("#man-nav").find("> li");
+
+    // mark current section as active
+    topItems.each(function (index) {
+        var li = $(this);
+        if (li.data("section") === "{{ page.nav[1] }}") {
+            li.addClass("active");
+        } else {
+            li.find("ul.side-nav").hide();
+        }
+    });
+</script>
