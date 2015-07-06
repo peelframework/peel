@@ -19,7 +19,7 @@ import scala.language.postfixOps
 /** Abstract representation of an experiment.
   *
   * @param command The command that specifies the execution of the experiment in terms of the underlying system's way of
-  *                submitting jobs. Example command for a Flink-experiment:
+  *                submitting apps. Example command for a Flink-experiment:
   *
   *                <code>-p 16 ./examples/flink-java-examples-0.7.0-incubating-WordCount.jar
   *                      file:///home/user/hamlet.txt file:///home/user/wordcount_out

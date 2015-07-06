@@ -56,10 +56,10 @@
             <outputDirectory>downloads</outputDirectory>
             <fileMode>0644</fileMode>
         </fileSet>
-        <!-- create an empty jobs directory -->
+        <!-- create an empty apps directory -->
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>jobs</outputDirectory>
+            <outputDirectory>apps</outputDirectory>
             <fileMode>0644</fileMode>
             <excludes>
                 <exclude>**/*</exclude>

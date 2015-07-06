@@ -12,32 +12,17 @@ import eu.stratosphere.peel.core.util.shell
 import eu.stratosphere.peel.extensions.spark.beans.system.Spark
 import spray.json._
 
-/** Experiment-Class for an experiment in Spark.
- *
- * @param command The command that specifies the execution of the experiment in terms of the underlying system's way of
- *                submitting jobs. Example command for a Flink-experiment:
- *
- *                <code>-p 16 ./examples/flink-java-examples-0.7.0-incubating-WordCount.jar
- *                file:///home/user/hamlet.txt file:///home/user/wordcount_out
- *                </code>
- *
- *                You do not have to state the command that is used to 'run' the command (e.g. in Flink
- *                <code> ./bin/flink run </code>
- *
- * @param runner The system that is used to run the experiment (e.g. Flink, Spark, ...)
- * @param runs The number of runs/repetitions of this experiment
- * @param inputs Input Datasets for the experiment
- * @param outputs The output of the Experiment
- * @param name Name of the Experiment
- * @param config Config Object for the experiment
- */
-class SparkExperiment(command: String,
-                      runner: Spark,
-                      runs: Int,
-                      inputs: Set[DataSet],
-                      outputs: Set[ExperimentOutput],
-                      name: String,
-                      config: Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
+/** An [[eu.stratosphere.peel.core.beans.experiment.Experiment Experiment]] implementation which handles the execution
+  * of a single Spark job.
+  */
+class SparkExperiment(
+  command: String,
+  runner: Spark,
+  runs: Int,
+  inputs: Set[DataSet],
+  outputs: Set[ExperimentOutput],
+  name: String,
+  config: Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
 
   def this(runs: Int, runner: Spark, input: DataSet, output: ExperimentOutput, command: String, name: String, config: Config) = this(command, runner, runs, Set(input), Set(output), name, config)
 
@@ -48,14 +33,15 @@ class SparkExperiment(command: String,
 
 object SparkExperiment {
 
-  case class State(name: String,
-                   suiteName: String,
-                   command: String,
-                   runnerID: String,
-                   runnerName: String,
-                   runnerVersion: String,
-                   var runExitCode: Option[Int] = None,
-                   var runTime: Long = 0) extends Experiment.RunState {}
+  case class State(
+    name: String,
+    suiteName: String,
+    command: String,
+    runnerID: String,
+    runnerName: String,
+    runnerVersion: String,
+    var runExitCode: Option[Int] = None,
+    var runTime: Long = 0) extends Experiment.RunState {}
 
   object StateProtocol extends DefaultJsonProtocol with NullOptions {
     implicit val stateFormat = jsonFormat8(State)
@@ -127,7 +113,7 @@ object SparkExperiment {
 
     private def !(command: String, outFile: String, errFile: String) = {
       val master = exp.config.getString("system.spark.config.defaults.spark.master")
-//      shell ! s"${exp.config.getString("system.spark.path.home")}/bin/spark-submit --master $master $command > $outFile 2> $errFile"
+      //      shell ! s"${exp.config.getString("system.spark.path.home")}/bin/spark-submit --master $master $command > $outFile 2> $errFile"
       shell ! s"${exp.config.getString("system.spark.path.home")}/bin/spark-submit $command"
     }
   }

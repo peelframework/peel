@@ -11,26 +11,8 @@ import eu.stratosphere.peel.core.util.shell
 import eu.stratosphere.peel.extensions.flink.beans.system.Flink
 import spray.json._
 
-/** Flink Experiment class
-  *
-  * Run Experiments in Flink.
-  *
-  * @param command The command that specifies the execution of the experiment in terms of the underlying system's way of
-  *                submitting jobs. Example command for a Flink-experiment:
-  *
-  *                <code>-p 16 ./examples/flink-java-examples-0.7.0-incubating-WordCount.jar
-  *                file:///home/user/hamlet.txt file:///home/user/wordcount_out
-  *                </code>
-  *
-  *                You do not have to state the command that is used to 'run' the command (e.g. in Flink
-  *                <code> ./bin/flink run </code>
-  *
-  * @param runner The system that is used to run the experiment (e.g. Flink, Spark, ...)
-  * @param runs The number of runs/repetitions of this experiment
-  * @param inputs Input Datasets for the experiment
-  * @param outputs The output of the Experiment
-  * @param name Name of the Experiment
-  * @param config Config Object for the experiment
+/** An [[eu.stratosphere.peel.core.beans.experiment.Experiment Experiment]] implementation which handles the execution
+  * of a single Flink job.
   */
 class FlinkExperiment(
   command: String,
