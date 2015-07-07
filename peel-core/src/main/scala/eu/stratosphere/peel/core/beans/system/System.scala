@@ -22,11 +22,14 @@ import org.springframework.beans.factory.BeanNameAware
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
-abstract class System(val name: String,
-                      val version: String,
-                      val lifespan: Lifespan,
-                      val dependencies: Set[System],
-                      val mc: Mustache.Compiler) extends Node with Configurable with BeanNameAware {
+abstract class System(
+  val name: String,
+  val version: String,
+  val lifespan: Lifespan,
+  val dependencies: Set[System],
+  val mc: Mustache.Compiler) extends Node with Configurable with BeanNameAware {
+
+  import scala.language.postfixOps
 
   final val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -51,18 +54,7 @@ abstract class System(val name: String,
       logger.info(s"Starting system '$toString'")
 
       if (!Files.exists(Paths.get(config.getString(s"system.$configKey.path.home")))) {
-        if (config.hasPath(s"system.$configKey.path.archive")) {
-          logger.info(s"Extracting archive ${config.getString(s"system.$configKey.path.archive.src")} to ${config.getString(s"system.$configKey.path.archive.dst")}")
-          shell.extract(config.getString(s"system.$configKey.path.archive.src"), config.getString(s"system.$configKey.path.archive.dst"))
-
-          logger.info(s"Changing owner of ${config.getString(s"system.$configKey.path.home")} to ${config.getString(s"system.$configKey.user")}:${config.getString(s"system.$configKey.group")}")
-          shell ! "chown -R %s:%s %s".format(
-            config.getString(s"system.$configKey.user"),
-            config.getString(s"system.$configKey.group"),
-            config.getString(s"system.$configKey.path.home"))
-        } else {
-          throw new RuntimeException(s"Cannot find archive path for system '$configKey'")
-        }
+        materializeHome()
       }
 
       configuration().update()
@@ -140,7 +132,7 @@ abstract class System(val name: String,
   /** Stops the system. */
   protected def stop(): Unit
 
-  /** Checks whether a process for this system is already running.
+  /** Checks whether a process   for this system is already running.
     *
     * This is different from the value of `isUp`, as a system can be running, but not yet up and operational (i.e. if
     * not all worker nodes of a distributed have connected).
@@ -148,6 +140,44 @@ abstract class System(val name: String,
     * @return True if a system process for this system exists.
     */
   def isRunning: Boolean
+
+  /** Materializes the system home from an archive.
+    *
+    * Depends on the following system parameters:
+    *
+    * * `system.$configKey.path.archive.url` - A URL where the system binary archive can be found online (optional).
+    * * `system.$configKey.path.archive.md5` - The md5 sum of the system binary archive.
+    * * `system.$configKey.path.archive.src` - The path where the system binary archive should be stored locally.
+    * * `system.$configKey.path.archive.dst` - The path where the system binary archive should be extracted.
+    */
+  private def materializeHome() = {
+    val archiveMD5 = BigInt(config.getString(s"system.$configKey.path.archive.md5"), 16)
+    val archiveSrc = config.getString(s"system.$configKey.path.archive.src")
+    val archiveDst = config.getString(s"system.$configKey.path.archive.dst")
+
+    if (!Files.exists(Paths.get(archiveSrc))) {
+      if (config.hasPath(s"system.$configKey.path.archive.url")) {
+        val archiveUrl = config.getString(s"system.$configKey.path.archive.url")
+        logger.info(s"Downloading archive '$archiveSrc' from '$archiveUrl' (md5: '$archiveMD5')")
+        shell.download(archiveUrl, archiveSrc, archiveMD5)
+      }
+      else {
+        throw new RuntimeException(s"Cannot lazy-load archive for system '$configKey'. Please set an 'archive.url' configuration value.")
+      }
+    } else {
+      logger.info(s"Validating archive '$archiveSrc' (md5: '$archiveMD5')")
+      shell.checkMD5(archiveSrc, archiveMD5)
+    }
+
+    logger.info(s"Extracting archive '$archiveSrc' to '$archiveDst'")
+    shell.extract(archiveSrc, archiveDst)
+
+    logger.info(s"Changing owner of '${config.getString(s"system.$configKey.path.home")}' to ${config.getString(s"system.$configKey.user")}:${config.getString(s"system.$configKey.group")}")
+    shell ! "chown -R %s:%s %s".format(
+      config.getString(s"system.$configKey.user"),
+      config.getString(s"system.$configKey.group"),
+      config.getString(s"system.$configKey.path.home"))
+  }
 
   /** Returns the template path closest to the given system and version. */
   protected def templatePath(path: String) = {
