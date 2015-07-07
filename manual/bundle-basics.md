@@ -29,11 +29,11 @@ You can customize the [default paths](https://github.com/stratosphere/peel/blob/
 
 ## Components
 
-The principle components in a bundle can be seen as follows.
+The entries in the above list can be principally grouped as follows.
 
 ### Peel CLI and Logs
 
-The Peel command line tool will become your best friend! Invoke it without arguments to see the list of supported commands. While running, the Peel CLI spawns and executes OS processes. In the log folder, you will find the `stdout` and `stderr` output of these processes, as well as a copy of the actual console output produced by the Peel CLI.
+The Peel command line tool. Invoke it without arguments to see the list of supported commands. While running, the Peel CLI spawns and executes various OS processes. While running, the Peel CLI spawns and executes OS processes. In the log folder, you will find the `stdout` and `stderr` output of these processes, as well as a copy of the actual console output produced by Peel itself.
 
 ### Configurations and Definitions
 
