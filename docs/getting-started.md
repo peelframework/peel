@@ -17,9 +17,9 @@ To get started, you need to get a Peel bundle using one of the following methods
 The simplest way is download and extract the [pre-packaged empty bundle archive](http://peel-framework.org/peel-empty-bundle.tar.gz).
 
 {% highlight bash %}
-wget http://peel-framework.org/peel-empty-bundle.tar.gz  # download empty bundle archive
-tar -xzvf peel-empty-bundle.tar.gz -C $BUNDLE_DIST       # extract the archive
-cd $BUNDLE_DEST                                          # go to dest. dir
+wget http://peel-framework.org/peel-empty-bundle.tar.gz  # download
+tar -xzvf peel-empty-bundle.tar.gz -C $BUNDLE_DIST       # extract
+cd $BUNDLE_DEST                                          # go to dest.
 {% endhighlight %}
 
 ### Build from Source
@@ -28,10 +28,10 @@ You can also build an empty bundle from source:
 
 {% highlight bash %}
 git clone https://github.com/stratosphere/peel.git       # clone
-cd peel                                                  # go to the src dir
-mvn clean package -DskipTests                            # build from src
-cp -R peel-dist/target/peel-bundle $BUNDLE_DEST          # copy empty bundle
-cd $BUNDLE_DEST                                          # go to dest. dir
+cd peel                                                  # go to src
+mvn clean package -DskipTests                            # build
+cp -R peel-dist/target/peel-bundle $BUNDLE_DEST          # copy
+cd $BUNDLE_DEST                                          # go to dest.
 {% endhighlight %}
 
 ### Maven Archetype
@@ -39,12 +39,12 @@ cd $BUNDLE_DEST                                          # go to dest. dir
 If you intend to version the code in your bundle, the best way to start is the Peel bootstrap Maven archetype:  
 
 {% highlight bash %}
-mkdir -p $BUNDLE_DEST && cd $BUNDLE_DEST                 # go to dest. dir
+mkdir -p $BUNDLE_DEST && cd $BUNDLE_DEST                 # go to dest.
 mvn archetype:generate                                   \
   -DgroupId=$BUNDLE_GROUP_ID                             \
   -DartifactId=$BUNDLE_ARTIFACT_ID                       \
   -DarchetypeArtifactId=peel-bootstrap-bundle            \
-  -DinteractiveMode=false                                # init. new bundle 
+  -DinteractiveMode=false                                # init. bundle
 {% endhighlight %}
 
 ## Run the Example Experiment
