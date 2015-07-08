@@ -115,7 +115,7 @@ class Run extends Command {
               case e: Throwable => n.fs.rmr(path); throw e // make sure the path is cleaned for the next try
             }
           } else {
-            logger.info(s"Skipping already materialized path '$path}'")
+            logger.info(s"Skipping already materialized path '$path'")
           }
 
           logger.info("Tearing down redundant systems before conducting experiment runs")
