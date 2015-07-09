@@ -10,7 +10,7 @@
     <bean id="dataset.rubbish" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet">
         <constructor-arg name="src" value="${app.path.datasets}/rubbish.txt"/>
         <constructor-arg name="dst" value="${system.hadoop-2.path.input}/rubbish.txt"/>
-        <constructor-arg name="fs" ref="hdfs-2.4.1"/>
+        <constructor-arg name="fs" ref="hdfs-2.7.1"/>
     </bean>
 
     <!--************************************************************************
@@ -20,7 +20,7 @@
     <!-- k-means output -->
     <bean id="wordcount.output" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
         <constructor-arg name="path" value="${system.hadoop-2.path.output}/wordcount"/>
-        <constructor-arg name="fs" ref="hdfs-2.4.1"/>
+        <constructor-arg name="fs" ref="hdfs-2.7.1"/>
     </bean>
 
     <!-- k-means experiment (flink) -->
