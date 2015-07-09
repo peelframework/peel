@@ -1,6 +1,7 @@
 https://archive.apache.org/dist/zookeeper/zookeeper-3.4.5/zookeeper-3.4.5.tar.gz
 https://archive.apache.org/dist/hadoop/common/hadoop-1.2.1/hadoop-1.2.1.tar.gz
 https://archive.apache.org/dist/hadoop/core/hadoop-2.4.1/hadoop-2.4.1.tar.gz
+https://archive.apache.org/dist/hadoop/core/hadoop-2.7.1/hadoop-2.7.1.tar.gz
 https://archive.apache.org/dist/flink/flink-0.8.0/flink-0.8.0-bin-hadoop2.tgz
 https://archive.apache.org/dist/flink/flink-0.8.1/flink-0.8.1-bin-hadoop2.tgz
 https://archive.apache.org/dist/flink/flink-0.9.0/flink-0.9.0-bin-hadoop2.tgz

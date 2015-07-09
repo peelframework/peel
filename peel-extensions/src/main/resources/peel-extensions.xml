@@ -19,6 +19,9 @@
     <bean id="hdfs-2.4.1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS2" parent="system">
         <constructor-arg name="version" value="2.4.1"/>
     </bean>
+    <bean id="hdfs-2.7.1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS2" parent="system">
+        <constructor-arg name="version" value="2.7.1"/>
+    </bean>
 
     <!-- Hadoop MapReduce -->
     <bean id="mapred-1.2.1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.MapReduce1" parent="system">
