@@ -4,9 +4,15 @@ import java.io._
 import java.net.URL
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Path, Paths, StandardOpenOption, Files}
 import java.security.{DigestInputStream, DigestOutputStream, MessageDigest}
+import java.text.SimpleDateFormat
+import java.util.Date
 
 import org.slf4j.LoggerFactory
+
+import eu.stratosphere.peel.core.util.console._
 
 import scala.sys.process.{Process, ProcessLogger}
 
@@ -24,15 +30,27 @@ object shell {
     * @param cmd the command to execute
     * @return exit code of the command
     */
-  def !(cmd: String) = {
+  def !(cmd: String): Int = {
     val plog = processLogger()
-    plog.out("-" * 60)
-    plog.out(cmd)
-    plog.err("-" * 60)
-    plog.err(cmd)
+    plog.in(cmd)
     val exit = Process("/bin/bash", Seq("-c", s"CLASSPATH=;$cmd")) ! plog
     plog.flush()
     plog.close()
+    exit
+  }
+
+  /** Executes a command in the bash shell
+    *
+    * @param cmd the command to execute
+    * @return exit code of the command
+    */
+  def !(cmd: String, errorMsg: String, fatal: Boolean = true): Int = {
+    val exit = this ! cmd
+
+    if (exit != 0) {
+      if (fatal) throw new RuntimeException(errorMsg)
+      else logger.error(errorMsg.red)
+    }
     exit
   }
 
@@ -58,10 +76,18 @@ object shell {
     */
   def rmDir(path: String) = this ! s"rm -r $path"
 
-  /** Downloads a file from the given `src` URL to the `dst` path.
+  /** Extracts an archive
     *
-    * @throws RuntimeException If the actual and the expected md5 hashes do not coincide.
+    * wraps /bin/bash tar -xzf $src -C $dst
+    *
+    * @param src archive source path
+    * @param dst target destination path
+    * @throws RuntimeException if extraction was not successful
     */
+  def extract(src: String, dst: String) = {
+    this !(s"tar -xzf $src -C $dst", s"Could not extract '$src' to '$dst'")
+  }
+
   def download(src: String, dst: String, md5Exp: BigInt) = {
     val md5Digest = MessageDigest.getInstance("MD5")
     val in = Channels.newChannel(new URL(src).openStream())
@@ -106,57 +132,102 @@ object shell {
     }
   }
 
-  /** Extracts an archive
+  /** Returns a processlogger that is used to log shell output and error streams
     *
-    * wraps /bin/bash tar -xzf $src -C $dst
+    * @param withTimeStamps adds timestamps to the output
     *
-    * @param src archive source path
-    * @param dst target destination path
-    * @throws RuntimeException if extraction was not successful
+    * @return OutputStreamProcesslogger for the executed command
     */
-  def extract(src: String, dst: String) = {
-    if (this ! s"tar -xzf $src -C $dst" != 0) throw new RuntimeException(s"Could not extract '$src' to '$dst'")
+  private def processLogger(withTimeStamps: Boolean = true) = {
+    val in = Paths.get("%s/shell.in".format(System.getProperty("app.path.log", "/tmp")))
+    val out = Paths.get("%s/shell.out".format(System.getProperty("app.path.log", "/tmp")))
+    val err = Paths.get("%s/shell.err".format(System.getProperty("app.path.log", "/tmp")))
+    if (withTimeStamps)
+      new OutputStreamProcessLogger(in, out, err) with TimeStamps
+    else
+      new OutputStreamProcessLogger(in, out, err)
   }
-
-  /** Returns a ProcessLogger that is used to log shell output and error streams
-    *
-    * @return ProcessLogger for the executed command
-    */
-  private def processLogger() = new OutputStreamProcessLogger(
-    new File("%s/shell.out".format(System.getProperty("app.path.log", "/tmp"))),
-    new File("%s/shell.err".format(System.getProperty("app.path.log", "/tmp"))))
 }
+
 
 /** Logs the output and error streams and writes them to the specified files
   *
+  * @param fin File to write executed command to
   * @param fout File to write stdout log to
-  * @param ferr File tp write stderr log to
+  * @param ferr File to write stderr log to
   */
-private class OutputStreamProcessLogger(fout: File, ferr: File) extends ProcessLogger with Closeable with Flushable {
+private class OutputStreamProcessLogger(fin: Path, fout: Path, ferr: Path) extends ProcessLogger with Closeable with Flushable {
 
-  private val o = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fout, true))))
-  private val e = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(ferr, true))))
+  val i = new PrintWriter(Files.newBufferedWriter(fin, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
+  val o = new PrintWriter(Files.newBufferedWriter(fout, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
+  val e = new PrintWriter(Files.newBufferedWriter(ferr, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
+
+  /** write std in to fin */
+  def in(s: => String) = i println s
 
   /** write std out to fout */
-  def out(s: => String) =
-    o println s
+  override def out(s: => String) = o println s
 
   /** write std err to ferr */
-  def err(s: => String) =
-    e println s
+  override def err(s: => String) = e println s
 
   /** buffer function */
   def buffer[T](f: => T): T = f
 
   /** close writers */
   def close() = {
+    i.close()
     o.close()
     e.close()
   }
 
   /** flush writers */
   def flush() = {
+    i.flush()
     o.flush()
     e.flush()
+  }
+}
+
+private trait TimeStamps {
+  logger: OutputStreamProcessLogger =>
+
+  /* We only want to add the timestamp once per cmd, therefore the must keep track whether something was written
+   * to the corresponding writer.
+   */
+  var iEmpty = true
+  var oEmpty = true
+  var eEmpty = true
+
+  val TimeStamp = {
+    val dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS")
+    () => s"# ${dateFormat.format(new Date())}"
+  }
+
+  /** write std in to fin */
+  override def in(s: => String) = {
+    if (iEmpty && s.nonEmpty) {
+      logger.i println TimeStamp()
+      eEmpty = false
+    }
+    logger.i println s
+  }
+
+  /** write std in to fout */
+  override def out(s: => String) = {
+    if (oEmpty && s.nonEmpty) {
+      logger.o println TimeStamp()
+      eEmpty = false
+    }
+    logger.o println s
+  }
+
+  /** write std in to ferr */
+  override def err(s: => String) = {
+    if (eEmpty && s.nonEmpty) {
+      logger.e println TimeStamp()
+      eEmpty = false
+    }
+    logger.e println s
   }
 }

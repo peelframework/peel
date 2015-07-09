@@ -59,8 +59,8 @@ class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
 
       for (dataNode <- config.getStringList(s"system.spark.config.slaves").asScala) {
         logger.info(s"Initializing tmp directory $tmpDir at taskmanager node $dataNode")
-        shell ! s""" ssh $user@$dataNode "rm -Rf $tmpDir" """
-        shell ! s""" ssh $user@$dataNode "mkdir -p $tmpDir" """
+        shell ! (s""" ssh $user@$dataNode "rm -Rf $tmpDir" """, "Unable to remove Spark tmp directory.")
+        shell ! (s""" ssh $user@$dataNode "mkdir -p $tmpDir" """, "Unable to create Spark tmp directory.")
       }
     } catch {
       case _: ConfigException => // ignore not set explicitly, java default is taken

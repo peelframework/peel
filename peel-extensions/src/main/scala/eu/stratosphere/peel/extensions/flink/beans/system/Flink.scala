@@ -37,13 +37,13 @@ class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
 
     for (tmpDir <- tmpDirs.split(':')) {
       logger.info(s"Initializing tmp directory $tmpDir at jobmanager host $jmHost")
-      shell ! s""" ssh $user@$jmHost "rm -Rf $tmpDir" """
-      shell ! s""" ssh $user@$jmHost "mkdir -p $tmpDir" """
+      shell ! (s""" ssh $user@$jmHost "rm -Rf $tmpDir" """, "Unable to remove Flink tmp directory.")
+      shell ! (s""" ssh $user@$jmHost "mkdir -p $tmpDir" ""","Unable to create Flink tmp directory.")
 
       for (tmHost <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
         logger.info(s"Initializing tmp directory $tmpDir at taskmanager host $tmHost")
-        shell ! s""" ssh $user@$tmHost "rm -Rf $tmpDir" """
-        shell ! s""" ssh $user@$tmHost "mkdir -p $tmpDir" """
+        shell ! (s""" ssh $user@$tmHost "rm -Rf $tmpDir" """, "Unable to remove Flink tmp directory.")
+        shell ! (s""" ssh $user@$tmHost "mkdir -p $tmpDir" ""","Unable to create Flink tmp directory.")
       }
     }
 

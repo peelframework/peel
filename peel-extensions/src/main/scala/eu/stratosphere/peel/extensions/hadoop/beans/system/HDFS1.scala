@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
  * @param dependencies Set of dependencies that this system needs
  * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
  */
-class HDFS1(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("hdfs-1", version, lifespan, dependencies, mc) with FileSystem {
+class HDFS1(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("hdfs-1", version, lifespan, dependencies, mc) with HDFSFileSystem {
 
   override val configKey = "hadoop-1"
 
@@ -96,31 +96,6 @@ class HDFS1(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
   }
 
   // ---------------------------------------------------
-  // FileSystem.
-  // ---------------------------------------------------
-
-  override def exists(path: String) = {
-    val hadoopHome = config.getString(s"system.$configKey.path.home")
-    (shell !! s"""if $hadoopHome/bin/hadoop fs -test -e "$path" ; then echo "YES" ; else echo "NO"; fi""").trim() == "YES"
-  }
-
-  override def rmr(path: String, skipTrash: Boolean = true) = {
-    val hadoopHome = config.getString(s"system.$configKey.path.home")
-    if (skipTrash)
-      shell ! s"""$hadoopHome/bin/hadoop fs -rmr -skipTrash "$path" """
-    else
-      shell ! s"""$hadoopHome/bin/hadoop fs -rmr "$path" """
-  }
-
-  override def copyFromLocal(src: String, dst: String) = {
-    val hadoopHome = config.getString(s"system.$configKey.path.home")
-    if (src.endsWith(".gz"))
-      shell ! s"""gunzip -c \"$src\" | $hadoopHome/bin/hadoop fs -put - \"$dst\" """
-    else
-      shell ! s"""$hadoopHome/bin/hadoop fs -copyFromLocal "$src" "$dst" """
-  }
-
-  // ---------------------------------------------------
   // Helper methods.
   // ---------------------------------------------------
 
@@ -129,16 +104,17 @@ class HDFS1(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
     val nameDir = config.getString(s"system.$configKey.config.hdfs.dfs.name.dir")
 
     logger.info(s"Formatting namenode")
-    shell ! "%s/bin/hadoop namenode -format -nonInteractive -force".format(config.getString(s"system.$configKey.path.home"))
+    shell ! ("%s/bin/hadoop namenode -format -nonInteractive -force".format(config.getString(s"system.$configKey.path.home")),
+      "Unable to format namenode.")
 
     logger.info(s"Fixing data directories")
     for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
       for (dataDir <- config.getString(s"system.$configKey.config.hdfs.dfs.data.dir").split(',')) {
         logger.info(s"Ensuring 0755 permissions for directory $dataDir at datanode $dataNode")
-        shell ! s""" ssh $user@$dataNode "chmod 0755 $dataDir" """
+        shell ! (s""" ssh $user@$dataNode "chmod 0755 $dataDir" """, "Unable to change rights on data directories.")
         logger.info(s"Initializing data directory $dataDir at datanode $dataNode")
-        shell ! s""" ssh $user@$dataNode "rm -Rf $dataDir/current" """
-        shell ! s""" ssh $user@$dataNode "mkdir -p $dataDir/current" """
+        shell ! (s""" ssh $user@$dataNode "rm -Rf $dataDir/current" """, "Unable to remove hdfs data directories.")
+        shell ! (s""" ssh $user@$dataNode "mkdir -p $dataDir/current" """, "Unable to create hdfs data directories.")
         logger.info(s"Copying namenode's VERSION file to datanode $dataNode")
         shell ! s""" scp $nameDir/current/VERSION $user@$dataNode:$dataDir/current/VERSION.backup """
         logger.info(s"Adapting VERSION file on datanode $dataNode")

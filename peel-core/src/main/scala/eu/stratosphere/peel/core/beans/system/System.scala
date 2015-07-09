@@ -93,11 +93,12 @@ abstract class System(
   /** Waits until the system is shut down (blocking). */
   private def awaitShutdown(): Unit = {
     var maxAttempts = config.getInt("system.default.stop.max.attempts")
+    val wait = config.getInt("system.default.stop.polling.interval")
     while (isRunning) {
       // wait a bit
-      Thread.sleep(config.getInt("system.default.stop.polling.interval"))
+      Thread.sleep(wait)
       if (maxAttempts <= 0) {
-        throw new RuntimeException(s"Unable to shut down system '$toString' in time.")
+        throw new RuntimeException(s"Unable to shut down system '$toString' in time (waited ${config.getInt("system.default.stop.max.attempts") * wait} ms).")
       }
       maxAttempts = maxAttempts - 1
     }
