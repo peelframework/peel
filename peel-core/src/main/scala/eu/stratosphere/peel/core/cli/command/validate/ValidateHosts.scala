@@ -4,14 +4,15 @@ import java.lang.{System => Sys}
 import java.nio.file.Paths
 
 import eu.stratosphere.peel.core.beans.experiment.ExperimentSuite
+import eu.stratosphere.peel.core.beans.system.System
 import eu.stratosphere.peel.core.cli.command.Command
 import eu.stratosphere.peel.core.config._
 import eu.stratosphere.peel.core.graph._
+import eu.stratosphere.peel.core.util.console._
 import eu.stratosphere.peel.core.util.shell
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
 
-import eu.stratosphere.peel.core.beans.system.System
 import scala.collection.JavaConversions._
 
 class ValidateHosts extends Command {
@@ -85,49 +86,43 @@ class ValidateHosts extends Command {
       for (exp <- exps) {
         logger.info(s"Validating configuration for experiment '${exp.name}'")
 
-        try {
-          val config = exp.config
-          // TODO: ugly casting
-          val systems: List[System] = for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n) && n.isInstanceOf[System]) yield n.asInstanceOf[System]
-
-          // gather masters, avoid duplicates
-          val masters = {
-            val builder = Set.newBuilder[String]
-            for {
-              sys <- systems
-              path = s"system.${sys.configKey}.config.masters"
-              if config.hasPath(path)
-            } builder ++= config.getStringList(path).toList
-            builder.result()
-          }
-          // gather slaves, avoid duplicates
-          val slaves = {
-            val builder = Set.newBuilder[String]
-            for {
-              sys <- systems
-              path = s"system.${sys.configKey}.config.slaves"
-              if config.hasPath(path)
-            } builder ++= config.getStringList(path).toList
-            builder.result()
-          }
-
-          for (slave <- (masters union slaves).toSeq.sorted) {
-            logger.info(s"Validating host '$slave'")
-            val known = shell ! s"ssh-keygen -H -F $slave" == 0
-            if (!known) {
-              logger.error(s"Host '$slave' is not in the list of known hosts")
-            } else {
-              // check authorized keys
-              val authorized = shell ! s"ssh -o BatchMode=yes $slave exit" == 0
-              if (!authorized) logger.error(s"Host '$slave' is not in the list of authorized keys")
-            }
-          }
-
-        } catch {
-          case e: Throwable =>
-            throw e
+        val config = exp.config
+        val systems = for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) yield n match {
+          case x: System => x
         }
 
+        // gather masters, avoid duplicates
+        val masters = {
+          val builder = Set.newBuilder[String]
+          for {
+            sys <- systems
+            path = s"system.${sys.configKey}.config.masters"
+            if config.hasPath(path)
+          } builder ++= config.getStringList(path).toList
+          builder.result()
+        }
+        // gather slaves, avoid duplicates
+        val slaves = {
+          val builder = Set.newBuilder[String]
+          for {
+            sys <- systems
+            path = s"system.${sys.configKey}.config.slaves"
+            if config.hasPath(path)
+          } builder ++= config.getStringList(path).toList
+          builder.result()
+        }
+
+        for (slave <- (masters union slaves).toSeq.sorted) {
+          logger.info(s"Validating host '$slave'")
+          val known = shell ! s"ssh-keygen -H -F $slave" == 0
+          if (!known) {
+            logger.error(s"Host '$slave' is not in the list of known hosts".red)
+          } else {
+            // check authorized keys
+            val authorized = shell ! s"ssh -o BatchMode=yes $slave exit" == 0
+            if (!authorized) logger.error(s"Host '$slave' is not in the list of authorized keys".red)
+          }
+        }
       }
     }
   }

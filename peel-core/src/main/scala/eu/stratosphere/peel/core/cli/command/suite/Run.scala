@@ -8,6 +8,7 @@ import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
 import eu.stratosphere.peel.core.cli.command.Command
 import eu.stratosphere.peel.core.config.{Configurable, loadConfig}
 import eu.stratosphere.peel.core.graph.{Node, createGraph}
+import eu.stratosphere.peel.core.util.console._
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
@@ -152,7 +153,7 @@ class Run extends Command {
 
         } catch {
           case e: Throwable =>
-            logger.error(s"Exception for experiment '${exp.name}' in suite '${suite.name}': ${e.getMessage}")
+            logger.error(s"Exception for experiment '${exp.name}' in suite '${suite.name}': ${e.getMessage}".red)
             throw e
 
         } finally {
@@ -167,7 +168,7 @@ class Run extends Command {
     }
     catch {
       case e: Throwable =>
-        logger.error(s"Exception in suite '${suite.name}': ${e.getMessage}")
+        logger.error(s"Exception in suite '${suite.name}': ${e.getMessage}".red)
         throw e
 
     } finally {

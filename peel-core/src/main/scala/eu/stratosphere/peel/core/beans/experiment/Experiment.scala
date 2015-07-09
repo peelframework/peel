@@ -8,6 +8,7 @@ import eu.stratosphere.peel.core.beans.data.{DataSet, ExperimentOutput}
 import eu.stratosphere.peel.core.beans.system.System
 import eu.stratosphere.peel.core.config.Configurable
 import eu.stratosphere.peel.core.graph.Node
+import eu.stratosphere.peel.core.util.console._
 import eu.stratosphere.peel.core.util.shell
 import org.slf4j.LoggerFactory
 
@@ -159,7 +160,7 @@ object Experiment {
           else
             logger.warn(s"Experiment run did not finish successfully")
         } catch {
-          case e: Exception => logger.error("Exception in experiment run %s: %s".format(name, e.getMessage))
+          case e: Exception => logger.error("Exception in experiment run %s: %s".format(name, e.getMessage).red)
         } finally {
           writeState()
         }
