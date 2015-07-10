@@ -1,9 +1,13 @@
 package eu.stratosphere.peel.core.beans.system
 
+import java.nio.file.{Files, Path}
+import java.security.MessageDigest
+
 import com.typesafe.config.ConfigFactory
 import eu.stratosphere.peel.core.config.Configurable
 import eu.stratosphere.peel.core.graph.Node
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.BeanNameAware
 
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -19,12 +23,18 @@ import scala.concurrent.duration._
  * @param timeout Timeout limit for the job. If job does not finish within the given limit, it is canceled
  * @tparam R Type of the system/runner
  */
-abstract class Job[+R <: System](val command: String, val runner: R, timeout: Long) extends Node with Configurable {
+abstract class Job[+R <: System](val command: String, val runner: R, timeout: Long) extends Node with Configurable with BeanNameAware {
 
   import ExecutionContext.Implicits.global
   import scala.language.postfixOps
 
   final val logger = LoggerFactory.getLogger(this.getClass)
+
+  /** The name of this bean. */
+  var beanName = s"${runner.beanName}-job-${MessageDigest.getInstance("MD5").digest(command.getBytes)}"
+
+  /** The home folder for this bean. Depends on the current `beanName` */
+  def home = f"${config.getString("app.path.results")}/${config.getString("app.suite.name")}/$beanName"
 
   override var config = ConfigFactory.empty()
 
@@ -56,5 +66,29 @@ abstract class Job[+R <: System](val command: String, val runner: R, timeout: Lo
         throw e
     }
   }
+
+  /** Checks if the given path is a writable folder.
+    *
+    * If the folder at the given path does not exists, it is created.
+    * If it exists but is not a directory or is not writable, this method throws
+    * a RuntimeException.
+    *
+    * @param folder path to the folder
+    * @return Unit
+    * @throws RuntimeException if folder exists but is not a writable directory
+    */
+  protected final def ensureFolderIsWritable(folder: Path): Unit = {
+    if (Files.exists(folder)) {
+      if (!(Files.isDirectory(folder) && Files.isWritable(folder))) throw new RuntimeException(s"Experiment home '$home' is not a writable directory")
+    } else {
+      Files.createDirectories(folder)
+    }
+  }
+
+  /** Bean name setter.
+    *
+    * @param n The configured bean name
+    */
+  override def setBeanName(n: String) = beanName = n
 }
 

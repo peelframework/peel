@@ -86,14 +86,14 @@ object Experiment {
 
      /** Checks if the given path is a writable folder.
       *
-       * If the folder at the given path does not exists, it is created.
-       * If it exists but is not a directory or is not writable, this method throws
-       * a RuntimeException.
-       *
+      * If the folder at the given path does not exists, it is created.
+      * If it exists but is not a directory or is not writable, this method throws
+      * a RuntimeException.
+      *
       * @param folder path to the folder
       * @return Unit
       * @throws RuntimeException if folder exists but is not a writable directory
-     */
+      */
     protected final def ensureFolderIsWritable(folder: Path): Unit = {
       if (Files.exists(folder)) {
         if (!(Files.isDirectory(folder) && Files.isWritable(folder))) throw new RuntimeException(s"Experiment home '$home' is not a writable directory")
