@@ -81,9 +81,9 @@ class SetUp extends Command {
           case _ => Unit
         }
 
-        logger.info("Setting up systems required for input data sets")
+        logger.info("Setting up / updating systems required for input data sets")
         for (n <- inpSystems) n match {
-          case s: System => s.setUp()
+          case s: System => if (s.isUp) s.update() else s.setUp()
           case _ => Unit
         }
 

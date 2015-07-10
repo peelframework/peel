@@ -14,8 +14,8 @@ import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
 
 /** Command that is used to run a single experiment from a fixture
- *
- */
+  *
+  */
 class Run extends Command {
 
   override def name() = "exp:run"
@@ -102,9 +102,9 @@ class Run extends Command {
         }
 
         if (!justRun) {
-          logger.info("Setting up systems required for input data sets")
+          logger.info("Setting up / updating systems required for input data sets")
           for (n <- inpSystems) n match {
-            case s: System => s.setUp()
+            case s: System => if (s.isUp) s.update() else s.setUp()
             case _ => Unit
           }
 
@@ -150,7 +150,7 @@ class Run extends Command {
             case _ => Unit
           }
         }
-        
+
         logger.info("Setting up systems with JOB lifespan")
         for (n <- allSystems) n match {
           case s: System if s.lifespan == Lifespan.JOB => s.setUp()
@@ -172,7 +172,7 @@ class Run extends Command {
             case _ => Unit
           }
         }
-        
+
         logger.info("Tearing down systems with JOB lifespan")
         for (n <- allSystems) n match {
           case s: System if s.lifespan == Lifespan.JOB => s.tearDown()
