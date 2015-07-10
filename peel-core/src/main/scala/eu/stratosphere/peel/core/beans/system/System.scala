@@ -7,7 +7,7 @@ import com.typesafe.config.ConfigFactory
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
 import eu.stratosphere.peel.core.config.{Configurable, SystemConfig}
 import eu.stratosphere.peel.core.graph.Node
-import eu.stratosphere.peel.core.util.shell
+import eu.stratosphere.peel.core.util.{Version, shell}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
 
@@ -182,18 +182,13 @@ abstract class System(
 
   /** Returns the template path closest to the given system and version. */
   protected def templatePath(path: String) = {
-    // initialize version and template path
-    var v = version.stripSuffix("-SNAPSHOT")
-    var z = Option(this.getClass.getResource(s"/templates/$configKey/$v/$path.mustache"))
-    // iterate while parent version exists and current version does not have a specific template
-    while (!v.isEmpty && z.isEmpty) {
-      v = v.substring(0, Math.max(0, v.lastIndexOf('.')))
-      z = Option(this.getClass.getResource(s"/templates/$configKey/$v/$path.mustache"))
-    }
-    // if version template exists return its path, otherwise return the base tempalte path
-    if (v.isEmpty)
-      s"/templates/$configKey/$path.mustache"
-    else
-      s"/templates/$configKey/$v/$path.mustache"
+    // find closest version prefix with existing template path
+    val prefix = Version(version).prefixes.find(prefix => {
+      Option(this.getClass.getResource(s"/templates/$configKey/$prefix/$path.mustache")).isDefined
+    })
+
+    prefix
+      .map(p => s"/templates/$configKey/$p/$path.mustache") // template path for closest version prefix
+      .getOrElse(s"/templates/$configKey/$path.mustache") // base template path
   }
 }

@@ -7,7 +7,7 @@ import java.lang.{System => Sys}
 import com.typesafe.config.Config
 import eu.stratosphere.peel.core.beans.data.{DataSet, ExperimentOutput}
 import eu.stratosphere.peel.core.beans.experiment.Experiment
-import eu.stratosphere.peel.core.util.shell
+import eu.stratosphere.peel.core.util.{Version, shell}
 import eu.stratosphere.peel.extensions.flink.beans.system.Flink
 import spray.json._
 
@@ -78,10 +78,13 @@ object FlinkExperiment {
 
     override protected def runJob() = {
       // try to get the experiment run plan
-      val (plnExit, _) = if (exp.runner.version < "0.9") {
-        Experiment.time(this !(s"info -e $command", s"$home/run.pln", s"$home/run.pln"))
-      } else {
-        Experiment.time(this !(s"info $command", s"$home/run.pln", s"$home/run.pln"))
+      val (plnExit, _) = {
+        // assemble options
+        val opts = Seq(
+          if (Version(exp.runner.version) <= Version("0.8")) Some("-e") else Option.empty[String]
+        )
+        // execute command
+        Experiment.time(this !(s"info ${opts.flatten.mkString(" ")} $command", s"$home/run.pln", s"$home/run.pln"))
       }
       state.plnExitCode = Some(plnExit)
       // try to execute the experiment run plan
