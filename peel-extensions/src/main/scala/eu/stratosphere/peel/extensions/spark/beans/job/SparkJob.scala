@@ -48,6 +48,6 @@ class SparkJob(command: String, runner: Spark, timeout: Long) extends Job(comman
 
   private def !(command: String) = {
     val master = config.getString("system.spark.config.defaults.spark.master")
-    shell ! s"${config.getString("system.spark.path.home")}/bin/spark-submit --master $master $command > $home/run.out 2> $home/run.err"
+    shell ! s"${config.getString("system.spark.path.home")}/bin/spark-submit --master $master $command >> $home/run.out 2>> $home/run.err"
   }
 }
