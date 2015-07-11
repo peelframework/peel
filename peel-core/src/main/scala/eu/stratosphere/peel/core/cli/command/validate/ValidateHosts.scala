@@ -17,9 +17,9 @@ import scala.collection.JavaConversions._
 
 class ValidateHosts extends Command {
 
-  override def name() = "val:hosts"
+  override val name = "val:hosts"
 
-  override def help() = "validates correct hosts setup"
+  override val help = "validates correct hosts setup"
 
   override def register(parser: Subparser) = {
     // options

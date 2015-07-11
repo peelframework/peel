@@ -12,9 +12,9 @@ import org.springframework.context.ApplicationContext
 
 class Analyse extends Command {
 
-  override def name() = "suite:etl"
+  override val name = "suite:etl"
 
-  override def help() = "ETL suite results into a DB schema."
+  override val help = "ETL suite results into a DB schema."
 
   override def register(parser: Subparser) = {
     // options

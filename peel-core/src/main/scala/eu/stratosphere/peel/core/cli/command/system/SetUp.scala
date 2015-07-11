@@ -15,9 +15,9 @@ import org.springframework.context.ApplicationContext
   */
 class SetUp extends Command {
 
-  override def name() = "sys:setup"
+  override val name = "sys:setup"
 
-  override def help() = "set up a system"
+  override val help = "set up a system"
 
   override def register(parser: Subparser) = {
     // options

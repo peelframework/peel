@@ -15,9 +15,9 @@ import org.springframework.context.ApplicationContext
   */
 class TearDown extends Command {
 
-  override def name() = "sys:teardown"
+  override val name = "sys:teardown"
 
-  override def help() = "tear down a system"
+  override val help = "tear down a system"
 
   override def register(parser: Subparser) = {
     // options

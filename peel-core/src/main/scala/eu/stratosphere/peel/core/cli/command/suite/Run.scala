@@ -15,9 +15,9 @@ import org.springframework.context.ApplicationContext
 
 class Run extends Command {
 
-  override def name() = "suite:run"
+  override val name = "suite:run"
 
-  override def help() = "execute all experiments in a suite"
+  override val help = "execute all experiments in a suite"
 
   override def register(parser: Subparser) = {
     // options
