@@ -33,7 +33,7 @@ object shell {
   def !(cmd: String): Int = {
     val plog = processLogger()
     plog.in(cmd)
-    val exit = Process("/bin/bash", Seq("-c", s"CLASSPATH=;$cmd")) ! plog
+    val exit = Process("/bin/bash", Seq("-c", s"CLASSPATH=;${cmd.trim}")) ! plog
     plog.flush()
     plog.close()
     exit
@@ -45,7 +45,7 @@ object shell {
     * @return exit code of the command
     */
   def !(cmd: String, errorMsg: String, fatal: Boolean = true): Int = {
-    val exit = this ! cmd
+    val exit = this ! cmd.trim
 
     if (exit != 0) {
       if (fatal) throw new RuntimeException(errorMsg)
@@ -61,7 +61,7 @@ object shell {
     */
   def !!(cmd: String) = {
     val plog = processLogger()
-    val exit = Process("/bin/bash", Seq("-c", s"CLASSPATH=;$cmd")) !! plog
+    val exit = Process("/bin/bash", Seq("-c", s"CLASSPATH=;${cmd.trim}")) !! plog
     plog.flush()
     plog.close()
     exit
