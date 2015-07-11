@@ -5,18 +5,23 @@ import java.net.URL
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Path, Paths, StandardOpenOption, Files}
+import java.nio.file.attribute.PosixFilePermission
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.security.{DigestInputStream, DigestOutputStream, MessageDigest}
 import java.text.SimpleDateFormat
 import java.util.Date
 
+import eu.stratosphere.peel.core.util.console._
+import org.apache.commons.compress.archivers.ArchiveInputStream
+import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.slf4j.LoggerFactory
 
-import eu.stratosphere.peel.core.util.console._
-
+import scala.annotation.tailrec
+import scala.language.implicitConversions
 import scala.sys.process.{Process, ProcessLogger}
 
-/** Provides shell functionalities
+/** Provides shell functionality.
   *
   * Wraps some commands of a unix bash-shell that are needed to execute commands like copying,
   * unzipping etc.
@@ -76,16 +81,68 @@ object shell {
     */
   def rmDir(path: String) = this ! s"rm -r $path"
 
-  /** Extracts an archive
-    *
-    * wraps /bin/bash tar -xzf $src -C $dst
+  /** Extracts an archive.
     *
     * @param src archive source path
     * @param dst target destination path
     * @throws RuntimeException if extraction was not successful
+    * @throws IllegalArgumentException If the src does not end on supported archive suffix.
     */
   def extract(src: String, dst: String) = {
-    this !(s"tar -xzf $src -C $dst", s"Could not extract '$src' to '$dst'")
+    import resource._
+
+    def decompress[T <: TarArchiveEntry](ar: ArchiveInputStream): Unit = {
+      // Copy input into output.
+      var entry = ar.getNextEntry.asInstanceOf[T]
+      var links = Map.newBuilder[Path, Path]
+      while (entry != null) {
+        // get entry file
+        val outputFile = new File(dst, entry.getName)
+        val outputPath = Paths.get(outputFile.getPath)
+        // handle entry
+        if (entry.getLinkName.nonEmpty && !outputFile.exists()) {
+          links += outputPath -> Paths.get(entry.getLinkName)
+        } else if (entry.isDirectory) {
+          if (!outputFile.exists() && !outputFile.mkdirs()) {
+            throw new RuntimeException(s"Could not create dir $outputFile")
+          }
+          Files.setPosixFilePermissions(outputPath, entry.getMode)
+        } else {
+          for (out <- managed(new FileOutputStream(new File(dst, entry.getName)))) {
+            // allocate copy buffer
+            val buffer = new Array[Byte](512)
+            @tailrec
+            def read(): Unit = ar.read(buffer) match {
+              case -1 => ()
+              case n => out.write(buffer, 0, n); read()
+            }
+            read()
+          }
+          Files.setPosixFilePermissions(outputPath, entry.getMode)
+        }
+        // advance entry
+        entry = ar.getNextEntry.asInstanceOf[T]
+      }
+
+      // create symbolic links
+      for {
+        map <- Some(links.result())
+        outputPath <- map.keys
+        target <- map.get(outputPath)
+      } {
+        Files.createSymbolicLink(outputPath, target)
+      }
+    }
+
+    // tar.gz
+    if (List("tar.gz", "tgz").exists(suffix => src.endsWith(suffix))) {
+      for {
+        in <- managed(new BufferedInputStream(new FileInputStream(src)))
+        ar <- managed(new TarArchiveInputStream(new GzipCompressorInputStream(in)))
+      } decompress[TarArchiveEntry](ar)
+    } else {
+      throw new IllegalStateException(s"Unsupported archive suffix for input '$src'")
+    }
   }
 
   def download(src: String, dst: String, md5Exp: BigInt) = {
@@ -146,6 +203,43 @@ object shell {
       new OutputStreamProcessLogger(in, out, err) with TimeStamps
     else
       new OutputStreamProcessLogger(in, out, err)
+  }
+
+  /** Converts the 9 least significant bits of an integer to a [[java.nio.file.attribute.PosixFilePermission PosixFilePermission]] set.
+    *
+    * @param mode The encoded permission string
+    * @return The corresponding [[java.nio.file.attribute.PosixFilePermission PosixFilePermission]] set.
+    */
+  implicit private def convertToPermissionsSet(mode: Int): java.util.Set[PosixFilePermission] = {
+    val result = java.util.EnumSet.noneOf(classOf[PosixFilePermission])
+    if ((mode & (1 << 8)) != 0) {
+      result.add(PosixFilePermission.OWNER_READ)
+    }
+    if ((mode & (1 << 7)) != 0) {
+      result.add(PosixFilePermission.OWNER_WRITE)
+    }
+    if ((mode & (1 << 6)) != 0) {
+      result.add(PosixFilePermission.OWNER_EXECUTE)
+    }
+    if ((mode & (1 << 5)) != 0) {
+      result.add(PosixFilePermission.GROUP_READ)
+    }
+    if ((mode & (1 << 4)) != 0) {
+      result.add(PosixFilePermission.GROUP_WRITE)
+    }
+    if ((mode & (1 << 3)) != 0) {
+      result.add(PosixFilePermission.GROUP_EXECUTE)
+    }
+    if ((mode & (1 << 2)) != 0) {
+      result.add(PosixFilePermission.OTHERS_READ)
+    }
+    if ((mode & (1 << 1)) != 0) {
+      result.add(PosixFilePermission.OTHERS_WRITE)
+    }
+    if ((mode & (1 << 0)) != 0) {
+      result.add(PosixFilePermission.OTHERS_EXECUTE)
+    }
+    result
   }
 }
 

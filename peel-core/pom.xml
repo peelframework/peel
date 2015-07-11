@@ -32,6 +32,12 @@
             <artifactId>spring-context</artifactId>
         </dependency>
 
+        <!-- Auto-Resource Management -->
+        <dependency>
+            <groupId>com.jsuereth</groupId>
+            <artifactId>scala-arm_${scala.tools.version}</artifactId>
+        </dependency>
+
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -52,6 +58,12 @@
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-json_${scala.tools.version}</artifactId>
+        </dependency>
+
+        <!-- Compression -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
         </dependency>
 
         <!-- Templating -->
