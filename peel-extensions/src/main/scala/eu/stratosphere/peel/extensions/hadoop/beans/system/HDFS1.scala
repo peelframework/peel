@@ -2,7 +2,7 @@ package eu.stratosphere.peel.extensions.hadoop.beans.system
 
 import com.samskivert.mustache.Mustache
 import eu.stratosphere.peel.core.beans.system.Lifespan.Lifespan
-import eu.stratosphere.peel.core.beans.system.{FileSystem, SetUpTimeoutException, System}
+import eu.stratosphere.peel.core.beans.system.{SetUpTimeoutException, System}
 import eu.stratosphere.peel.core.config.{Model, SystemConfig}
 import eu.stratosphere.peel.core.util.shell
 
@@ -101,7 +101,7 @@ class HDFS1(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
 
   private def format() = {
     val user = config.getString(s"system.$configKey.user")
-    val nameDir = config.getString(s"system.$configKey.config.hdfs.dfs.name.dir")
+    val nameDir = new java.net.URI(config.getString(s"system.$configKey.config.hdfs.dfs.name.dir")).getPath
 
     logger.info(s"Formatting namenode")
     shell ! ("%s/bin/hadoop namenode -format -nonInteractive -force".format(config.getString(s"system.$configKey.path.home")),
@@ -109,7 +109,8 @@ class HDFS1(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
 
     logger.info(s"Fixing data directories")
     for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-      for (dataDir <- config.getString(s"system.$configKey.config.hdfs.dfs.data.dir").split(',')) {
+      for (dirURI <- config.getString(s"system.$configKey.config.hdfs.dfs.data.dir").split(',')) {
+        val dataDir = new java.net.URI(dirURI).getPath
         logger.info(s"Ensuring 0755 permissions for directory $dataDir at datanode $dataNode")
         shell ! (s""" ssh $user@$dataNode "chmod 0755 $dataDir" """, "Unable to change rights on data directories.")
         logger.info(s"Initializing data directory $dataDir at datanode $dataNode")
