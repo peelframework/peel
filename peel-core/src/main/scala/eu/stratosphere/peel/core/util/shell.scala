@@ -15,6 +15,7 @@ import eu.stratosphere.peel.core.util.console._
 import org.apache.commons.compress.archivers.ArchiveInputStream
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 
 import scala.annotation.tailrec
@@ -79,7 +80,7 @@ object shell {
     * @param path the directory to remove
     * @return 0 if successful, != else
     */
-  def rmDir(path: String) = this ! s"rm -r $path"
+  def rmDir(path: String) = FileUtils.deleteDirectory(new File(path))
 
   /** Extracts an archive.
     *

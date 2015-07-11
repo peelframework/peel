@@ -84,8 +84,9 @@
         <config.version>1.2.1</config.version>
         <!-- JSON support -->
         <spray.version>1.2.6</spray.version>
-        <!-- Compression -->
+        <!-- Apache Commons -->
         <commons-compress.version>1.9</commons-compress.version>
+        <commons-io.version>1.3.2</commons-io.version>
         <!-- Templating -->
         <jmustache.version>1.9</jmustache.version>
         <!-- Arguments parsing -->
@@ -164,11 +165,16 @@
                 <version>${spray.version}</version>
             </dependency>
 
-            <!-- Compression -->
+            <!-- Apache Commons -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
 
             <!-- Templating -->
