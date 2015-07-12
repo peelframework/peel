@@ -129,7 +129,7 @@ object Experiment {
      */
     override def execute() = {
       if (!force && isSuccessful) {
-        logger.info("Skipping successfully finished experiment run %s".format(name))
+        logger.info("Skipping successfully finished experiment run %s".format(name).yellow)
       } else {
         logger.info("Running experiment %s".format(name))
         logger.info("Experiment data will be written to %s".format(home))

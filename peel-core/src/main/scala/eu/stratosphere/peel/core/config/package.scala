@@ -8,6 +8,7 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import eu.stratosphere.peel.core.beans.experiment.Experiment
 import eu.stratosphere.peel.core.beans.system.System
 import eu.stratosphere.peel.core.graph.{DependencyGraph, Node}
+import eu.stratosphere.peel.core.util.console.ConsoleColorise
 import eu.stratosphere.peel.core.util.shell
 import org.slf4j.LoggerFactory
 
@@ -173,7 +174,7 @@ package object config {
         logger.info(s"Loading resource $name")
         config = ConfigFactory.parseResources(name, options).withFallback(config)
       } else {
-        logger.info(s"Skipping resource $name (does not exist)")
+        logger.info(s"Skipping resource $name (does not exist)".yellow)
       }
     }
 
@@ -183,7 +184,7 @@ package object config {
         logger.info(s"Loading file $path")
         config = ConfigFactory.parseFile(new File(path), options).withFallback(config)
       } else {
-        logger.info(s"Skipping file $path (does not exist)")
+        logger.info(s"Skipping file $path (does not exist)".yellow)
       }
     }
 
