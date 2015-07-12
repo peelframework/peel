@@ -25,7 +25,7 @@ The central class in this model is [*Experiment*](https://github.com/stratospher
 
 ### System
 
-The second important class in the model is [*System*](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/scala/eu/stratosphere/peel/core/beans/experiment/Experiment.scala). It has a *name*, a *version*, and a [*Lifespan*](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/scala/eu/stratosphere/peel/core/beans/system/Lifespan.scala) value (one of *Provided*, *Suite*, *Experiment*, or* Run*) which tells Peel when to start and stop the system. In addition to that, a system also maintains a list of system dependencies.
+The second important class in the model is [*System*](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/scala/eu/stratosphere/peel/core/beans/experiment/Experiment.scala). It has a *name*, a *version*, and a [*Lifespan*](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/scala/eu/stratosphere/peel/core/beans/system/Lifespan.scala) value (one of *Provided*, *Suite*, *Experiment*, or *Run*) which tells Peel when to start and stop the system. In addition to that, a system also maintains a list of system dependencies.
 
 ### Experiment Suite
 
