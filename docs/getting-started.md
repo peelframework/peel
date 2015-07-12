@@ -10,16 +10,28 @@ A Peel package bundles together the configuration data, datasets, and programs r
 
 ## Bootstrap a Bundle
 
-To get started, you need to get a Peel bundle using one of the following methods.
+To get started, you need to get a Peel bundle using one of the following methods. 
 
-### Pre-Packaged Archive
-
-The simplest way is download and extract the [pre-packaged empty bundle archive](http://peel-framework.org/peel-empty-bundle.tar.gz).
+The snippets of code rely on the following shell variables. Modify them accordingly to reflect your developer machine environment.
 
 {% highlight bash %}
-wget http://peel-framework.org/peel-empty-bundle.tar.gz  # download
-tar -xzvf peel-empty-bundle.tar.gz -C $BUNDLE_DIST       # extract
-cd $BUNDLE_DEST                                          # go to dest.
+export BUNDLE_BIN=/path/to/bundle/binaries          # bundle binaries
+export BUNDLE_SRC=/path/to/bundle/sources           # bundle sources
+export BUNDLE_GID=com.acme.peel                     # bundle group
+export BUNDLE_AID=peel-bundle                       # bundle name
+{% endhighlight %}
+
+
+### Pre-Packaged Binary
+
+The simplest way is to download and extract the [pre-packaged empty bundle archive](http://peel-framework.org/peel-empty-bundle.tar.gz).
+
+{% highlight bash %}
+wget http://peel-framework.org/peel-bundle.tar.gz   # download
+tar -xzvf peel-bundle.tar.gz -C "$BUNDLE_BIN"       # extract
+mv "$BUNDLE_BIN/peel-bundle"                        \
+   "$BUNDLE_BIN/$BUNDLE_AID"                        # move to bundle bin
+cd "$BUNDLE_BIN/$BUNDLE_AID"                        # go to bin
 {% endhighlight %}
 
 ### Build from Source
@@ -27,11 +39,18 @@ cd $BUNDLE_DEST                                          # go to dest.
 You can also build an empty bundle from source:
 
 {% highlight bash %}
-git clone https://github.com/stratosphere/peel.git       # clone
-cd peel                                                  # go to src
-mvn clean package -DskipTests                            # build
-cp -R peel-dist/target/peel-bundle $BUNDLE_DEST          # copy
-cd $BUNDLE_DEST                                          # go to dest.
+cd "$BUNDLE_SRC"                                    # go to src
+if [ ! -d "$BUNDLE_SRC/peel" ]; then                # if not done before
+  git clone --single-branch                         \
+      https://github.com/stratosphere/peel.git      # clone peel repo
+fi
+cd peel                                             # go to repo src
+mvn clean package -DskipTests                       # build
+mv "peel-bundle/target/peel-bundle"                 \
+cd "peel-bundle/target"                             # go to target
+mv "peel-bundle"                                    \
+   "$BUNDLE_BIN/$BUNDLE_AID"                        # move to bundle bin
+cd "$BUNDLE_BIN/$BUNDLE_AID"                        # go to bin
 {% endhighlight %}
 
 ### Maven Archetype
@@ -39,12 +58,17 @@ cd $BUNDLE_DEST                                          # go to dest.
 If you intend to version the code in your bundle, the best way to start is the Peel bootstrap Maven archetype:  
 
 {% highlight bash %}
-mkdir -p $BUNDLE_DEST && cd $BUNDLE_DEST                 # go to dest.
-mvn archetype:generate                                   \
-  -DgroupId=$BUNDLE_GROUP_ID                             \
-  -DartifactId=$BUNDLE_ARTIFACT_ID                       \
-  -DarchetypeArtifactId=peel-bootstrap-bundle            \
-  -DinteractiveMode=false                                # init. bundle
+cd "$BUNDLE_SRC"                                    # go to src
+mvn archetype:generate                              \
+    -DgroupId=$BUNDLE_GID                           \
+    -DartifactId=$BUNDLE_AID                        \
+    -DarchetypeArtifactId=peel-bootstrap-bundle     \
+    -DinteractiveMode=false                         # init. bundle
+mvn clean package -DskipTests                       # build
+cd "peel-$BUNDLE_AID-bundle/target"                 # go to target
+mv "peel-$BUNDLE_AID-bundle"                        \
+   "$BUNDLE_BIN/$BUNDLE_AID"                        # move to bundle bin
+cd "$BUNDLE_BIN/$BUNDLE_AID"                        # go to bin
 {% endhighlight %}
 
 ## Run the Example Experiment
