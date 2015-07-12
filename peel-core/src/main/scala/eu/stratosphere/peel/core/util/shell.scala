@@ -12,9 +12,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import eu.stratosphere.peel.core.util.console._
-import org.apache.commons.compress.archivers.ArchiveInputStream
-import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream, TarArchiveOutputStream}
+import org.apache.commons.compress.compressors.gzip.{GzipCompressorInputStream, GzipCompressorOutputStream}
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 import resource._
@@ -32,7 +31,7 @@ object shell {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  /** Executes a command in the bash shell
+  /** Executes a command in the bash shell.
     *
     * @param cmd the command to execute
     * @return exit code of the command
@@ -46,7 +45,7 @@ object shell {
     exit
   }
 
-  /** Executes a command in the bash shell
+  /** Executes a command in the bash shell.
     *
     * @param cmd the command to execute
     * @return exit code of the command
@@ -61,7 +60,7 @@ object shell {
     exit
   }
 
-  /** Executes a command in the bash shell
+  /** Executes a command in the bash shell.
     *
     * @param cmd the command to execute
     * @return result of the command as a string
@@ -74,9 +73,7 @@ object shell {
     exit
   }
 
-  /** Removes a directory
-    *
-    * wraps /bin/bash rm -r
+  /** Removes a directory recursively.
     *
     * @param path the directory to remove
     * @return 0 if successful, != else
@@ -85,18 +82,18 @@ object shell {
 
   /** Extracts an archive.
     *
-    * @param src archive source path
-    * @param dst target destination path
-    * @throws RuntimeException if extraction was not successful
-    * @throws IllegalArgumentException If the src does not end on supported archive suffix.
+    * @param src Archive source path.
+    * @param dst Extraction destination path.
+    * @throws RuntimeException If extraction was not successful.
+    * @throws IllegalArgumentException If the `src` does not end on supported archive suffix.
     */
   def extract(src: String, dst: String) = {
     import resource._
 
-    def decompress[T <: TarArchiveEntry](ar: ArchiveInputStream): Unit = for (inp <- managed(Channels.newChannel(ar))) {
+    def decompress(tar: TarArchiveInputStream): Unit = for (inp <- managed(Channels.newChannel(tar))) {
       implicit val buffer = ByteBuffer.allocate(1024 * 1024) // allocate 1 MB copy buffer
 
-      var entry = ar.getNextEntry.asInstanceOf[T] // initialize current entry
+      var entry = tar.getNextEntry.asInstanceOf[TarArchiveEntry] // initialize current entry
       var links = Map.newBuilder[Path, Path] // initialize links accumulator map
 
       // traverse archive entries
@@ -126,8 +123,7 @@ object shell {
 
         }
 
-        // advance entry
-        entry = ar.getNextEntry.asInstanceOf[T]
+        entry = tar.getNextEntry.asInstanceOf[TarArchiveEntry] // advance entry
       }
 
       // create symbolic links
@@ -143,9 +139,52 @@ object shell {
     // supported suffixes for gzipped tars
     if (List("tar.gz", "tgz").exists(suffix => src.endsWith(suffix))) {
       for {
-        in <- managed(new BufferedInputStream(new FileInputStream(src)))
-        ar <- managed(new TarArchiveInputStream(new GzipCompressorInputStream(in)))
-      } decompress[TarArchiveEntry](ar)
+        inp <- managed(new BufferedInputStream(new FileInputStream(src)))
+        tar <- managed(new TarArchiveInputStream(new GzipCompressorInputStream(inp)))
+      } decompress(tar)
+    } else {
+      throw new IllegalStateException(s"Unsupported archive suffix for input '$src'")
+    }
+  }
+
+
+  /** Compresses a folder into an archive.
+    *
+    * @param src Compression source path.
+    * @param dst Archive destination path.
+    * @throws RuntimeException if compression was not successful
+    * @throws IllegalArgumentException If the `dst` does not end on supported archive suffix.
+    */
+  def archive(src: String, dst: String) = {
+    import resource._
+
+    val srcPath = Paths.get(src).getParent
+
+    def compress(tar: TarArchiveOutputStream): Unit = for (out <- managed(Channels.newChannel(tar))) {
+      implicit val buffer = ByteBuffer.allocate(1024 * 1024) // allocate 1 MB copy buffer
+
+      tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU) // enable long entry names
+
+      for {
+        fle <- fileTree(new File(src)).filterNot(_.isDirectory) // iterate over entry files
+        inp <- managed(Channels.newChannel(new FileInputStream(fle))) // entry output channel
+        rel <- Some(srcPath.relativize(Paths.get(fle.getAbsolutePath))) // entry relative path
+        ent <- Some(tar.createArchiveEntry(fle, rel.toString).asInstanceOf[TarArchiveEntry]) // archive entry
+      } {
+        tar.putArchiveEntry(ent)
+        copy(inp, out)
+        tar.closeArchiveEntry()
+      }
+    }
+
+    def fileTree(f: File): Stream[File] = f #:: (if (f.isDirectory) f.listFiles().toStream.flatMap(fileTree) else Stream.empty)
+
+    // supported suffixes for gzipped tars
+    if (List("tar.gz", "tgz").exists(suffix => dst.endsWith(suffix))) {
+      for {
+        out <- managed(new BufferedOutputStream(new FileOutputStream(dst)))
+        tar <- managed(new TarArchiveOutputStream(new GzipCompressorOutputStream(out)))
+      } compress(tar)
     } else {
       throw new IllegalStateException(s"Unsupported archive suffix for input '$src'")
     }
@@ -195,13 +234,13 @@ object shell {
     * @return OutputStreamProcesslogger for the executed command
     */
   private def processLogger(withTimeStamps: Boolean = true) = {
-    val in = Paths.get("%s/shell.in".format(System.getProperty("app.path.log", "/tmp")))
+    val inp = Paths.get("%s/shell.in".format(System.getProperty("app.path.log", "/tmp")))
     val out = Paths.get("%s/shell.out".format(System.getProperty("app.path.log", "/tmp")))
     val err = Paths.get("%s/shell.err".format(System.getProperty("app.path.log", "/tmp")))
     if (withTimeStamps)
-      new OutputStreamProcessLogger(in, out, err) with TimeStamps
+      new OutputStreamProcessLogger(inp, out, err) with TimeStamps
     else
-      new OutputStreamProcessLogger(in, out, err)
+      new OutputStreamProcessLogger(inp, out, err)
   }
 
   /** Copy the contents of a [[java.nio.channels.ReadableByteChannel ReadableByteChannel]] to a
@@ -240,15 +279,15 @@ object shell {
 
 /** Logs the output and error streams and writes them to the specified files
   *
-  * @param fin File to write executed command to
-  * @param fout File to write stdout log to
-  * @param ferr File to write stderr log to
+  * @param fi File to write executed command to
+  * @param fo File to write stdout log to
+  * @param fe File to write stderr log to
   */
-private class OutputStreamProcessLogger(fin: Path, fout: Path, ferr: Path) extends ProcessLogger with Closeable with Flushable {
+private class OutputStreamProcessLogger(fi: Path, fo: Path, fe: Path) extends ProcessLogger with Closeable with Flushable {
 
-  val i = new PrintWriter(Files.newBufferedWriter(fin, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
-  val o = new PrintWriter(Files.newBufferedWriter(fout, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
-  val e = new PrintWriter(Files.newBufferedWriter(ferr, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
+  val i = new PrintWriter(Files.newBufferedWriter(fi, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
+  val o = new PrintWriter(Files.newBufferedWriter(fo, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
+  val e = new PrintWriter(Files.newBufferedWriter(fe, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
 
   /** write std in to fin */
   def in(s: => String) = i println s
