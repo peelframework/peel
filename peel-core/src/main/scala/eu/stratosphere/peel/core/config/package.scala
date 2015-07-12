@@ -25,6 +25,41 @@ package object config {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
 
+  implicit class RichConfig(val underlying: Config) extends AnyVal {
+    def getOptionalString(path: String): Option[String] = if (underlying.hasPath(path)) {
+      Some(underlying.getString(path))
+    } else {
+      None
+    }
+  }
+
+  def loadConfig() = {
+    logger.info(s"Loading application configuration")
+
+    // initial empty configuration
+    val cb = new ConfigBuilder
+
+    // load reference configuration
+    cb.loadResource("reference.conf")
+
+    // load {app.path.config}/application.conf
+    cb.loadFile(s"${Sys.getProperty("app.path.config")}/application.conf")
+    // load {app.path.config}/{app.hostname}/application.conf
+    cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
+
+    // load current runtime config
+    logger.info(s"Loading current runtime values as configuration")
+    cb.append(currentRuntimeConfig())
+
+    // load system properties
+    logger.info(s"Loading system properties as configuration")
+    cb.append(ConfigFactory.systemProperties)
+
+    // resolve and return config
+    logger.info(s"Resolving configuration")
+    cb.resolve()
+  }
+
   def loadConfig(graph: DependencyGraph[Node], sys: System) = {
     logger.info(s"Loading configuration for system '${sys.beanName}'")
 
@@ -109,9 +144,9 @@ package object config {
 
 
   /** Loads default values from the current runtime config.
-   *
-   * @return current Config Object
-   */
+    *
+    * @return current Config Object
+    */
   private def currentRuntimeConfig() = {
     // initial empty configuration
     val runtimeConfig = new java.util.HashMap[String, Object]()
@@ -141,6 +176,7 @@ package object config {
         logger.info(s"Skipping resource $name (does not exist)")
       }
     }
+
     // helper function: append file to current config
     def loadFile(path: String) = {
       if (Files.isReadable(Paths.get(path))) {
@@ -153,9 +189,7 @@ package object config {
 
     def append(other: Config) = config = other.withFallback(config)
 
-    def resolve() = {
-      val x = config.resolve()
-      x
-    }
+    def resolve() = config.resolve()
   }
+
 }
