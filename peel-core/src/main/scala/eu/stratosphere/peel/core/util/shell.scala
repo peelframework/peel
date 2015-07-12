@@ -73,10 +73,15 @@ object shell {
     exit
   }
 
+  /** Removes a file.
+    *
+    * @param path the file to remove
+    */
+  def rm(path: String) = FileUtils.forceDelete(new File(path))
+
   /** Removes a directory recursively.
     *
     * @param path the directory to remove
-    * @return 0 if successful, != else
     */
   def rmDir(path: String) = FileUtils.deleteDirectory(new File(path))
 
@@ -115,7 +120,9 @@ object shell {
 
         } else /* regular file */ {
           for {
-            out <- managed(Channels.newChannel(new FileOutputStream(new File(dst, entry.getName)))) // entry output channel
+            fil <- Some(new File(dst, entry.getName)) // construct the file name
+            pat <- Some(Files.createDirectories(fil.toPath.getParent)) // create and construct the parent folder
+            out <- managed(Channels.newChannel(new FileOutputStream(fil))) // entry output channel
             res <- Some(copy(inp, out)) // materialize entry
           } {
             Files.setPosixFilePermissions(outputPath, entry.getMode) // fix entry permissions
@@ -166,14 +173,18 @@ object shell {
       tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU) // enable long entry names
 
       for {
-        fle <- fileTree(new File(src)).filterNot(_.isDirectory) // iterate over entry files
-        inp <- managed(Channels.newChannel(new FileInputStream(fle))) // entry output channel
-        rel <- Some(srcPath.relativize(Paths.get(fle.getAbsolutePath))) // entry relative path
+        fle <- fileTree(new File(src)) // iterate over entry files
+        rel <- Some(srcPath.relativize(fle.toPath)) // entry relative path
         ent <- Some(tar.createArchiveEntry(fle, rel.toString).asInstanceOf[TarArchiveEntry]) // archive entry
       } {
-        tar.putArchiveEntry(ent)
-        copy(inp, out)
-        tar.closeArchiveEntry()
+        ent.setMode(Files.getPosixFilePermissions(fle.toPath)) // se proper permissions
+        tar.putArchiveEntry(ent) // open entry
+        if (!fle.isDirectory) /* regular file */ {
+          for (inp <- managed(Channels.newChannel(new FileInputStream(fle)))) /* entry output channel */ {
+            copy(inp, out) // copy file contents to entry
+          }
+        }
+        tar.closeArchiveEntry() // close entry
       }
     }
 
@@ -258,10 +269,10 @@ object shell {
 
   /** Converts the 9 least significant bits of an integer to a [[java.nio.file.attribute.PosixFilePermission PosixFilePermission]] set.
     *
-    * @param mode The encoded permission string
+    * @param mode An encoded permissions bitstring.
     * @return The corresponding [[java.nio.file.attribute.PosixFilePermission PosixFilePermission]] set.
     */
-  implicit private def convertToPermissionsSet(mode: Int): java.util.Set[PosixFilePermission] = {
+  implicit private def convIntToPermissionsSet(mode: Int): java.util.Set[PosixFilePermission] = {
     val result = java.util.EnumSet.noneOf(classOf[PosixFilePermission])
     if ((mode & (1 << 8)) != 0) result.add(PosixFilePermission.OWNER_READ)
     if ((mode & (1 << 7)) != 0) result.add(PosixFilePermission.OWNER_WRITE)
@@ -272,6 +283,25 @@ object shell {
     if ((mode & (1 << 2)) != 0) result.add(PosixFilePermission.OTHERS_READ)
     if ((mode & (1 << 1)) != 0) result.add(PosixFilePermission.OTHERS_WRITE)
     if ((mode & (1 << 0)) != 0) result.add(PosixFilePermission.OTHERS_EXECUTE)
+    result
+  }
+
+  /** Converts the [[java.nio.file.attribute.PosixFilePermission PosixFilePermission]] set to an integer.
+    *
+    * @param perm A [[java.nio.file.attribute.PosixFilePermission PosixFilePermission]] set.
+    * @return The corresponding encoded permissions bitstring.
+    */
+  implicit private def convPermissionsSetToInt(perm: java.util.Set[PosixFilePermission]): Int = {
+    var result: Int = 0
+    if (perm.contains(PosixFilePermission.OWNER_READ)) /*    */ result = result | (1 << 8)
+    if (perm.contains(PosixFilePermission.OWNER_WRITE)) /*   */ result = result | (1 << 7)
+    if (perm.contains(PosixFilePermission.OWNER_EXECUTE)) /* */ result = result | (1 << 6)
+    if (perm.contains(PosixFilePermission.GROUP_READ)) /*    */ result = result | (1 << 5)
+    if (perm.contains(PosixFilePermission.GROUP_WRITE)) /*   */ result = result | (1 << 4)
+    if (perm.contains(PosixFilePermission.GROUP_EXECUTE)) /* */ result = result | (1 << 3)
+    if (perm.contains(PosixFilePermission.OTHERS_READ)) /*   */ result = result | (1 << 2)
+    if (perm.contains(PosixFilePermission.OTHERS_WRITE)) /*  */ result = result | (1 << 1)
+    if (perm.contains(PosixFilePermission.OTHERS_EXECUTE)) /**/ result = result | (1 << 0)
     result
   }
 }
