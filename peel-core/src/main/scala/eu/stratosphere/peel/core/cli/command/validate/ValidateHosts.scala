@@ -87,9 +87,10 @@ class ValidateHosts extends Command {
         logger.info(s"Validating configuration for experiment '${exp.name}'")
 
         val config = exp.config
-        val systems = for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) yield n match {
-          case x: System => x
-        }
+        val systems = for (
+          n <- graph.reverse.traverse()
+          if graph.descendants(exp).contains(n) && n.isInstanceOf[System]
+        ) yield n.asInstanceOf[System]
 
         // gather masters, avoid duplicates
         val masters = {
