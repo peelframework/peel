@@ -3,6 +3,8 @@ eu.stratosphere.peel.core.cli.command.experiment.SetUp
 eu.stratosphere.peel.core.cli.command.experiment.TearDown
 eu.stratosphere.peel.core.cli.command.results.Archive
 eu.stratosphere.peel.core.cli.command.results.Extract
+eu.stratosphere.peel.core.cli.command.rsync.Pull
+eu.stratosphere.peel.core.cli.command.rsync.Push
 eu.stratosphere.peel.core.cli.command.suite.Run
 eu.stratosphere.peel.core.cli.command.system.SetUp
 eu.stratosphere.peel.core.cli.command.system.TearDown
