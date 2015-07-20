@@ -3,11 +3,40 @@ layout: default
 ---
 
 <div class="row">
-    <div class="large-9 columns content-container" role="content">
+    <section class="medium-9 small-12 columns content-container" role="content">
         {{ content }}
-    </div>
-
-    <aside class="large-3 columns">
+    </section>
+    <aside class="medium-3 columns man-nav show-for-medium-up">
         {% include navigation.man.html nav=page.nav %}
     </aside>
 </div>
+
+
+<script type="text/javascript">
+followTo = function (selector) {
+    var $this = $(selector),
+        $window = $(window);
+
+var sectionHeight = $this.parent().find('section').height();
+        console.log("section:",sectionHeight);
+        console.log("aside", $this.height());
+        var pos = sectionHeight - $this.height();
+
+    $window.scroll(function (e) {
+
+        if ($window.scrollTop() > pos) {
+            $this.css({
+                position: 'absolute',
+                top: pos
+            });
+        } else {
+            $this.css({
+                position: 'fixed',
+                top: 'auto'
+            });
+        }
+    });
+};
+
+followTo('.man-nav');
+</script>

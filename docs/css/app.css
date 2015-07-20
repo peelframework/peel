@@ -21,6 +21,13 @@ h4 {
     color: #0F4959;
 }
 
+.man-nav {
+    position: fixed;
+    width: initial;
+    margin-left: 750px;
+    overflow: auto;
+}
+
 .side-nav li.active > a:first-child:not(.button) {
     color: #167411;
 }
