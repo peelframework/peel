@@ -1,13 +1,14 @@
 ---
 layout: default
+rightMenu: true
 ---
 
 <div class="row">
-    <section class="medium-9 small-12 columns content-container" role="content">
+    <section class="large-9 medium-12 small-12 columns content-container" role="content">
         {{ content }}
     </section>
-    <aside class="medium-3 columns man-nav show-for-medium-up">
-        {% include navigation.man.html nav=page.nav %}
+    <aside class="columns man-nav hide-for-medium-down">
+        {% include navigation.man.html nav=page.nav mobile=false %}
     </aside>
 </div>
 
@@ -17,13 +18,10 @@ followTo = function (selector) {
     var $this = $(selector),
         $window = $(window);
 
-var sectionHeight = $this.parent().find('section').height();
-        console.log("section:",sectionHeight);
-        console.log("aside", $this.height());
-        var pos = sectionHeight - $this.height();
+    var sectionHeight = $this.parent().find('section').height();
+    var pos = sectionHeight - $this.height();
 
     $window.scroll(function (e) {
-
         if ($window.scrollTop() > pos) {
             $this.css({
                 position: 'absolute',

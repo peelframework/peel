@@ -4,7 +4,7 @@
 <html class="no-js" lang="en">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <meta charset="utf-8"/>
 
     <title>Peel Framework &middot; {{ page.title }}</title>
@@ -27,17 +27,59 @@
     <script src="{{ site.baseurl }}/js/vendor/jquery.js"></script>
     <!-- Foundation -->
     <script src="{{ site.baseurl }}/js/foundation.min.js"></script>
+    <script src="{{ site.baseurl }}/js/foundation/foundation.offcanvas.js"></script>
+    <script src="{{ site.baseurl }}/js/foundation/foundation.topbar.js"></script>
 </head>
 <body>
 
-{% include navigation.top.html nav=page.nav %}
+<div class="off-canvas-wrap" data-offcanvas>
+    <div class="inner-wrap">
+        {% include navigation.top.html nav=page.nav %}
 
-{{ content }}
+        <section class="main-section">
+        {{ content }}
+        </section>
 
-{% include footer.html nav=page.nav %}
+        <a class="exit-off-canvas"></a>
+        {% include footer.html nav=page.nav %}
+    </div>
+</div>
+
 
 <script>
-    $(document).foundation();
+
+$(function(){
+    $(document).foundation({
+        offcanvas : {
+            open_method: 'move', // Sets method in which offcanvas opens, can also be 'overlap'
+            close_on_click : true
+        }
+    });
+
+    $('#top-link').click(function(){
+        $("html, body").animate({
+            scrollTop: "0"
+        }, {
+          duration: 300,
+          easing: "swing"
+        });
+    });
+
+    $window = $(window);
+
+    $window.scroll(function(){
+        if ($window.scrollTop() > 100) {
+            $("#top-link a").show();
+        } else {
+            $("#top-link a").hide();
+        }
+    });
+});
+
 </script>
+
+<div id="top-link" class="hide-for-medium-up">
+    <a class="panel radius">&#8679;</a>
+</div>
 </body>
 </html>
