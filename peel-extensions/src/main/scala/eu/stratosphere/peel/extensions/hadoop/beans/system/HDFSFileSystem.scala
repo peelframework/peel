@@ -19,8 +19,17 @@ private[system] trait HDFSFileSystem extends FileSystem {
       if (Version(version) < Version("2")) Some("-rmr") else Some("-rm -r"),
       if (skipTrash) Some("-skipTrash") else Option.empty[String]
     )
+
+    // assemble command
+    val cmd =
+      s"""
+       |if $hadoopHome/bin/hadoop fs -test -e "$path"; then
+       |  $hadoopHome/bin/hadoop fs ${opts.flatten.mkString(" ")} "$path";
+       |fi
+       """.stripMargin.trim
+
     // execute command
-    shell !( s"""$hadoopHome/bin/hadoop fs ${opts.flatten.mkString(" ")} "$path" """, "Unable to remove path in HDFS.")
+    shell !(cmd, "Unable to remove path in HDFS.", fatal = false)
   }
 
   override def copyFromLocal(src: String, dst: String) = {
