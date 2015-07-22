@@ -1,12 +1,17 @@
+{% if include.mobile == false %}
 <h4 style="padding-left: 0.875rem">Peel Manual</h4>
+{% endif %}
 
-<ul id="man-nav" class="side-nav">
+<ul class="{% if include.mobile %} off-canvas-list {% else %} side-nav {% endif %} manual-navigation">
+    {% if include.mobile %}
+    <li><label>Peel Manual</label></li>
+    {% endif %}
     <li data-section="motivation">
         <a href="{{ site.baseurl }}/manual/motivation.html"><strong>Motivation</strong></a>
         <ul class="side-nav">
             <li><a href="{{ site.baseurl }}/manual/motivation.html#system-experiments-basics">System Experiments Basics</a></li>
             <li><a href="{{ site.baseurl }}/manual/motivation.html#running-example">Running Example</a></li>
-            <li><a href="{{ site.baseurl }}/manual/motivation.html#challenges">Challenges</a></li>
+            <li><a href="#challenges">Challenges</a></li>
             <li><a href="{{ site.baseurl }}/manual/motivation.html#solution">Solution</a></li>
         </ul>
     </li>
@@ -55,7 +60,7 @@
 </ul>
 
 <script>
-    var topItems = $("#man-nav").find("> li");
+    var topItems = $(".manual-navigation").find("> li");
 
     // mark current section as active
     topItems.each(function (index) {
