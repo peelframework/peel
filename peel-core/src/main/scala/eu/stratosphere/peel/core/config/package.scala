@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory
   */
 package object config {
 
+  val parameter = """\$\{(\S+?)\}""".r // non greedy pattern for matching ${<id>} sequences
+
   final val logger = LoggerFactory.getLogger(this.getClass)
 
   implicit class RichConfig(val underlying: Config) extends AnyVal {
@@ -143,6 +145,18 @@ package object config {
     cb.resolve()
   }
 
+  /** Substitutes all config parameters `${id}` in `v` with their corresponding values defined in `config`.
+    *
+    * @param v The string where the values should be substituted.
+    * @param config The config instance to use for parameter value lookup
+    * @return The subsituted version of v.
+    * @throws com.typesafe.config.ConfigException.Missing if value is absent or null
+    */
+  def substituteConfigParameters(v: String)(implicit config: Config) = {
+    val keys = (for (m <- parameter findAllMatchIn v) yield m group 1).toSet.toList
+    val vals = for (k <- keys) yield config.getAnyRef(k)
+    (keys.map(k => s"$${$k}") zip vals.map(_.toString)).foldLeft(v) { case (z, (s, r)) => z replaceAllLiterally (s, r) }
+  }
 
   /** Loads default values from the current runtime config.
     *

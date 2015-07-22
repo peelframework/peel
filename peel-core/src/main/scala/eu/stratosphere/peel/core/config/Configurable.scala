@@ -1,16 +1,17 @@
 package eu.stratosphere.peel.core.config
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
 
 trait Configurable {
 
   /** The Config instance associated with the object. */
   var config: Config
 
-  /** Resovles `${foo.bar}` patterns in the given string using the current config.
-   *
-   * @param v The string to resolve.
-   * @return A resolved version of the string.
-   */
-  def resolve(v: String) = ConfigFactory.parseString(s"_tmp_: $v").withFallback(config).resolve().getString("_tmp_")
+  /** Substitutes all config parameters `${id}` in `v` with their corresponding values defined in the enclosing `config`.
+    *
+    * @param v The string where the values should be substituted.
+    * @return The subsituted version of v.
+    * @throws com.typesafe.config.ConfigException.Missing if value is absent or null
+    */
+  def resolve(v: String) = substituteConfigParameters(v)(config)
 }

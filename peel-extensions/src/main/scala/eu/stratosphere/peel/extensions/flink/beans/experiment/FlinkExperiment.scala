@@ -101,7 +101,7 @@ object FlinkExperiment {
     }
 
     private def !(command: String, outFile: String, errFile: String) = {
-      shell ! s"${exp.config.getString("system.flink.path.home")}/bin/flink $command > $outFile 2> $errFile"
+      shell ! s"${exp.config.getString("system.flink.path.home")}/bin/flink ${command.trim} > $outFile 2> $errFile"
     }
   }
 
