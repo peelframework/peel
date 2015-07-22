@@ -1,6 +1,7 @@
 ---
 layout: manual
 title: Experiments Definitions
+date: 2015-07-07 10:00:00
 nav: [ manual, experiments-definitions ]
 ---
 

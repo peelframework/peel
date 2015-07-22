@@ -1,6 +1,7 @@
 ---
-layout: simple
+layout: repository
 title: Environment Configurations Repository
+date: 2015-07-05 10:00:00
 nav: repository
 ---
 
