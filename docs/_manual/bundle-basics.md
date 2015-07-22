@@ -1,6 +1,7 @@
 ---
 layout: manual
 title: Bundle Basics
+date: 2015-07-05 10:00:00
 nav: [ manual, bundle-basics]
 ---
 

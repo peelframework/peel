@@ -1,6 +1,7 @@
 ---
 layout: manual
 title: Environment Configurations
+date: 2015-07-06 10:00:00
 nav: [ manual, environment-configurations ]
 ---
 
