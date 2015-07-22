@@ -1,2 +1,7 @@
 highlighter: pygments
 title: Peel Framework<sup>beta</sup>
+collections:
+  manual:
+    output:       true
+  repository:
+    output:       true

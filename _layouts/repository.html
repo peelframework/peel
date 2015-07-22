@@ -1,0 +1,39 @@
+---
+layout: default
+rightMenu: false
+---
+
+{% assign repositories = site.repository | sort: 'date' %}
+
+<div class="row">
+    <section class="large-12 columns content-container" role="content">
+        {{ content }}
+
+        <hr>
+
+        {% for repository in repositories %}
+            {% if repository.title == page.title %}
+                {% assign prevIndex = forloop.index | minus:2 %}
+                {% if prevIndex >= 0 %}
+                    {% assign prev = repositories[prevIndex] %}
+                {% endif %}
+                {% assign next = repositories[forloop.index] %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="row">
+            <div class="small-6 columns">
+                {% if prev %}
+                <a href="{{prev.url | prepend: site.baseurl}}"><i class="fi-arrow-left"></i> {{prev.title}}</a>
+                {% endif %}
+            </div>
+            <div class="small-6 columns" style="text-align:right">
+                {% if next %}
+                <a href="{{next.url | prepend: site.baseurl}}">{{next.title}} <i class="fi-arrow-right"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    <aside class="columns man-nav hide-for-medium-down">
+    </aside>
+</div>
