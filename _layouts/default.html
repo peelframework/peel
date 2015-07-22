@@ -67,6 +67,7 @@ $(function(){
 
     $window = $(window);
 
+    //show link if scroll over 100px
     $window.scroll(function(){
         if ($window.scrollTop() > 100) {
             $("#top-link a").show();
@@ -74,6 +75,11 @@ $(function(){
             $("#top-link a").hide();
         }
     });
+
+    //adjust section size if it is smaller than the navigation
+    if ($('.main-section').height() < $('.man-nav').height()) {
+        $('.main-section').height($('.man-nav').height());
+    }
 });
 
 </script>

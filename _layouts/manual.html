@@ -19,7 +19,10 @@ followTo = function (selector) {
         $window = $(window);
 
     var sectionHeight = $this.parent().find('section').height();
-    var pos = sectionHeight - $this.height();
+    var pos = 0;
+    if (sectionHeight > $this.height()) {
+        pos = sectionHeight - $this.height();
+    }
 
     $window.scroll(function (e) {
         if ($window.scrollTop() > pos) {

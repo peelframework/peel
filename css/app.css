@@ -6,6 +6,13 @@
     margin-top: 60px;
 }
 
+.content-container h1,
+.content-container h2,
+.content-container h3 {
+    padding-top: 60px;
+    margin-top: -60px;
+}
+
 h4 {
     font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
     font-size: 0.85rem;
