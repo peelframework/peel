@@ -8,9 +8,14 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>peel-bundle</artifactId>
+    <artifactId>peel-empty</artifactId>
     <name>${project.artifactId}</name>
     <packaging>pom</packaging>
+
+    <properties>
+        <!-- bundle binaries parent folder -->
+        <bundle.bin>${env.BUNDLE_BIN}</bundle.bin>
+    </properties>
 
     <dependencies>
         <!-- Peel -->
@@ -26,6 +31,7 @@
 
     <build>
         <plugins>
+            <!-- Assemble jar -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.5.5</version>
@@ -40,11 +46,34 @@
                 </executions>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <finalName>peel-bundle</finalName>
+                    <finalName>${project.artifactId}</finalName>
                     <descriptors>
                         <descriptor>src/main/assembly/bin.xml</descriptor>
                     </descriptors>
                 </configuration>
+            </plugin>
+            <!-- Deploy assembly to ${bundle.bin} -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-package</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <tasks if="bundle.bin">
+                                <mkdir dir="${bundle.bin}"/>
+                                <exec executable="cp">
+                                    <arg value="-R"/>
+                                    <arg value="./target/peel-empty"/>
+                                    <arg value="${bundle.bin}"/>
+                                </exec>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

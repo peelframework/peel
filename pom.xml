@@ -462,8 +462,8 @@
 
     <modules>
         <module>peel-core</module>
-        <module>peel-bundle</module>
         <module>peel-extensions</module>
+        <module>peel-empty</module>
         <module>peel-analysis</module>
     </modules>
 

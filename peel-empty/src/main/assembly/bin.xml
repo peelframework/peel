@@ -20,50 +20,36 @@
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <fileMode>0644</fileMode>
             <directoryMode>0755</directoryMode>
-            <excludes>
-                <exclude>**/*examples*.jar</exclude>
-                <exclude>**/*javadoc*</exclude>
-                <exclude>**/*sources*</exclude>
-            </excludes>
         </dependencySet>
     </dependencySets>
 
     <fileSets>
-        <!-- create an empty config directory -->
+        <!-- copy bin files -->
         <fileSet>
-            <directory>src/main/assembly/config</directory>
+            <directory>src/main/resources/bin</directory>
+            <outputDirectory>.</outputDirectory>
+            <fileMode>0755</fileMode>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+        </fileSet>
+        <!-- copy config directory -->
+        <fileSet>
+            <directory>src/main/resources/config</directory>
             <outputDirectory>config</outputDirectory>
             <fileMode>0644</fileMode>
         </fileSet>
-        <!-- create an empty datagens directory -->
+        <!-- copy datasets directory -->
         <fileSet>
-            <directory>src/main/assembly</directory>
-            <outputDirectory>datagens</outputDirectory>
-            <fileMode>0644</fileMode>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-        <!-- create an empty datasets directory -->
-        <fileSet>
-            <directory>src/main/assembly/datasets</directory>
+            <directory>src/main/resources/datasets</directory>
             <outputDirectory>datasets</outputDirectory>
             <fileMode>0644</fileMode>
         </fileSet>
-        <!-- create an empty downloads directory -->
+        <!-- copy downloads directory -->
         <fileSet>
-            <directory>src/main/assembly/downloads</directory>
+            <directory>src/main/resources/downloads</directory>
             <outputDirectory>downloads</outputDirectory>
             <fileMode>0644</fileMode>
-        </fileSet>
-        <!-- create an empty apps directory -->
-        <fileSet>
-            <directory>src/main/assembly</directory>
-            <outputDirectory>apps</outputDirectory>
-            <fileMode>0644</fileMode>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
         </fileSet>
         <!-- create an empty log directory -->
         <fileSet>
@@ -95,21 +81,9 @@
     </fileSets>
 
     <files>
-        <!-- copy bash file -->
-        <file>
-            <source>src/main/assembly/bin/peel.sh</source>
-            <destName>peel.sh</destName>
-            <fileMode>0755</fileMode>
-        </file>
-        <file>
-            <source>src/main/assembly/bin/peel.bat</source>
-            <destName>peel.bat</destName>
-            <fileMode>0755</fileMode>
-        </file>
-
         <!-- create a VERSION file to the project root -->
         <file>
-            <source>src/main/assembly/VERSION</source>
+            <source>src/main/resources/VERSION</source>
             <destName>VERSION</destName>
             <fileMode>0644</fileMode>
             <filtered>true</filtered>

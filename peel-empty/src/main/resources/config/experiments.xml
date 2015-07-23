@@ -5,8 +5,6 @@
 
     <!-- custom system beans -->
     <import resource="systems.xml"/>
-    <!-- base experiment beans -->
-    <import resource="experiments.base.xml"/>
     <!-- wordcount experiment beans -->
     <import resource="experiments.wordcount.xml"/>
 
