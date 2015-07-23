@@ -5,3 +5,5 @@ collections:
     output:       true
   repository:
     output:       true
+  legal:
+    output:       true
