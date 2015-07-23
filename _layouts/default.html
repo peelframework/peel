@@ -3,33 +3,7 @@
 <html class="lt-ie10" lang="en"><![endif]-->
 <html class="no-js" lang="en">
 
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <meta charset="utf-8"/>
-
-    <title>Peel Framework &middot; {{ page.title }}</title>
-
-    <!-- Reset browser styles -->
-    <link rel="stylesheet" href="{{ site.baseurl }}/css/normalize.css"/>
-    <!-- Foundation CSS -->
-    <link rel="stylesheet" href="{{ site.baseurl }}/css/foundation.css"/>
-    <!-- Foundation Icons -->
-    <link rel="stylesheet" href="{{ site.baseurl }}/assets/foundation-icons/foundation-icons.css"/>
-    <!-- Pygments -->
-    <link rel="stylesheet" href="{{ site.baseurl }}/css/pygments.css"/>
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ site.baseurl }}/css/app.css"/>
-
-    <!-- Modernizr JS -->
-    <script src="{{ site.baseurl }}/js/vendor/modernizr.js"></script>
-    <!-- JQuery -->
-    <script src="{{ site.baseurl }}/js/vendor/jquery.js"></script>
-    <!-- Foundation -->
-    <script src="{{ site.baseurl }}/js/foundation.min.js"></script>
-    <script src="{{ site.baseurl }}/js/foundation/foundation.offcanvas.js"></script>
-    <script src="{{ site.baseurl }}/js/foundation/foundation.topbar.js"></script>
-</head>
+{% include head.html %}
 <body>
 
 <div class="off-canvas-wrap" data-offcanvas>
@@ -51,7 +25,7 @@
 $(function(){
     $(document).foundation({
         offcanvas : {
-            open_method: 'move', // Sets method in which offcanvas opens, can also be 'overlap'
+            open_method: 'move',
             close_on_click : true
         }
     });
@@ -84,7 +58,7 @@ $(function(){
 
 </script>
 
-<div id="top-link" class="hide-for-medium-up">
+<div id="top-link" class="hide-for-large-up">
     <a class="panel radius">&#8679;</a>
 </div>
 </body>
