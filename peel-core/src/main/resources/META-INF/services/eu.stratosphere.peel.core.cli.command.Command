@@ -1,6 +1,7 @@
 eu.stratosphere.peel.core.cli.command.experiment.Run
 eu.stratosphere.peel.core.cli.command.experiment.SetUp
 eu.stratosphere.peel.core.cli.command.experiment.TearDown
+eu.stratosphere.peel.core.cli.command.hosts.Generate
 eu.stratosphere.peel.core.cli.command.results.Archive
 eu.stratosphere.peel.core.cli.command.results.Extract
 eu.stratosphere.peel.core.cli.command.rsync.Pull
