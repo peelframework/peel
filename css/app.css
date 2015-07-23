@@ -118,3 +118,10 @@ code {
     border: 0;
     padding: 0;
 }
+
+.post-meta {
+    font-size: smaller;
+    color: gray;
+    float: right;
+    text-align: right;
+}

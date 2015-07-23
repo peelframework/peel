@@ -1,0 +1,20 @@
+---
+layout: default
+---
+
+{% assign posts = site.posts | sort: 'date desc' %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <header class="post-header">
+            <p class="post-meta">{{ page.date | date: "%b %-d, %Y" }}{% if page.author %}<br>{{ page.author }}{% endif %}{% if page.meta %}<br>{{ page.meta }}{% endif %}</p>
+            <h1 class="post-title">{{ page.title }}</h1>
+        </header>
+
+        <article class="post-content">
+            {{ content }}
+        </article>
+
+        {% include pagination.html items=posts %}
+    </div>
+</div>
