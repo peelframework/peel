@@ -9,7 +9,7 @@ This page was created by the [TU Berlin, Database Systems and Information Manage
 
 ### Funding and Collaborators
 <p>This project is partly funded by the <a href="http://www.dfg.de/en/">DFG</a> as FOR 1306 (<a href="http://stratosphere.eu">Stratosphere II project)</a> and the <a href="http://bbdc.berlin">Berlin Big Data Center.</a></p>
-<ul class="small-block-grid-3 medium-block-grid-4 large-block-grid-5 text-center">
+<ul class="small-block-grid-2 medium-block-grid-4 large-block-grid-5 text-center">
     <li>
         <a href="http://stratosphere.eu" target="_blank">
             <img style="height:50px;" src="{{ site.baseurl }}/img/logo/stratosphere_logo.png" alt="Stratosphere">
