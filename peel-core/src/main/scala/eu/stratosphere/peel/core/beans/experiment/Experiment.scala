@@ -23,40 +23,41 @@ import scala.language.postfixOps
   *                submitting apps. Example command for a Flink-experiment:
   *
   *                <code>-p 16 ./examples/flink-java-examples-0.7.0-incubating-WordCount.jar
-  *                      file:///home/user/hamlet.txt file:///home/user/wordcount_out
+  *                file:///home/user/hamlet.txt file:///home/user/wordcount_out
   *                </code>
   *
   *                You do not have to state the command that is used to 'run' the command (e.g. in Flink
   *                <code> ./bin/flink run </code>
   *
- * @param runner The system that is used to run the experiment (e.g. Flink, Spark, ...)
- * @param runs The number of runs/repetitions of this experiment
- * @param inputs Input Datasets for the experiment
- * @param outputs The output of the Experiment
- * @param name Name of the Experiment
- * @param config Config Object for the experiment
- * @tparam R The system that is used to execute the experiment
- */
-abstract class Experiment[+R <: System](val command: String,
-                                        val runner: R,
-                                        val runs: Int,
-                                        val inputs: Set[DataSet],
-                                        val outputs: Set[ExperimentOutput],
-                                        val name: String,
-                                        var config: Config) extends Node with Configurable {
+  * @param runner The system that is used to run the experiment (e.g. Flink, Spark, ...)
+  * @param runs The number of runs/repetitions of this experiment
+  * @param inputs Input Datasets for the experiment
+  * @param outputs The output of the Experiment
+  * @param name Name of the Experiment
+  * @param config Config Object for the experiment
+  * @tparam R The system that is used to execute the experiment
+  */
+abstract class Experiment[+R <: System](
+  val command: String,
+  val runner: R,
+  val runs: Int,
+  val inputs: Set[DataSet],
+  val outputs: Set[ExperimentOutput],
+  val name: String,
+  var config: Config) extends Node with Configurable {
 
   /** Experiment run factory method.
-   *
-   * @param id The `id` for the constructed experiment run
-   * @param force Force execution of this run
-   * @return An run for this experiment identified by the given `id`
-   */
+    *
+    * @param id The `id` for the constructed experiment run
+    * @param force Force execution of this run
+    * @return An run for this experiment identified by the given `id`
+    */
   def run(id: Int, force: Boolean): Experiment.Run[R]
 
   /** Alias of name.
-   *
-   * @return name of the Experiment
-   */
+    *
+    * @return name of the Experiment
+    */
   override def toString: String = name
 }
 
@@ -84,7 +85,7 @@ object Experiment {
 
     def execute(): Unit
 
-     /** Checks if the given path is a writable folder.
+    /** Checks if the given path is a writable folder.
       *
       * If the folder at the given path does not exists, it is created.
       * If it exists but is not a directory or is not writable, this method throws
@@ -121,12 +122,12 @@ object Experiment {
     var logFileCounts: Map[String, Long] = null
 
     /** Executes this run.
-     *
+      *
       * Tries to execute the specified experiment-job. If the experiment did not finished within the given timelimit
       * (specified by experiment.timeout property in experiment-configuration), the job is canceled. The same happens
       * if the experiment was interrupted or throws an exception.
       *
-     */
+      */
     override def execute() = {
       if (!force && isSuccessful) {
         logger.info("Skipping successfully finished experiment run %s".format(name).yellow)
