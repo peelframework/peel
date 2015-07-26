@@ -9,7 +9,7 @@ import org.springframework.beans.factory.BeanNameAware
  *
  * @param experiments the experiments contained in that suite.
  */
-class ExperimentSuite(final val experiments: List[Experiment[System]]) extends Node with BeanNameAware {
+class ExperimentSuite(final val experiments: Seq[Experiment[System]]) extends Node with BeanNameAware {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
 

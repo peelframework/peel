@@ -1,9 +1,8 @@
 package eu.stratosphere.peel.extensions.spark.beans.experiment
 
-import java.io.{FileWriter, IOException}
+import java.io.FileWriter
 import java.lang.{System => Sys}
 import java.nio.file._
-import java.nio.file.attribute.BasicFileAttributes
 
 import com.typesafe.config.Config
 import eu.stratosphere.peel.core.beans.data.{DataSet, ExperimentOutput}
@@ -16,19 +15,44 @@ import spray.json._
   * of a single Spark job.
   */
 class SparkExperiment(
-  command: String,
-  runner: Spark,
-  runs: Int,
-  inputs: Set[DataSet],
-  outputs: Set[ExperimentOutput],
-  name: String,
-  config: Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
+    command: String,
+    runner : Spark,
+    runs   : Int,
+    inputs : Set[DataSet],
+    outputs: Set[ExperimentOutput],
+    name   : String,
+    config : Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
 
-  def this(runs: Int, runner: Spark, input: DataSet, output: ExperimentOutput, command: String, name: String, config: Config) = this(command, runner, runs, Set(input), Set(output), name, config)
+  def this(
+    runs   : Int,
+    runner : Spark,
+    input  : DataSet,
+    output : ExperimentOutput,
+    command: String,
+    name   : String,
+    config : Config) = this(command, runner, runs, Set(input), Set(output), name, config)
 
-  def this(runs: Int, runner: Spark, inputs: Set[DataSet], output: ExperimentOutput, command: String, name: String, config: Config) = this(command, runner, runs, inputs, Set(output), name, config)
+  def this(
+    runs: Int,
+    runner : Spark,
+    inputs : Set[DataSet],
+    output : ExperimentOutput,
+    command: String,
+    name   : String,
+    config : Config) = this(command, runner, runs, inputs, Set(output), name, config)
+
+  def this(
+    runs: Int,
+    runner : Spark,
+    input  : DataSet,
+    outputs: Set[ExperimentOutput],
+    command: String,
+    name   : String,
+    config : Config) = this(command, runner, runs, Set(input), outputs, name, config)
 
   override def run(id: Int, force: Boolean): Experiment.Run[Spark] = new SparkExperiment.SingleJobRun(id, this, force)
+
+  def copy(name: String = name, config: Config = config) = new SparkExperiment(command, runner, runs, inputs, outputs, name, config)
 }
 
 object SparkExperiment {
@@ -63,7 +87,7 @@ object SparkExperiment {
     override protected def loadState(): State = {
       if (Files.isRegularFile(Paths.get(s"$home/state.json"))) {
         try {
-          io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
+          scala.io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
         } catch {
           case e: Throwable => State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
         }

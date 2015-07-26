@@ -59,6 +59,13 @@ abstract class Experiment[+R <: System](
     * @return name of the Experiment
     */
   override def toString: String = name
+
+  /** Copy the object with updated name and config values.
+    *
+    * @param name The updated name value.
+    * @param config The updated config value.
+    */
+  def copy(name: String = name, config: Config = config): Experiment[R]
 }
 
 /** Object that holds Experiment run properties and utilities. */

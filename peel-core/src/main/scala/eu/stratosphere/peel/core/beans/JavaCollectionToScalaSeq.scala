@@ -7,9 +7,9 @@ import scala.collection.JavaConverters._
  *
  * @tparam T Type of list elements.
  */
-class JavaListToScalaList[T] extends Converter[java.util.List[T], scala.collection.immutable.List[T]] {
+class JavaCollectionToScalaSeq[T] extends Converter[java.util.Collection[T], scala.collection.Seq[T]] {
 
-  def convert(l: java.util.List[T]): List[T] =  {
-    l.asScala.toList
+  def convert(l: java.util.Collection[T]): Seq[T] =  {
+    l.asScala.toSeq
   }
 }

@@ -15,19 +15,44 @@ import spray.json._
   * of a single Flink job.
   */
 class FlinkExperiment(
-  command: String,
-  runner: Flink,
-  runs: Int,
-  inputs: Set[DataSet],
-  outputs: Set[ExperimentOutput],
-  name: String,
-  config: Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
+    command: String,
+    runner : Flink,
+    runs   : Int,
+    inputs : Set[DataSet],
+    outputs: Set[ExperimentOutput],
+    name   : String,
+    config : Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
 
-  def this(runs: Int, runner: Flink, input: DataSet, output: ExperimentOutput, command: String, name: String, config: Config) = this(command, runner, runs, Set(input), Set(output), name, config)
+  def this(
+    runs   : Int,
+    runner : Flink,
+    input  : DataSet,
+    output : ExperimentOutput,
+    command: String,
+    name   : String,
+    config : Config) = this(command, runner, runs, Set(input), Set(output), name, config)
 
-  def this(runs: Int, runner: Flink, inputs: Set[DataSet], output: ExperimentOutput, command: String, name: String, config: Config) = this(command, runner, runs, inputs, Set(output), name, config)
+  def this(
+    runs   : Int,
+    runner : Flink,
+    inputs : Set[DataSet],
+    output : ExperimentOutput,
+    command: String,
+    name   : String,
+    config : Config) = this(command, runner, runs, inputs, Set(output), name, config)
+
+  def this(
+    runs: Int,
+    runner : Flink,
+    input  : DataSet,
+    outputs: Set[ExperimentOutput],
+    command: String,
+    name   : String,
+    config : Config) = this(command, runner, runs, Set(input), outputs, name, config)
 
   override def run(id: Int, force: Boolean): Experiment.Run[Flink] = new FlinkExperiment.SingleJobRun(id, this, force)
+
+  def copy(name: String = name, config: Config = config) = new FlinkExperiment(command, runner, runs, inputs, outputs, name, config)
 }
 
 object FlinkExperiment {
@@ -61,7 +86,7 @@ object FlinkExperiment {
     override protected def loadState(): State = {
       if (Files.isRegularFile(Paths.get(s"$home/state.json"))) {
         try {
-          io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
+          scala.io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
         } catch {
           case e: Throwable => State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
         }
