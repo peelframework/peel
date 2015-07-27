@@ -18,7 +18,6 @@
     <bean id="mc" class="com.samskivert.mustache.Mustache" factory-method="compiler"/>
 
     <bean id="system" class="eu.stratosphere.peel.core.beans.system.System" abstract="true">
-        <constructor-arg name="lifespan" value="SUITE"/>
         <constructor-arg name="dependencies">
             <set value-type="eu.stratosphere.peel.core.beans.system.System" />
         </constructor-arg>
