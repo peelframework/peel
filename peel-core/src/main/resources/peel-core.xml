@@ -11,6 +11,7 @@
                 <bean class="eu.stratosphere.peel.core.beans.StringToLifespan"/>
                 <bean class="eu.stratosphere.peel.core.beans.JavaListToScalaList"/>
                 <bean class="eu.stratosphere.peel.core.beans.JavaSetToScalaSet"/>
+                <bean class="eu.stratosphere.peel.core.beans.JavaMapToScalaMap"/>
             </set>
         </property>
     </bean>
