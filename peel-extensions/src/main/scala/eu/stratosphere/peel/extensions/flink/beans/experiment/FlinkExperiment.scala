@@ -84,11 +84,11 @@ object FlinkExperiment {
           if (Version(exp.runner.version) <= Version("0.8")) Some("-e") else Option.empty[String]
         )
         // execute command
-        Experiment.time(this !(s"info ${opts.flatten.mkString(" ")} $command", s"$home/run.pln", s"$home/run.pln"))
+        Experiment.time(this !(s"info ${opts.flatten.mkString(" ")} ${command.trim}", s"$home/run.pln", s"$home/run.pln"))
       }
       state.plnExitCode = Some(plnExit)
       // try to execute the experiment run plan
-      val (runExit, t) = Experiment.time(this !(s"run $command", s"$home/run.out", s"$home/run.err"))
+      val (runExit, t) = Experiment.time(this !(s"run ${command.trim}", s"$home/run.out", s"$home/run.err"))
       state.runTime = t
       state.runExitCode = Some(runExit)
     }
