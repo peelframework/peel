@@ -51,15 +51,15 @@ package object config {
     cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
 
     // load current runtime config
-    logger.info(s"Loading current runtime values as configuration")
+    logger.info(s"├── Loading current runtime values as configuration")
     cb.append(currentRuntimeConfig())
 
     // load system properties
-    logger.info(s"Loading system properties as configuration")
+    logger.info(s"├── Loading system properties as configuration")
     cb.append(ConfigFactory.systemProperties)
 
     // resolve and return config
-    logger.info(s"Resolving configuration")
+    logger.info(s"└── Resolving configuration")
     cb.resolve()
   }
 
@@ -90,15 +90,15 @@ package object config {
     cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
 
     // load current runtime config
-    logger.info(s"Loading current runtime values as configuration")
+    logger.info(s"├── Loading current runtime values as configuration")
     cb.append(currentRuntimeConfig())
 
     // load system properties
-    logger.info(s"Loading system properties as configuration")
+    logger.info(s"├── Loading system properties as configuration")
     cb.append(ConfigFactory.systemProperties)
 
     // resolve and return config
-    logger.info(s"Resolving configuration")
+    logger.info(s"└── Resolving configuration")
     cb.resolve()
   }
 
@@ -129,19 +129,19 @@ package object config {
     cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
 
     // load the experiment config
-    logger.info(s"Loading experiment configuration")
+    logger.info(s"├── Loading experiment configuration")
     cb.append(exp.config)
 
     // load current runtime config
-    logger.info(s"Loading current runtime values as configuration")
+    logger.info(s"├── Loading current runtime values as configuration")
     cb.append(currentRuntimeConfig())
 
     // load system properties
-    logger.info(s"Loading system properties as configuration")
+    logger.info(s"├── Loading system properties as configuration")
     cb.append(ConfigFactory.systemProperties)
 
     // resolve and return config
-    logger.info(s"Resolving configuration")
+    logger.info(s"└── Resolving configuration")
     cb.resolve()
   }
 
@@ -185,20 +185,20 @@ package object config {
     // helper function: append resource to current config
     def loadResource(name: String) = {
       if (Option(this.getClass.getResource(s"/$name")).isDefined) {
-        logger.info(s"Loading resource $name")
+        logger.info(s"├── Loading resource $name")
         config = ConfigFactory.parseResources(name, options).withFallback(config)
       } else {
-        logger.info(s"Skipping resource $name (does not exist)".yellow)
+        logger.info(s"├── Skipping resource $name (does not exist)".yellow)
       }
     }
 
     // helper function: append file to current config
     def loadFile(path: String) = {
       if (Files.isReadable(Paths.get(path))) {
-        logger.info(s"Loading file $path")
+        logger.info(s"├── Loading file $path")
         config = ConfigFactory.parseFile(new File(path), options).withFallback(config)
       } else {
-        logger.info(s"Skipping file $path (does not exist)".yellow)
+        logger.info(s"├── Skipping file $path (does not exist)".yellow)
       }
     }
 
