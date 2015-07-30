@@ -26,7 +26,7 @@ The top-level elements of a Peel bundle are shortly summarized below.
 | systems   | `app.path.systems`   | Contains all running systems.                                 |
 | peel.sh   | `N/A`                | The Peel command line interface.                              |
 
-You can customize the [default paths](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.conf) of these elements in your bundle- or host-specific configuration. For more information how to do this, please refer to the [Environment Configurations]({{ site.baseurl }}/manual/environment-configurations.html) section.
+You can customize the [default paths](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.peel.conf) of these elements in your bundle- or host-specific configuration. For more information how to do this, please refer to the [Environment Configurations]({{ site.baseurl }}/manual/environment-configurations.html) section.
 
 ## Components
 
