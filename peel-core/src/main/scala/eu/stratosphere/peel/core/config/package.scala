@@ -43,7 +43,7 @@ package object config {
     val cb = new ConfigBuilder
 
     // load reference configuration
-    cb.loadResource("reference.conf")
+    cb.loadResource("reference.peel.conf")
 
     // load {app.path.config}/application.conf
     for (configPath <- Option(Sys.getProperty("app.path.config"))) {
@@ -74,7 +74,7 @@ package object config {
     val cb = new ConfigBuilder
 
     // load reference configuration
-    cb.loadResource("reference.conf")
+    cb.loadResource("reference.peel.conf")
 
     // load systems configuration
     for (n <- graph.reverse.traverse(); if graph.descendants(sys).contains(n)) n match {
@@ -121,7 +121,7 @@ package object config {
     val cb = new ConfigBuilder
 
     // load reference configuration
-    cb.loadResource("reference.conf")
+    cb.loadResource("reference.peel.conf")
 
     // load systems configuration
     for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
