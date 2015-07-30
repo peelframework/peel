@@ -4,13 +4,13 @@ import java.net.InetAddress
 import java.nio.file.Paths
 import java.util.ServiceLoader
 
+import eu.stratosphere.peel.core.PeelApplicationContext
 import eu.stratosphere.peel.core.cli.command.Command
 import net.sourceforge.argparse4j.ArgumentParsers
 import net.sourceforge.argparse4j.inf.ArgumentParserException
 import net.sourceforge.argparse4j.internal.HelpScreenException
 import org.apache.log4j.{PatternLayout, RollingFileAppender}
 import org.slf4j.{Logger, LoggerFactory}
-import org.springframework.context.support.ClassPathXmlApplicationContext
 
 import scala.collection.JavaConversions._
 
@@ -66,13 +66,7 @@ object Peel {
       command.configure(ns)
 
       // 3) construct application context
-      val context = new ClassPathXmlApplicationContext(
-        if (null != System.getProperty("app.path.experiments"))
-          Array[String]("classpath:peel-core.xml", "classpath:peel-extensions.xml", "file:" + System.getProperty("app.path.experiments"))
-        else
-          Array[String]("classpath:peel-core.xml", "classpath:peel-extensions.xml"),
-        true)
-      context.registerShutdownHook()
+      val context = PeelApplicationContext(Option(System.getProperty("app.path.experiments")))
 
       // 4) execute command and return
       command.run(context);
