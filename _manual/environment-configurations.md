@@ -60,7 +60,7 @@ For each experiment in a suite, Peel will construct an associated experiment con
 
 | Path                                              | Description                                      |
 | ------------------------------------------------- | ------------------------------------------------ |
-| `resource:reference.conf`                         | Default Peel configuration.                      |
+| `reference.peel.conf`                             | Default Peel configuration.                      |
 | `reference.${systemID}.conf`                      | Default system configuration.                    |
 | `${app.path.config}/${systemID}.conf`             | Bundle-specific system configuration (optional). |
 | `${app.path.config}/${hostname}/${systemID}.conf` | Host-specific system configuration (optional).   |
@@ -71,7 +71,7 @@ For each experiment in a suite, Peel will construct an associated experiment con
 
 First comes the default Peel configuration.
 Second, for each system upon which the experiment depends (with bean identified by `systemID`), the corresponding default system configuration as well as bundle- or host-specific versions.
-Third, bundle- and host-specific `application.conf` (counterpart of `reference.conf`).
+Third, bundle- and host-specific `application.conf` (counterpart of `reference.peel.conf`).
 Fourth, experiment-specific configuration overrides and parameters as defined in the *config* property of the corresponding experiment bean.
 Finally, a set of configuration parameters derived from the current JVM System object.
 
