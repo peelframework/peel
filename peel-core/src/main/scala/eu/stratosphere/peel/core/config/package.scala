@@ -46,20 +46,24 @@ package object config {
     cb.loadResource("reference.conf")
 
     // load {app.path.config}/application.conf
-    cb.loadFile(s"${Sys.getProperty("app.path.config")}/application.conf")
+    for (configPath <- Option(Sys.getProperty("app.path.config"))) {
+      cb.loadFile(s"$configPath/application.conf")
+    }
     // load {app.path.config}/{app.hostname}/application.conf
-    cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
+    for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
+      cb.loadFile(s"$configPath/$hostname/application.conf")
+    }
 
     // load current runtime config
-    logger.info(s"├── Loading current runtime values as configuration")
+    logger.info(s"+-- Loading current runtime values as configuration")
     cb.append(currentRuntimeConfig())
 
     // load system properties
-    logger.info(s"├── Loading system properties as configuration")
+    logger.info(s"+-- Loading system properties as configuration")
     cb.append(ConfigFactory.systemProperties)
 
     // resolve and return config
-    logger.info(s"└── Resolving configuration")
+    logger.info(s"`-- Resolving configuration")
     cb.resolve()
   }
 
@@ -78,27 +82,35 @@ package object config {
         // load reference.{system.defaultName}.conf
         cb.loadResource(s"reference.${s.beanName}.conf")
         // load {app.path.config}/{system.name}.conf
-        cb.loadFile(s"${Sys.getProperty("app.path.config")}/${s.beanName}.conf")
+        for (configPath <- Option(Sys.getProperty("app.path.config"))) {
+          cb.loadFile(s"$configPath/${s.beanName}.conf")
+        }
         // load {app.path.config}/{app.hostname}/{system.name}.conf
-        cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/${s.beanName}.conf")
+        for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
+          cb.loadFile(s"$configPath/$hostname/${s.beanName}.conf")
+        }
       case _ => Unit
     }
 
     // load {app.path.config}/application.conf
-    cb.loadFile(s"${Sys.getProperty("app.path.config")}/application.conf")
+    for (configPath <- Option(Sys.getProperty("app.path.config"))) {
+      cb.loadFile(s"$configPath/application.conf")
+    }
     // load {app.path.config}/{app.hostname}/application.conf
-    cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
+    for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
+      cb.loadFile(s"$configPath/$hostname/application.conf")
+    }
 
     // load current runtime config
-    logger.info(s"├── Loading current runtime values as configuration")
+    logger.info(s"+-- Loading current runtime values as configuration")
     cb.append(currentRuntimeConfig())
 
     // load system properties
-    logger.info(s"├── Loading system properties as configuration")
+    logger.info(s"+-- Loading system properties as configuration")
     cb.append(ConfigFactory.systemProperties)
 
     // resolve and return config
-    logger.info(s"└── Resolving configuration")
+    logger.info(s"`-- Resolving configuration")
     cb.resolve()
   }
 
@@ -117,31 +129,39 @@ package object config {
         // load reference.{system.defaultName}.conf
         cb.loadResource(s"reference.${s.beanName}.conf")
         // load {app.path.config}/{system.name}.conf
-        cb.loadFile(s"${Sys.getProperty("app.path.config")}/${s.beanName}.conf")
+        for (configPath <- Option(Sys.getProperty("app.path.config"))) {
+          cb.loadFile(s"$configPath/${s.beanName}.conf")
+        }
         // load {app.path.config}/{app.hostname}/{system.name}.conf
-        cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/${s.beanName}.conf")
+        for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
+          cb.loadFile(s"$configPath/$hostname/${s.beanName}.conf")
+        }
       case _ => Unit
     }
 
     // load {app.path.config}/application.conf
-    cb.loadFile(s"${Sys.getProperty("app.path.config")}/application.conf")
+    for (configPath <- Option(Sys.getProperty("app.path.config"))) {
+      cb.loadFile(s"$configPath/application.conf")
+    }
     // load {app.path.config}/{app.hostname}/application.conf
-    cb.loadFile(s"${Sys.getProperty("app.path.config")}/${Sys.getProperty("app.hostname")}/application.conf")
+    for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
+      cb.loadFile(s"$configPath/$hostname/application.conf")
+    }
 
     // load the experiment config
-    logger.info(s"├── Loading experiment configuration")
+    logger.info(s"+-- Loading experiment configuration")
     cb.append(exp.config)
 
     // load current runtime config
-    logger.info(s"├── Loading current runtime values as configuration")
+    logger.info(s"+-- Loading current runtime values as configuration")
     cb.append(currentRuntimeConfig())
 
     // load system properties
-    logger.info(s"├── Loading system properties as configuration")
+    logger.info(s"+-- Loading system properties as configuration")
     cb.append(ConfigFactory.systemProperties)
 
     // resolve and return config
-    logger.info(s"└── Resolving configuration")
+    logger.info(s"`-- Resolving configuration")
     cb.resolve()
   }
 
@@ -155,7 +175,7 @@ package object config {
   def substituteConfigParameters(v: String)(implicit config: Config) = {
     val keys = (for (m <- parameter findAllMatchIn v) yield m group 1).toSet.toList
     val vals = for (k <- keys) yield config.getAnyRef(k)
-    (keys.map(k => s"$${$k}") zip vals.map(_.toString)).foldLeft(v) { case (z, (s, r)) => z replaceAllLiterally (s, r) }
+    (keys.map(k => s"$${$k}") zip vals.map(_.toString)).foldLeft(v) { case (z, (s, r)) => z replaceAllLiterally(s, r) }
   }
 
   /** Loads default values from the current runtime config.
@@ -185,20 +205,20 @@ package object config {
     // helper function: append resource to current config
     def loadResource(name: String) = {
       if (Option(this.getClass.getResource(s"/$name")).isDefined) {
-        logger.info(s"├── Loading resource $name")
+        logger.info(s"+-- Loading resource $name")
         config = ConfigFactory.parseResources(name, options).withFallback(config)
       } else {
-        logger.info(s"├── Skipping resource $name (does not exist)".yellow)
+        logger.info(s"+-- Skipping resource $name (does not exist)".yellow)
       }
     }
 
     // helper function: append file to current config
     def loadFile(path: String) = {
       if (Files.isReadable(Paths.get(path))) {
-        logger.info(s"├── Loading file $path")
+        logger.info(s"+-- Loading file $path")
         config = ConfigFactory.parseFile(new File(path), options).withFallback(config)
       } else {
-        logger.info(s"├── Skipping file $path (does not exist)".yellow)
+        logger.info(s"+-- Skipping file $path (does not exist)".yellow)
       }
     }
 
