@@ -33,6 +33,7 @@
                 <include>*.sh</include>
             </includes>
         </fileSet>
+
         <!-- copy config directory -->
         <fileSet>
             <directory>src/main/resources/config</directory>
@@ -51,6 +52,13 @@
             <outputDirectory>downloads</outputDirectory>
             <fileMode>0644</fileMode>
         </fileSet>
+        <!-- copy utils directory  -->
+        <fileSet>
+            <directory>src/main/resources/utils</directory>
+            <outputDirectory>utils</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
         <!-- create an empty log directory -->
         <fileSet>
             <directory>src/main/assembly</directory>
