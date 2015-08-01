@@ -404,6 +404,7 @@
                 </executions>
             </plugin>
 
+            <!-- Maven Deploy (disabled) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>peel-extensions</artifactId>
-    <name>${project.artifactId}</name>
 
     <dependencies>
         <!-- Scala -->

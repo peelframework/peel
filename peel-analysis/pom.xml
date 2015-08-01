@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>peel-analysis</artifactId>
-    <name>${project.artifactId}</name>
 
     <dependencies>
         <!-- Peel -->
