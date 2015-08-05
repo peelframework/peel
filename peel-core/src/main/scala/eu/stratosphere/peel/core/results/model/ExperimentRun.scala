@@ -17,6 +17,7 @@ case class ExperimentRun(
   val id = experimentID.## * 31 + run
 }
 
+/** [[ExperimentRun]] companion and storage manager. */
 object ExperimentRun extends PersistedAPI[ExperimentRun] {
 
   import java.sql.Connection
@@ -27,7 +28,11 @@ object ExperimentRun extends PersistedAPI[ExperimentRun] {
   override val tableName = "experiment_run"
 
   override val rowParser = {
-    get[Int]("id") ~ get[Int]("experiment_id") ~ get[Int]("run")~ get[Int]("exit") ~ get[Long]("time") map {
+    get[Int]  ("id")            ~
+    get[Int]  ("experiment_id") ~
+    get[Int]  ("run")           ~
+    get[Int]  ("exit")          ~
+    get[Long] ("time")          map {
       case id ~ experiment_id ~ run ~ exit ~ time => ExperimentRun(experiment_id, run, exit, time)
     }
   }
@@ -35,11 +40,11 @@ object ExperimentRun extends PersistedAPI[ExperimentRun] {
   override def createTable()(implicit conn: Connection): Unit = if (!tableExists) {
     SQL( s"""
       CREATE TABLE experiment_run (
-        id INTEGER NOT NULL,
-        experiment_id INTEGER NOT NULL,
-        run INTEGER NOT NULL,
-        exit INTEGER NOT NULL,
-        time BIGINT NOT NULL,
+        id             INTEGER  NOT NULL,
+        experiment_id  INTEGER  NOT NULL,
+        run            INTEGER  NOT NULL,
+        exit           INTEGER  NOT NULL,
+        time           BIGINT   NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY (experiment_id) REFERENCES experiment(id) ON DELETE CASCADE
       )""").execute()

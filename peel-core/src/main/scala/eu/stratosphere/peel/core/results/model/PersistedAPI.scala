@@ -32,7 +32,7 @@ trait PersistedAPI[A] {
 
   def insert(x: A)(implicit conn: Connection): Unit
 
-  def insert(xs: Seq[A])(implicit conn: Connection): Unit = {
+  def insert(xs: Seq[A])(implicit conn: Connection): Unit = singleCommit {
     for (x <- xs) insert(x)
   }
 
@@ -43,13 +43,26 @@ trait PersistedAPI[A] {
 
   def update(x: A)(implicit conn: Connection): Unit
 
-  def update(xs: Seq[A])(implicit conn: Connection): Unit = {
+  def update(xs: Seq[A])(implicit conn: Connection): Unit = singleCommit {
     for (x <- xs) update(x)
   }
 
   def delete(x: A)(implicit conn: Connection): Unit
 
-  def delete(xs: Seq[A])(implicit conn: Connection): Unit = {
+  def delete(xs: Seq[A])(implicit conn: Connection): Unit = singleCommit {
     for (x <- xs) delete(x)
+  }
+
+  protected def singleCommit(code: => Unit)(implicit conn: Connection): Unit = {
+    val original = conn.getAutoCommit
+    try {
+      conn.setAutoCommit(false)
+      code
+      conn.commit()
+    } catch {
+      case e: Throwable => conn.rollback(); throw e
+    } finally {
+      conn.setAutoCommit(original)
+    }
   }
 }

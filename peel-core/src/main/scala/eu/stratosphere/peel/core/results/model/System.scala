@@ -13,8 +13,9 @@ case class System(
   id: Symbol,
   name: Symbol,
   version: Symbol
-) {}
+)
 
+/** [[System]] companion and storage manager. */
 object System extends PersistedAPI[System] {
 
   import java.sql.Connection
@@ -25,7 +26,9 @@ object System extends PersistedAPI[System] {
   override val tableName = "system"
 
   override val rowParser = {
-    get[String]("id") ~ get[String]("name") ~ get[String]("version") map {
+    get[String] ("id")      ~
+    get[String] ("name")    ~
+    get[String] ("version") map {
       case id ~ name ~ version => System(Symbol(id), Symbol(name), Symbol(version))
     }
   }
@@ -33,8 +36,8 @@ object System extends PersistedAPI[System] {
   override def createTable()(implicit conn: Connection): Unit = if (!tableExists) {
     SQL( s"""
     CREATE TABLE $tableName (
-      id VARCHAR(63) NOT NULL,
-      name VARCHAR(63) NOT NULL,
+      id      VARCHAR(63) NOT NULL,
+      name    VARCHAR(63) NOT NULL,
       version VARCHAR(63) NOT NULL,
       PRIMARY KEY (id)
     )""").execute()
@@ -53,7 +56,7 @@ object System extends PersistedAPI[System] {
   override def update(x: System)(implicit conn: Connection): Unit = {
     SQL"""
     UPDATE system SET
-      name = ${x.name.name},
+      name    = ${x.name.name},
       version = ${x.version.name}
     WHERE
       id = ${x.id.name}

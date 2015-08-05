@@ -16,6 +16,7 @@ case class Experiment(
   val id = name.## * 31 + suite.##
 }
 
+/** [[Experiment]] companion and storage manager. */
 object Experiment extends PersistedAPI[Experiment] {
 
   import java.sql.Connection
@@ -26,7 +27,10 @@ object Experiment extends PersistedAPI[Experiment] {
   override val tableName = "experiment"
 
   override val rowParser = {
-    get[Int]("id") ~ get[String]("name") ~ get[String]("suite") ~ get[String]("system") map {
+    get[Int]    ("id")     ~
+    get[String] ("name")   ~
+    get[String] ("suite")  ~
+    get[String] ("system") map {
       case id ~ name ~ suite ~ system => Experiment(Symbol(name), Symbol(suite), Symbol(system))
     }
   }
@@ -34,9 +38,9 @@ object Experiment extends PersistedAPI[Experiment] {
   override def createTable()(implicit conn: Connection): Unit = if (!tableExists) {
     SQL( s"""
       CREATE TABLE experiment (
-        id INTEGER NOT NULL,
-        name VARCHAR(63) NOT NULL,
-        suite VARCHAR(63) NOT NULL,
+        id     INTEGER     NOT NULL,
+        name   VARCHAR(63) NOT NULL,
+        suite  VARCHAR(63) NOT NULL,
         system VARCHAR(63) NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY (system) REFERENCES system(id) ON DELETE RESTRICT
@@ -92,13 +96,9 @@ object Experiment extends PersistedAPI[Experiment] {
   }
 
   def namedParametersFor(x: Experiment): Seq[NamedParameter] = Seq[NamedParameter](
-    'id -> x.id,
-    'name -> x.name.name,
-    'suite -> x.suite.name,
+    'id     -> x.id,
+    'name   -> x.name.name,
+    'suite  -> x.suite.name,
     'system -> x.system.name
-  )
-
-  def keyParameterFor(x: Experiment): Seq[NamedParameter] = Seq[NamedParameter](
-    'id -> x.id
   )
 }

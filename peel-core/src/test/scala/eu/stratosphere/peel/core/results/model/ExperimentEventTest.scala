@@ -90,7 +90,7 @@ class ExperimentEventTest extends FunSuite with BeforeAndAfter with PropertyChec
       case 1 => ExperimentEvent(
         experimentRunID = run.id,
         name = 'TASK_CREATED,
-        task = Some("task1"),
+        task = Some("CHAIN DataSource (at eu.stratosphere.peel.flink.Wordcount$.main(Wordcount.scala:18) (org.apache.flink.api.java.io.TextInputFormat)) -> FlatMap (FlatMap at eu.stratosphere.peel.flink.Wordcount$.main(Wordcount.scala:19)) -> Map (Map at eu.stratosphere.peel.flink.Wordcount$.main(Wordcount.scala:20)) -> Combine(SUM(1))"),
         taskInstance = Some(i),
         vTimestamp = Some(Instant.now()))
       case 2 => ExperimentEvent(
