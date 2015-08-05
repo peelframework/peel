@@ -39,9 +39,9 @@
     -->
 
     <!-- Cassandra -->
-    <bean id="cassandra" class="eu.stratosphere.peel.extensions.cassandra.beans.system.Cassandra" parent="system">
+    <bean id="cassandra-2.1.6" class="eu.stratosphere.peel.extensions.cassandra.beans.system.Cassandra" parent="system">
         <constructor-arg name="version" value="2.1.6"/>
-        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="lifespan" value="EXPERIMENT"/>
     </bean>
 
     <!-- Flink -->

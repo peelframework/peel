@@ -27,11 +27,10 @@ class Cassandra(version: String, lifespan: Lifespan, dependencies: Set[System] =
 
   override def configuration() = SystemConfig(config, {
     val conf = config.getString("system.cassandra.path.config")
-    val bin = config.getString("system.cassandra.path.bin")
     List(
       SystemConfig.Entry[Model.Env]("system.cassandra.config.env", s"$conf/cassandra-env.sh", templatePath("conf/cassandra-env.sh"), mc),
       SystemConfig.Entry[Model.Yaml]("system.cassandra.config.yaml", s"$conf/cassandra.yaml", templatePath("conf/cassandra.yaml"), mc),
-      SystemConfig.Entry[Model.Env]("system.cassandra.config.in", s"$bin/cassandra.in.sh", templatePath("conf/cassandra.in.sh"), mc)
+      SystemConfig.Entry[Model.Env]("system.cassandra.config.in", s"$conf/../bin/cassandra.in.sh", templatePath("conf/cassandra.in.sh"), mc)
     )
   })
 
