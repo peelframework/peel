@@ -22,7 +22,7 @@ import scala.collection.JavaConverters._
   */
 class Yarn(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("yarn", version, lifespan, dependencies, mc) {
 
-  override val configKey = "hadoop-2" //hadoop-2?
+  override val configKey = "hadoop-2"
 
   // ---------------------------------------------------
   // System.
