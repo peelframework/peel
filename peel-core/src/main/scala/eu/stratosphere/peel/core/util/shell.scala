@@ -154,6 +154,16 @@ object shell {
     }
   }
 
+  /** List all directory structure descendants for a given root.
+    * 
+    * @param root The root [[java.io.File File]].
+    * @return A stream of [[java.io.File File]] entries located under the given `root`.
+    *
+    * @see http://stackoverflow.com/questions/2637643/how-do-i-list-all-files-in-a-subdirectory-in-scala
+    */
+  def fileTree(root: File): Stream[File] = {
+    root #:: (if (root.isDirectory) root.listFiles().toStream.flatMap(fileTree) else Stream.empty)
+  }
 
   /** Compresses a folder into an archive.
     *
@@ -187,8 +197,6 @@ object shell {
         tar.closeArchiveEntry() // close entry
       }
     }
-
-    def fileTree(f: File): Stream[File] = f #:: (if (f.isDirectory) f.listFiles().toStream.flatMap(fileTree) else Stream.empty)
 
     // supported suffixes for gzipped tars
     if (List("tar.gz", "tgz").exists(suffix => dst.endsWith(suffix))) {

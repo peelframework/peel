@@ -6,10 +6,11 @@ import java.nio.file.Paths
 import eu.stratosphere.peel.core.beans.experiment.Experiment.RunName
 import eu.stratosphere.peel.core.cli.command.Command
 import eu.stratosphere.peel.core.config.loadConfig
-import eu.stratosphere.peel.core.results.etl.SuiteTraverser
+import eu.stratosphere.peel.core.results.etl.{EventExtractorManager, ResultsETLSystem}
+import EventExtractorManager.ProcessFile
+import eu.stratosphere.peel.core.results.etl.traverser.{RunTraverser, SuiteTraverser}
 import eu.stratosphere.peel.core.results.{model => db, _}
 import eu.stratosphere.peel.core.util.console._
-import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
 
@@ -26,11 +27,6 @@ class Import extends Command {
       .dest("app.db.connection")
       .metavar("ID")
       .help("database config name (default: h2)")
-    parser.addArgument("--force", "-f")
-      .`type`(classOf[Boolean])
-      .dest("app.db.force")
-      .action(Arguments.storeTrue)
-      .help("force deletion of old experiments in the DB")
     parser.addArgument("--experiments")
       .`type`(classOf[String])
       .dest("app.path.experiments")
@@ -58,9 +54,6 @@ class Import extends Command {
   override def run(context: ApplicationContext) = {
     logger.info(s"Importing results from suite '${Sys.getProperty("app.suite.name")}' into '${Sys.getProperty("app.db.connection")}'")
 
-    // get force flag
-    val force = Sys.getProperty("app.db.force") == "true"
-
     // load application configuration
     implicit val config = loadConfig()
 
@@ -70,11 +63,21 @@ class Import extends Command {
 
     val suite = Symbol(config.getString("app.suite.name"))
 
-    logger.info(s"Traversing experiment runs in suite ${suite.name}")
-    try {
-      // collect run state data
-      val states = SuiteTraverser(suite).toSeq.sortBy(_.name)
+    // resolve paths
+    val resultsPath = Paths.get(config.getString("app.path.results")).normalize.toAbsolutePath
+    val suitePath = Paths.get(resultsPath.toString, suite.name)
 
+    try {
+      if (!suitePath.toFile.isDirectory) {
+        throw new IllegalArgumentException(s"Suite folder '${suite.name}' does not exist in '$resultsPath'")
+      }
+
+      logger.info(s"Traversing experiment runs in suite ${suite.name}")
+
+      // collect run state data
+      val states = SuiteTraverser(suitePath).toSeq sortBy (_.name)
+
+      // collect systems
       val systems = {
         // extract objects
         val xs = for {
@@ -83,6 +86,8 @@ class Import extends Command {
         // remove duplicates and sort
         xs.toSet[db.System].toSeq.sortBy(_.id.name)
       }
+
+      // collect experiments
       val experiments = {
         // extract objects
         val xs = for {
@@ -90,6 +95,8 @@ class Import extends Command {
         } yield db.Experiment(Symbol(expName), suite, Symbol(s.runnerID))
         xs.toSet[db.Experiment].toSeq.sortBy(_.name.name)
       }
+
+      // collect runs
       val runs = {
         // construct auxiliary "name -> experiment" map
         val em = Map((for (e <- experiments) yield e.name -> e): _*)
@@ -102,21 +109,22 @@ class Import extends Command {
 
       // delete old experiments and associated data
       db.Experiment.delete(experiments)
+
       // insert new systems, experiments, and runs
       db.System.insertMissing(systems)
       db.Experiment.insert(experiments)
       db.ExperimentRun.insert(runs)
 
-      // load available event extractor factories
-//      val eventExtractors = ServiceLoader.load[EventExtractorFactory](classOf[EventExtractorFactory]).iterator().toSeq
+      // initialize ETL system
+      val etlSystem = ResultsETLSystem(context, config)
 
-//      val xs = for {
-//        state     <- states
-//        file      <- RunTraverser(state)
-//        extractor <- eventExtractors
-//        format    <- extractor.format(state, file).toSeq
-//        handler   <- extractor.handlers(state, file)
-//      } yield (format, handler)
+      // extract, transform, and load events from files associated with successful experiments runs
+      for ((suite, run) <- states zip runs if run.exit == 0; file <- RunTraverser(suitePath.resolve(suite.name))) {
+        etlSystem ! ProcessFile(file, run)
+      }
+
+      // shutdown the system
+      etlSystem.shutdown()
     }
     catch {
       case e: Throwable =>
