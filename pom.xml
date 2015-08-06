@@ -222,11 +222,6 @@
                 <artifactId>peel-extensions</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>eu.stratosphere</groupId>
-                <artifactId>peel-analysis</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
             <!-- Database -->
             <dependency>
@@ -503,7 +498,6 @@
         <module>peel-core</module>
         <module>peel-extensions</module>
         <module>peel-empty</module>
-        <module>peel-analysis</module>
     </modules>
 
 </project>
