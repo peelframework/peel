@@ -8,10 +8,9 @@ import org.slf4j.LoggerFactory
 
 /** Represents the output of an experiment
  *
- * @param path
- * @param fs
+ * @param path The [[eu.stratosphere.peel.core.beans.system.FileSystem FileSystem]] path for the output.
+ * @param fs The [[eu.stratosphere.peel.core.beans.system.FileSystem FileSystem]] containing the output.
  */
-// TODO doc details
 class ExperimentOutput(val path: String, val fs: System with FileSystem) extends Node with Configurable {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
