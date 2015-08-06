@@ -11,20 +11,6 @@
     <artifactId>peel-extensions</artifactId>
 
     <dependencies>
-        <!-- Scala -->
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-reflect</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-        </dependency>
-
         <!-- Peel -->
         <dependency>
             <groupId>eu.stratosphere</groupId>
