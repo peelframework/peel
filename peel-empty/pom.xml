@@ -84,7 +84,7 @@
                                 <mkdir dir="${bundle.bin}"/>
                                 <exec executable="cp">
                                     <arg value="-R"/>
-                                    <arg value="./target/${project.parent.artifactId}"/>
+                                    <arg value="./target/${project.artifactId}"/>
                                     <arg value="${bundle.bin}"/>
                                 </exec>
                             </tasks>
