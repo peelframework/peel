@@ -2,7 +2,6 @@ package eu.stratosphere.peel.core.cli.command.results
 
 import java.io.File
 import java.lang.{System => Sys}
-import java.nio.file.Paths
 
 import eu.stratosphere.peel.core.cli.command.Command
 import eu.stratosphere.peel.core.config._
@@ -11,7 +10,10 @@ import eu.stratosphere.peel.core.util.shell
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
+/** archive suite results to a tar.gz */
+@Service("res:archive")
 class Archive extends Command {
 
   override val name = "res:archive"
@@ -20,11 +22,6 @@ class Archive extends Command {
 
   override def register(parser: Subparser) = {
     // options
-    parser.addArgument("--experiments")
-      .`type`(classOf[String])
-      .dest("app.path.experiments")
-      .metavar("EXPFILE")
-      .help("experiments file (default: config/experiments.xml)")
     parser.addArgument("--force", "-f")
       .`type`(classOf[Boolean])
       .dest("app.suite.archive.results.force")
@@ -36,14 +33,10 @@ class Archive extends Command {
       .dest("app.suite.name")
       .metavar("SUITE")
       .help("experiments suite to archive")
-
-    // option defaults
-    parser.setDefault("app.path.experiments", "config/experiments.xml")
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
-    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
     Sys.setProperty("app.suite.archive.results.force", if (ns.getBoolean("app.suite.archive.results.force")) "true" else "false")
     Sys.setProperty("app.suite.name", ns.getString("app.suite.name"))
   }

@@ -2,11 +2,11 @@ package eu.stratosphere.peel.core.cli
 
 import java.net.InetAddress
 import java.nio.file.Paths
-import java.util.ServiceLoader
 
 import eu.stratosphere.peel.core.PeelApplicationContext
 import eu.stratosphere.peel.core.cli.command.Command
 import net.sourceforge.argparse4j.ArgumentParsers
+import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.ArgumentParserException
 import net.sourceforge.argparse4j.internal.HelpScreenException
 import org.apache.log4j.{PatternLayout, RollingFileAppender}
@@ -21,27 +21,48 @@ object Peel {
     // empty args calls help
     val args = if (_args.length == 0) Array[String]("--help") else _args
 
-    // load available commands
-    val commands = Map((for (c <- ServiceLoader.load(classOf[Command]).iterator().toSeq) yield c.name -> c): _*)
+    // construct argument parser for basic options
+    var parser = argumentParser(basicOnly = true)
 
-    // construct base argument parser
-    val parser = argumentParser
+    // parse and store basic options
+    try {
+      // parse the arguments
+      val ns = parser.parseArgs(args.takeWhile(arg => arg.startsWith("-") || arg.startsWith("--")))
 
-    // format command arguments with the arguments parser (in order of command names)
-    for (key <- commands.keySet.toSeq.sorted) {
-      val c = commands(key)
-      c.register(parser.addSubparsers().addParser(c.name, true).help(c.help))
+      for (v <- Option(ns.getString("app.hostname"))) {
+        System.setProperty("app.hostname", ns.getString("app.hostname"))
+      }
+      for (v <- Option(ns.getString("app.path.config"))) {
+        System.setProperty("app.path.config", Paths.get(v).normalize().toAbsolutePath.toString)
+      }
+      for (v <- Option(ns.getString("app.path.log"))) {
+        System.setProperty("app.path.log", Paths.get(v).normalize().toAbsolutePath.toString)
+      }
+      for (v <- Option(ns.getString("app.path.experiments"))) {
+        System.setProperty("app.path.experiments", Paths.get(v).normalize.toAbsolutePath.toString)
+      }
+    } catch {
+      case e: Throwable =>
+        System.err.println(String.format("Unexpected error while parsing basic arguments: %s", e.getMessage))
+        System.exit(-1)
     }
+
+    // construct application context
+    val context = PeelApplicationContext(Option(System.getProperty("app.path.experiments")))
+
+    // construct argument parser with commands
+    parser = argumentParser(basicOnly = false)
+
+    // load available commands
+    val commands = (for (key <- context.getBeanNamesForType(classOf[Command]).sorted) yield {
+      val command = context.getBean(key, classOf[Command])
+      command.register(parser.addSubparsers().addParser(command.name, true).help(command.help))
+      key -> command
+    }).toMap
 
     try {
       // parse the arguments
       val ns = parser.parseArgs(args)
-
-      // format general options as system properties
-      System.setProperty("app.command", ns.getString("app.command"))
-      System.setProperty("app.hostname", ns.getString("app.hostname"))
-      System.setProperty("app.path.config", Paths.get(ns.getString("app.path.config")).normalize().toAbsolutePath.toString)
-      System.setProperty("app.path.log", Paths.get(ns.getString("app.path.log")).normalize().toAbsolutePath.toString)
 
       // add new root file appender
       val appender = new RollingFileAppender
@@ -51,25 +72,22 @@ object Peel {
       appender.setMaxBackupIndex(1)
       org.apache.log4j.Logger.getRootLogger.addAppender(appender)
 
-      // make sure that command exists
-      if (!commands.containsKey(System.getProperty("app.command"))) {
-        throw new RuntimeException(String.format("Unexpected command '%s'", System.getProperty("app.command")))
+      Option(ns.getString("app.command")) match {
+        case None =>
+          throw new RuntimeException("Missing command name. Type '--help' to see the list of the available commands. ")
+        case Some(commandName) if !commands.containsKey(commandName) =>
+          throw new RuntimeException(s"Unexpected command '$commandName'")
+        case Some(commandName) if commands.containsKey(commandName) =>
+          // 1) create logger
+          val logger = LoggerFactory.getLogger(Peel.getClass)
+          // 2) print application header
+          printHeader(logger)
+          // 3) get command
+          val command = commands(commandName)
+          // 4) configure and run command (TODO: rewrite as single method)
+          command.configure(ns)
+          command.run(context);
       }
-
-      // execute command workflow:
-      // 1) print application header
-      val logger = LoggerFactory.getLogger(Peel.getClass)
-      printHeader(logger)
-
-      // 2) construct and configure command
-      val command = commands(System.getProperty("app.command"))
-      command.configure(ns)
-
-      // 3) construct application context
-      val context = PeelApplicationContext(Option(System.getProperty("app.path.experiments")))
-
-      // 4) execute command and return
-      command.run(context);
     } catch {
       case e: HelpScreenException =>
         parser.handleError(e)
@@ -84,36 +102,51 @@ object Peel {
     }
   }
 
-  def argumentParser = {
-    val parser = ArgumentParsers.newArgumentParser("peel")
-      .defaultHelp(true)
+  def argumentParser(basicOnly: Boolean = true) = {
+    // construct parser
+    val parser = ArgumentParsers.newArgumentParser("peel", !basicOnly) // do not add help in 'basicOnly' mode
       .description("A framework for execution of system experiments.")
-    parser.addSubparsers()
-      .help("a command to run")
-      .dest("app.command")
-      .metavar("COMMAND")
 
     // general options
     parser.addArgument("--hostname")
       .`type`(classOf[String])
-      .dest("app.hostname")
+      .dest("app.hostname (app.hostname)")
       .metavar("NAME")
-      .help("hostname for config resolution")
+      .help("hostname for config resolution (app.hostname)")
     parser.addArgument("--config")
       .`type`(classOf[String])
       .dest("app.path.config")
       .metavar("PATH")
-      .help("config folder")
+      .help("config folder (app.path.config)")
+    parser.addArgument("--experiments")
+      .`type`(classOf[String])
+      .dest("app.path.experiments")
+      .metavar("EXPFILE")
+      .help("experiments spec (default: config/experiments.xml)")
     parser.addArgument("--log")
       .`type`(classOf[String])
       .dest("app.path.log")
       .metavar("PATH")
-      .help("log folder")
+      .help("log folder (app.path.log)")
+
+    if (!basicOnly) {
+      parser.addSubparsers()
+        .help("a command to run")
+        .dest("app.command")
+        .metavar("COMMAND")
+    } else {
+      parser.addArgument("--help", "-f")
+        .`type`(classOf[Boolean])
+        .dest("app.printHelp")
+        .action(Arguments.storeTrue)
+        .help("show this help message and exit")
+    }
 
     // general option defaults
     parser.setDefault("app.hostname", hostname)
     parser.setDefault("app.path.config", "config")
     parser.setDefault("app.path.log", "log")
+    parser.setDefault("app.path.experiments", "config/experiments.xml")
 
     parser
   }

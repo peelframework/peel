@@ -8,8 +8,6 @@
 
     <context:annotation-config/>
 
-    <context:component-scan base-package="eu.stratosphere.peel.extensions"/>
-
     <!--************************************************************************
     * Systems
     *************************************************************************-->

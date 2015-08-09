@@ -13,7 +13,10 @@ import eu.stratosphere.peel.core.results.{model => db, _}
 import eu.stratosphere.peel.core.util.console._
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
+/** Import suite results into an initialized database. */
+@Service("db:import")
 class Import extends Command {
 
   override val name = "db:import"
@@ -27,11 +30,6 @@ class Import extends Command {
       .dest("app.db.connection")
       .metavar("ID")
       .help("database config name (default: h2)")
-    parser.addArgument("--experiments")
-      .`type`(classOf[String])
-      .dest("app.path.experiments")
-      .metavar("EXPFILE")
-      .help("experiments file (default: config/experiments.xml)")
     // arguments
     parser.addArgument("suite")
       .`type`(classOf[String])
@@ -41,13 +39,11 @@ class Import extends Command {
 
     // option defaults
     parser.setDefault("app.db.connection", "h2")
-    parser.setDefault("app.path.experiments", "config/experiments.xml")
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
     Sys.setProperty("app.db.connection", ns.getString("app.db.connection"))
-    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
     Sys.setProperty("app.suite.name", ns.getString("app.suite.name"))
   }
 

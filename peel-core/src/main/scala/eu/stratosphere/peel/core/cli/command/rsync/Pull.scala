@@ -8,9 +8,10 @@ import eu.stratosphere.peel.core.config._
 import eu.stratosphere.peel.core.util.shell
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
-/** A command to pull bundle contents to a remove server using 'rsync'.
-  */
+/** Pull bundle from a remote location. */
+@Service("rsync:pull")
 class Pull extends Command {
 
   override val name = "rsync:pull"

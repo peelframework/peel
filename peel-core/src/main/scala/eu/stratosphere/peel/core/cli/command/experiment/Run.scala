@@ -12,10 +12,10 @@ import eu.stratosphere.peel.core.util.console._
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
-/** Command that is used to run a single experiment from a fixture
-  *
-  */
+/** Execute a specific experiment. */
+@Service("exp:run")
 class Run extends Command {
 
   override val name = "exp:run"
@@ -24,11 +24,6 @@ class Run extends Command {
 
   override def register(parser: Subparser) = {
     // options
-    parser.addArgument("--experiments")
-      .`type`(classOf[String])
-      .dest("app.path.experiments")
-      .metavar("EXPFILE")
-      .help("experiments file (default: config/experiments.xml)")
     parser.addArgument("--just")
       .`type`(classOf[Boolean])
       .dest("app.suite.experiment.just")
@@ -52,13 +47,11 @@ class Run extends Command {
       .help("experiment to run")
 
     // option defaults
-    parser.setDefault("app.path.experiments", "config/experiments.xml")
     parser.setDefault("app.suite.experiment.run", 1)
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
-    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
     Sys.setProperty("app.suite.experiment.just", if (ns.getBoolean("app.suite.experiment.just")) "true" else "false")
     Sys.setProperty("app.suite.experiment.run", ns.getInt("app.suite.experiment.run").toString)
     Sys.setProperty("app.suite.name", ns.getString("app.suite.name"))

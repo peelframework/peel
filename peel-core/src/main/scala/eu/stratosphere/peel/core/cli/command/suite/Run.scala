@@ -1,7 +1,6 @@
 package eu.stratosphere.peel.core.cli.command.suite
 
 import java.lang.{System => Sys}
-import java.nio.file.Paths
 
 import eu.stratosphere.peel.core.beans.experiment.{Experiment, ExperimentSuite}
 import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
@@ -12,7 +11,10 @@ import eu.stratosphere.peel.core.util.console._
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
+/** Execute all experiments in a suite. */
+@Service("suite:run")
 class Run extends Command {
 
   override val name = "suite:run"
@@ -21,11 +23,6 @@ class Run extends Command {
 
   override def register(parser: Subparser) = {
     // options
-    parser.addArgument("--experiments")
-      .`type`(classOf[String])
-      .dest("app.path.experiments")
-      .metavar("EXPFILE")
-      .help("experiments file (default: config/experiments.xml)")
     parser.addArgument("--force", "-f")
       .`type`(classOf[Boolean])
       .dest("app.suite.experiment.force")
@@ -37,14 +34,10 @@ class Run extends Command {
       .dest("app.suite.name")
       .metavar("SUITE")
       .help("experiments suite to run")
-
-    // option defaults
-    parser.setDefault("app.path.experiments", "config/experiments.xml")
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
-    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
     Sys.setProperty("app.suite.experiment.force", if (ns.getBoolean("app.suite.experiment.force")) "true" else "false")
     Sys.setProperty("app.suite.name", ns.getString("app.suite.name"))
   }
