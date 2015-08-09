@@ -42,6 +42,9 @@
         <constructor-arg name="version" value="2.4.1"/>
     </bean>
     -->
+    <bean id="yarn-2.4.1" class="eu.stratosphere.peel.extensions.hadoop.beans.system.Yarn" parent="system">
+        <constructor-arg name="version" value="2.4.1"/>
+    </bean>
 
     <!-- Flink -->
     <bean id="flink-0.8.0" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system">
