@@ -8,6 +8,9 @@
 
     <context:annotation-config/>
 
+    <context:component-scan base-package="eu.stratosphere.peel.core"/>
+    <context:component-scan base-package="eu.stratosphere.peel.extensions"/>
+
     <!-- converters for scala collections -->
     <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
         <property name="converters">

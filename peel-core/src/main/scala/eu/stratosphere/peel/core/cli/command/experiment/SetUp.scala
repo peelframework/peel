@@ -1,7 +1,6 @@
 package eu.stratosphere.peel.core.cli.command.experiment
 
 import java.lang.{System => Sys}
-import java.nio.file.Paths
 
 import eu.stratosphere.peel.core.beans.experiment.ExperimentSuite
 import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
@@ -11,10 +10,10 @@ import eu.stratosphere.peel.core.graph.{Node, createGraph}
 import eu.stratosphere.peel.core.util.console._
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
-/** Command that is used to set up the specified system from the fixture
-  *
-  */
+/** Set up systems for a specific experiment. */
+@Service("exp:setup")
 class SetUp extends Command {
 
   override val name = "exp:setup"
@@ -22,12 +21,6 @@ class SetUp extends Command {
   override val help = "set up systems for a specific experiment"
 
   override def register(parser: Subparser) = {
-    // options
-    parser.addArgument("--experiments")
-      .`type`(classOf[String])
-      .dest("app.path.experiments")
-      .metavar("EXPFILE")
-      .help("experiments file (default: config/experiments.xml)")
     // arguments
     parser.addArgument("suite")
       .`type`(classOf[String])
@@ -39,14 +32,10 @@ class SetUp extends Command {
       .dest("app.suite.experiment.name")
       .metavar("EXPERIMENT")
       .help("experiment to run")
-
-    // option defaults
-    parser.setDefault("app.path.experiments", "config/experiments.xml")
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
-    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
     Sys.setProperty("app.suite.name", ns.getString("app.suite.name"))
     Sys.setProperty("app.suite.experiment.name", ns.getString("app.suite.experiment.name"))
   }

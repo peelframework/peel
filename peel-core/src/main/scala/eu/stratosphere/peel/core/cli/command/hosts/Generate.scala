@@ -8,12 +8,13 @@ import eu.stratosphere.peel.core.cli.command.hosts.Generate.Interval
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
-/** A command to generate a hosts.conf file for a specific cluster environment.
-  */
+/** Generate a hosts.conf file. */
+@Service("hosts:generate")
 class Generate extends Command {
 
   override val name = "hosts:generate"

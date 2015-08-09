@@ -13,7 +13,10 @@ import eu.stratosphere.peel.core.results.{model => db, _}
 import eu.stratosphere.peel.core.util.console._
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
+/** Import suite results into an initialized database. */
+@Service("db:import")
 class Import extends Command {
 
   override val name = "db:import"

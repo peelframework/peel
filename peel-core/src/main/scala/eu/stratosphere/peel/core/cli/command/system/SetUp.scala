@@ -1,7 +1,6 @@
 package eu.stratosphere.peel.core.cli.command.system
 
 import java.lang.{System => Sys}
-import java.nio.file.Paths
 
 import eu.stratosphere.peel.core.beans.system.{Lifespan, System}
 import eu.stratosphere.peel.core.cli.command.Command
@@ -9,10 +8,10 @@ import eu.stratosphere.peel.core.config._
 import eu.stratosphere.peel.core.graph.createGraph
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
-/** Command that is used to set up the specified system from the fixture
-  *
-  */
+/** Set up a system. */
+@Service("sys:setup")
 class SetUp extends Command {
 
   override val name = "sys:setup"
@@ -20,26 +19,16 @@ class SetUp extends Command {
   override val help = "set up a system"
 
   override def register(parser: Subparser) = {
-    // options
-    parser.addArgument("--experiments")
-      .`type`(classOf[String])
-      .dest("app.path.experiments")
-      .metavar("EXPFILE")
-      .help("experiments file (default: config/experiments.xml)")
     // arguments
     parser.addArgument("system")
       .`type`(classOf[String])
       .dest("app.system.id")
       .metavar("SYSTEM")
       .help("system bean ID")
-
-    // option defaults
-    parser.setDefault("app.path.experiments", "config/experiments.xml")
   }
 
   override def configure(ns: Namespace) = {
     // set ns options and arguments to system properties
-    Sys.setProperty("app.path.experiments", Paths.get(ns.getString("app.path.experiments")).normalize.toAbsolutePath.toString)
     Sys.setProperty("app.system.id", ns.getString("app.system.id"))
   }
 

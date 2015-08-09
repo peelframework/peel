@@ -8,9 +8,10 @@ import eu.stratosphere.peel.core.config._
 import eu.stratosphere.peel.core.util.shell
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
-/** A command to push bundle contents to a remove server using 'rsync'.
-  */
+/** Push bundle to a remote location. */
+@Service("rsync:push")
 class Push extends Command {
 
   override val name = "rsync:push"

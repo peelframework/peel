@@ -11,7 +11,10 @@ import eu.stratosphere.peel.core.util.shell
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
+/** archive suite results to a tar.gz */
+@Service("res:archive")
 class Archive extends Command {
 
   override val name = "res:archive"

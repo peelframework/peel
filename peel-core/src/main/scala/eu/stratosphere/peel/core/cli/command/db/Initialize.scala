@@ -2,14 +2,17 @@ package eu.stratosphere.peel.core.cli.command.db
 
 import java.lang.{System => Sys}
 
-import eu.stratosphere.peel.core.util.console._
 import eu.stratosphere.peel.core.cli.command.Command
 import eu.stratosphere.peel.core.config.loadConfig
 import eu.stratosphere.peel.core.results.DB
+import eu.stratosphere.peel.core.util.console._
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
+/** Initialize results database. */
+@Service("db:initialize")
 class Initialize extends Command {
 
   override val name = "db:initialize"
