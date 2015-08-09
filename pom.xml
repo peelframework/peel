@@ -326,6 +326,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <scalaCompatVersion>${scala.tools.version}</scalaCompatVersion>
+                    <scalaVersion>${scala.version}</scalaVersion>
                     <recompileMode>incremental</recompileMode>
                     <useZincServer>true</useZincServer>
                     <jvmArgs>
