@@ -47,6 +47,14 @@ object Peel {
         System.exit(-1)
     }
 
+    // add new root file appender
+    val appender = new RollingFileAppender
+    appender.setLayout(new PatternLayout("%d{yy-MM-dd HH:mm:ss} [%p] %m%n"))
+    appender.setFile(String.format("%s/peel.log", System.getProperty("app.path.log", "log")), true, true, 4096)
+    appender.setMaxFileSize("100KB")
+    appender.setMaxBackupIndex(1)
+    org.apache.log4j.Logger.getRootLogger.addAppender(appender)
+
     // construct application context
     val context = PeelApplicationContext(Option(System.getProperty("app.path.experiments")))
 
@@ -63,14 +71,6 @@ object Peel {
     try {
       // parse the arguments
       val ns = parser.parseArgs(args)
-
-      // add new root file appender
-      val appender = new RollingFileAppender
-      appender.setLayout(new PatternLayout("%d{yy-MM-dd HH:mm:ss} [%p] %m%n"))
-      appender.setFile(String.format("%s/peel.log", System.getProperty("app.path.log")), true, true, 4096)
-      appender.setMaxFileSize("100KB")
-      appender.setMaxBackupIndex(1)
-      org.apache.log4j.Logger.getRootLogger.addAppender(appender)
 
       Option(ns.getString("app.command")) match {
         case None =>
