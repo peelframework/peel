@@ -1,0 +1,141 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+
+    <!-- Assembles a bundle for production (all folders are copied) -->
+
+    <id>bin</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <!-- copy all jar files and their dependencies -->
+    <dependencySets>
+        <!-- lib -->
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+            <useProjectArtifact>true</useProjectArtifact>
+            <useProjectAttachments>false</useProjectAttachments>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+            <excludes>
+                <exclude>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-datagens</exclude>
+                <exclude>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-jobs</exclude>
+                <exclude>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-apps</exclude>
+            </excludes>
+        </dependencySet>
+        <!-- datagens -->
+        <dependencySet>
+            <outputDirectory>datagens</outputDirectory>
+            <unpack>false</unpack>
+            <useProjectArtifact>true</useProjectArtifact>
+            <useProjectAttachments>false</useProjectAttachments>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useTransitiveFiltering>false</useTransitiveFiltering>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+            <includes>
+                <include>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-datagens</include>
+            </includes>
+        </dependencySet>
+        <!-- apps -->
+        <dependencySet>
+            <outputDirectory>apps</outputDirectory>
+            <unpack>false</unpack>
+            <useProjectArtifact>true</useProjectArtifact>
+            <useProjectAttachments>false</useProjectAttachments>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useTransitiveFiltering>false</useTransitiveFiltering>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+            <includes>
+                <include>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-jobs</include>
+                <include>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-apps</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+
+    <fileSets>
+        <!-- copy bin files -->
+        <fileSet>
+            <directory>src/main/resources/bin</directory>
+            <outputDirectory>.</outputDirectory>
+            <fileMode>0755</fileMode>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+        </fileSet>
+
+        <!-- copy config directory -->
+        <fileSet>
+            <directory>src/main/resources/config</directory>
+            <outputDirectory>config</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <!-- copy datasets directory -->
+        <fileSet>
+            <directory>src/main/resources/datasets</directory>
+            <outputDirectory>datasets</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <!-- copy downloads directory -->
+        <fileSet>
+            <directory>src/main/resources/downloads</directory>
+            <outputDirectory>downloads</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <!-- copy utils directory  -->
+        <fileSet>
+            <directory>src/main/resources/utils</directory>
+            <outputDirectory>utils</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <!-- create an empty log directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>log</outputDirectory>
+            <fileMode>0644</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- create an empty results directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>results</outputDirectory>
+            <fileMode>0644</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- create an empty systems directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>systems</outputDirectory>
+            <fileMode>0644</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <!-- create a VERSION file to the project root -->
+        <file>
+            <source>src/main/resources/version.txt</source>
+            <destName>VERSION</destName>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </file>
+    </files>
+
+</assembly>

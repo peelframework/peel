@@ -493,6 +493,7 @@
     </profiles>
 
     <modules>
+        <module>peel-archetypes</module>
         <module>peel-core</module>
         <module>peel-extensions</module>
         <module>peel-empty</module>

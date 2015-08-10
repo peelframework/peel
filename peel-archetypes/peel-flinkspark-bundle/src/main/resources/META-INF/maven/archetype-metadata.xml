@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd" name="peel-wordcount"
+    xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <fileSets>
+  </fileSets>
+  <modules>
+    <module id="${rootArtifactId}-bundle" dir="__rootArtifactId__-bundle" name="${rootArtifactId}-bundle">
+      <fileSets>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory>src/main/resources</directory>
+          <includes>
+            <include>**/*.xml</include>
+            <include>**/*.conf</include>
+          </includes>
+        </fileSet>
+          <fileSet filtered="false" encoding="UTF-8">
+              <directory>src/main/resources</directory>
+              <includes>
+                  <include>**/*.txt</include>
+                  <include>**/*.md</include>
+                  <include>**/*.sh</include>
+                  <include>**/*.sql</include>
+              </includes>
+          </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory>src/main/assembly</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </fileSet>
+      </fileSets>
+    </module>
+    <module id="${rootArtifactId}-peelextensions" dir="__rootArtifactId__-peelextensions" name="${rootArtifactId}-peelextensions">
+      <fileSets>
+        <fileSet filtered="true" packaged="true" encoding="UTF-8">
+          <directory>src/main/scala</directory>
+          <includes>
+            <include>**/*.scala</include>
+          </includes>
+        </fileSet>
+      </fileSets>
+    </module>
+    <module id="${rootArtifactId}-datagens" dir="__rootArtifactId__-datagens" name="${rootArtifactId}-datagens">
+      <fileSets>
+        <fileSet filtered="true" packaged="true" encoding="UTF-8">
+          <directory>src/main/scala</directory>
+          <includes>
+            <include>**/*.scala</include>
+          </includes>
+        </fileSet>
+        <fileSet filtered="true" packaged="true" encoding="UTF-8">
+          <directory>src/main/java</directory>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+        </fileSet>
+      </fileSets>
+    </module>
+    <module id="${rootArtifactId}-flink-jobs" dir="__rootArtifactId__-flink-jobs" name="${rootArtifactId}-flink-jobs">
+      <fileSets>
+        <fileSet filtered="true" packaged="true" encoding="UTF-8">
+          <directory>src/main/scala</directory>
+          <includes>
+            <include>**/*.scala</include>
+          </includes>
+        </fileSet>
+      </fileSets>
+    </module>
+    <module id="${rootArtifactId}-spark-jobs" dir="__rootArtifactId__-spark-jobs" name="${rootArtifactId}-spark-jobs">
+      <fileSets>
+        <fileSet filtered="true" packaged="true" encoding="UTF-8">
+          <directory>src/main/scala</directory>
+          <includes>
+            <include>**/*.scala</include>
+          </includes>
+        </fileSet>
+      </fileSets>
+    </module>
+  </modules>
+</archetype-descriptor>
