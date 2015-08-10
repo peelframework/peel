@@ -8,8 +8,7 @@
 
     <context:annotation-config/>
 
-    <context:component-scan base-package="org.peelframework.core"/>
-    <context:component-scan base-package="org.peelframework.extensions"/>
+    <context:component-scan base-package="org.peelframework"/>
 
     <!-- converters for scala collections -->
     <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
