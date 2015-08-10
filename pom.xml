@@ -39,6 +39,12 @@
             <organization>TU Berlin</organization>
             <organizationUrl>https://www.tu-berlin.de</organizationUrl>
         </developer>
+        <developer>
+            <name>Christoph Brücke</name>
+            <email>christoph.bruecke@campus.tu-berlin.de</email>
+            <organization>TU Berlin</organization>
+            <organizationUrl>https://www.tu-berlin.de</organizationUrl>
+        </developer>
     </developers>
 
     <scm>
