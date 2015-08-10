@@ -99,4 +99,4 @@ fi
 CLASSPATH=`manglePathList $( echo ${PEEL_LIB_DIR}/*.jar . | sed 's/ /:/g' )`
 
 # Run command
-${JAVA_RUN} -cp ${CLASSPATH} ${PEEL_JAVA_OPTS} eu.stratosphere.peel.core.cli.Peel $@
+${JAVA_RUN} -cp ${CLASSPATH} ${PEEL_JAVA_OPTS} org.peelframework.core.cli.Peel $@

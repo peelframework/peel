@@ -7,7 +7,7 @@
     * Data Sets
     *************************************************************************-->
 
-    <bean id="dataset.rubbish" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet">
+    <bean id="dataset.rubbish" class="org.peelframework.core.beans.data.CopiedDataSet">
         <constructor-arg name="src" value="${app.path.datasets}/rubbish.txt"/>
         <constructor-arg name="dst" value="${system.hadoop-2.path.input}/rubbish.txt"/>
         <constructor-arg name="fs" ref="hdfs-2.7.1"/>
@@ -18,7 +18,7 @@
     *************************************************************************-->
 
     <!-- k-means output -->
-    <bean id="wordcount.output" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
+    <bean id="wordcount.output" class="org.peelframework.core.beans.data.ExperimentOutput">
         <constructor-arg name="path" value="${system.hadoop-2.path.output}/wordcount"/>
         <constructor-arg name="fs" ref="hdfs-2.7.1"/>
     </bean>
@@ -28,9 +28,9 @@
     *************************************************************************-->
 
     <!-- suite for local development and testing -->
-    <bean id="wordcount.default" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+    <bean id="wordcount.default" class="org.peelframework.core.beans.experiment.ExperimentSuite">
         <constructor-arg name="experiments">
-            <list value-type="eu.stratosphere.peel.core.beans.experiment.Experiment">
+            <list value-type="org.peelframework.core.beans.experiment.Experiment">
                 <bean parent="experiment.flink-0.9.0">
                     <constructor-arg name="name" value="wordcount.flink"/>
                     <constructor-arg name="command">
@@ -56,7 +56,7 @@
                     </constructor-arg>
                     <constructor-arg name="input" ref="dataset.rubbish"/>
                     <constructor-arg name="outputs">
-                        <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput"/>
+                        <set value-type="org.peelframework.core.beans.data.ExperimentOutput"/>
                     </constructor-arg>
                     <constructor-arg name="config" value=""/>
                 </bean>

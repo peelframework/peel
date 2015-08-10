@@ -8,27 +8,27 @@
 
     <context:annotation-config/>
 
-    <context:component-scan base-package="eu.stratosphere.peel.core"/>
-    <context:component-scan base-package="eu.stratosphere.peel.extensions"/>
+    <context:component-scan base-package="org.peelframework.core"/>
+    <context:component-scan base-package="org.peelframework.extensions"/>
 
     <!-- converters for scala collections -->
     <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
         <property name="converters">
             <set>
-                <bean class="eu.stratosphere.peel.core.beans.StringToConfig"/>
-                <bean class="eu.stratosphere.peel.core.beans.StringToLifespan"/>
-                <bean class="eu.stratosphere.peel.core.beans.JavaCollectionToScalaSeq"/>
-                <bean class="eu.stratosphere.peel.core.beans.JavaSetToScalaSet"/>
-                <bean class="eu.stratosphere.peel.core.beans.JavaMapToScalaMap"/>
+                <bean class="org.peelframework.core.beans.StringToConfig"/>
+                <bean class="org.peelframework.core.beans.StringToLifespan"/>
+                <bean class="org.peelframework.core.beans.JavaCollectionToScalaSeq"/>
+                <bean class="org.peelframework.core.beans.JavaSetToScalaSet"/>
+                <bean class="org.peelframework.core.beans.JavaMapToScalaMap"/>
             </set>
         </property>
     </bean>
 
     <bean id="mc" class="com.samskivert.mustache.Mustache" factory-method="compiler"/>
 
-    <bean id="system" class="eu.stratosphere.peel.core.beans.system.System" abstract="true">
+    <bean id="system" class="org.peelframework.core.beans.system.System" abstract="true">
         <constructor-arg name="dependencies">
-            <set value-type="eu.stratosphere.peel.core.beans.system.System" />
+            <set value-type="org.peelframework.core.beans.system.System" />
         </constructor-arg>
         <constructor-arg name="mc" ref="mc"/>
     </bean>
