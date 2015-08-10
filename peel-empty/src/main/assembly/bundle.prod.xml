@@ -59,6 +59,24 @@
             <fileMode>0644</fileMode>
         </fileSet>
 
+        <!-- create an empty apps directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>apps</outputDirectory>
+            <fileMode>0644</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- create an empty datagens directory -->
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>datagens</outputDirectory>
+            <fileMode>0644</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
         <!-- create an empty log directory -->
         <fileSet>
             <directory>src/main/assembly</directory>

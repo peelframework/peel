@@ -1,0 +1,1 @@
+This folder contains utility scripts and resources for your bundle.
