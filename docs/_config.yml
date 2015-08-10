@@ -1,9 +1,13 @@
-highlighter: pygments
-title: Peel Framework<sup>beta</sup>
+highlighter:        pygments
+
+title:              Peel Framework<sup>beta</sup>
+
+current_version:    1.0-SNAPSHOT
+
 collections:
   manual:
-    output:       true
+    output:         true
   repository:
-    output:       true
+    output:         true
   legal:
-    output:       true
+    output:         true
