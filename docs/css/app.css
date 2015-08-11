@@ -125,3 +125,10 @@ code {
     float: right;
     text-align: right;
 }
+
+button.copy {
+    font-size: 2rem;
+    padding: 10px 0px 0px 5px;
+    background-color: transparent;
+    color: #40a13b;
+}

@@ -19,47 +19,10 @@
     </div>
 </div>
 
-
-<script>
-
-$(function(){
-    $(document).foundation({
-        offcanvas : {
-            open_method: 'move',
-            close_on_click : true
-        }
-    });
-
-    $('#top-link').click(function(){
-        $("html, body").animate({
-            scrollTop: "0"
-        }, {
-          duration: 300,
-          easing: "swing"
-        });
-    });
-
-    $window = $(window);
-
-    //show link if scroll over 100px
-    $window.scroll(function(){
-        if ($window.scrollTop() > 100) {
-            $("#top-link a").show();
-        } else {
-            $("#top-link a").hide();
-        }
-    });
-
-    //adjust section size if it is smaller than the navigation
-    if ($('.main-section').height() < $('.man-nav').height()) {
-        $('.main-section').height($('.man-nav').height());
-    }
-});
-
-</script>
-
 <div id="top-link" class="hide-for-large-up">
     <a class="panel radius">&#8679;</a>
 </div>
+
+{% include scripts.html %}
 </body>
 </html>
