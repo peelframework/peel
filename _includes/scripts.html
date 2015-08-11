@@ -1,0 +1,60 @@
+<script>
+
+$(function(){
+    $(document).foundation({
+        offcanvas : {
+            open_method: 'move',
+            close_on_click : true
+        }
+    });
+
+    $('#top-link').click(function(){
+        $("html, body").animate({
+            scrollTop: "0"
+        }, {
+          duration: 300,
+          easing: "swing"
+        });
+    });
+
+    $window = $(window);
+
+    //show link if scroll over 100px
+    $window.scroll(function(){
+        if ($window.scrollTop() > 100) {
+            $("#top-link a").show();
+        } else {
+            $("#top-link a").hide();
+        }
+    });
+
+    //adjust section size if it is smaller than the navigation
+    if ($('.main-section').height() < $('.man-nav').height()) {
+        $('.main-section').height($('.man-nav').height());
+    }
+
+    $('.highlight').each(function(i,e){
+        $e = $(e);
+        var text = $e.text().replace(/"/g,'&quot;');
+        $e.prepend('<button class="copy right fi-clipboard-notes hide-for-medium-down" data-clipboard-text="'+text+'" title="copy to clipboard"></button>');
+    });
+
+    $(".copy").each(function(i,e){
+        var client = new ZeroClipboard(e);
+        client.on("ready", function(readyEvent) {
+        /*
+            client.on("copy", function(event){
+                var text = $(event.target).attr("data-clipboard-text");
+                console.log(text);
+                event.clipboardData.setData("text/plain", text);
+
+            });
+            */
+            client.on("aftercopy", function(event) {
+                alert("Copied text to clipboard");
+            });
+        });
+    });
+});
+
+</script>
