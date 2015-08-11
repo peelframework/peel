@@ -335,8 +335,8 @@
                     <jvmArgs>
                         <jvmArg>-Xms128m</jvmArg>
                         <jvmArg>-Xmx512m</jvmArg>
-                        <javacArg>-Xlint:unchecked</javacArg>
-                        <javacArg>-Xlint:deprecation</javacArg>
+                        <!--javacArg>-Xlint:unchecked</javacArg-->
+                        <!--javacArg>-Xlint:deprecation</javacArg-->
                     </jvmArgs>
                     <args>
                         <arg>-deprecation</arg>
@@ -458,6 +458,7 @@
                         <version>${scala-maven-plugin.version}</version>
                         <configuration>
                             <finalName>${project.build.finalName}-scaladoc</finalName>
+                            <displayCmd>true</displayCmd>
                         </configuration>
                         <executions>
                             <execution>
