@@ -13,7 +13,10 @@ import org.springframework.context.ApplicationContext
 import scala.collection.JavaConverters._
 import scala.language.{existentials, postfixOps}
 
-/** EventExtractorManager actor. Handles `ProcessFile` messages. */
+/** EventExtractorManager actor.
+  *
+  * Handles `ProcessFile` messages.
+  */
 class EventExtractorManager(appContext: ApplicationContext, config: Config, conn: Connection) extends Actor with ActorLogging {
 
   import EventExtractorManager._

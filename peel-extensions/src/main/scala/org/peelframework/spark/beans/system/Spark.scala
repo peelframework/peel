@@ -9,24 +9,23 @@ import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
 
-/** Wrapper Class for Spark
+/** Wrapper Class for Spark.
   *
-  * Implements Spark as a [[org.peelframework.core.beans.system.System System]] class and provides setup and teardown methods.
+  * Implements Spark as a Peel `System` and provides setup and teardown methods.
   *
   *
   * @param version Version of the system (e.g. "7.1")
-  * @param lifespan [[org.peelframework.core.beans.system.Lifespan Lifespan]] of the system
+  * @param lifespan `Lifespan` of the system
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
 class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("spark", version, lifespan, dependencies, mc) {
 
-  /**
-   * Parses the configuration and generates the Spark configuration files (slaves, spark-env.sh, spark-defaults.conf)
-   * from the moustache templates
-   *
-   * @return [[org.peelframework.core.config.SystemConfig]] for the configured system
-   */
+  /** Parses the configuration and generates the Spark configuration files (slaves, spark-env.sh, spark-defaults.conf)
+    * from the moustache templates
+    *
+    * @return System configuration for this system.
+    */
   override def configuration() = SystemConfig(config, {
     val conf = config.getString("system.spark.path.config")
     //rename template files - strip the .template
@@ -43,11 +42,11 @@ class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set
   /** Starts up the system and polls to check whether everything is up.
     *
     * This methods attempts to set up and start the system on all specified nodes.
-    * If an attempt fails, we retry to start it ${system.spark.startup.max.attempts} times or until and shut down the system
+    * If an attempt fails, we retry to start it `\${system.spark.startup.max.attempts}` times or shut down the system
     * after exceeding this limit.
     *
-    * @throws SetUpTimeoutException If the system was not brought after ${system.spark.startup.max.attempts} or
-    *                               {startup.pollingCounter} times {startup.pollingInterval} milliseconds.
+    * @throws SetUpTimeoutException If the system was not brought after `\${system.spark.startup.max.attempts}` or
+    *                               `\${startup.pollingCounter}` times `\${startup.pollingInterval}` milliseconds.
     */
   override def start(): Unit = {
     val user = config.getString("system.spark.user")

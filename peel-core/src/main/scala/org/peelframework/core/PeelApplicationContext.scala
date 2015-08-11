@@ -5,13 +5,13 @@ import java.net.URL
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.ClassPathXmlApplicationContext
 
-/** Spring [[org.springframework.context.ApplicationContext ApplicationContext]] factory. */
+/** Spring application context factory. */
 object PeelApplicationContext {
 
-  /** Creates a [[org.springframework.context.ApplicationContext ApplicationContext]]
+  /** Creates a Spring `ApplicationContext`.
     *
     * @param experimentsXMLPath Optionally, a path to the `experiments.xml` file.
-    * @return The constructed [[ApplicationContext]].
+    * @return The constructed `ApplicationContext`.
     */
   def apply(experimentsXMLPath: Option[String] = None): ApplicationContext = {
     // construct classpath

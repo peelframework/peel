@@ -18,7 +18,7 @@ import org.springframework.beans.factory.BeanNameAware
   *
   * @param name The name of this bean. Deafults to the system name (e.g. "Flink")
   * @param version Version of the system (e.g. "7.1")
-  * @param lifespan [[org.peelframework.core.beans.system.Lifespan Lifespan]] of the system
+  * @param lifespan `Lifespan` of the system
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
@@ -37,7 +37,7 @@ abstract class System(
 
   var isUp = lifespan == Lifespan.PROVIDED
 
-  /** The system configuration resides under `system.${configKey}`. */
+  /** The system configuration resides under `system.\${configKey}`. */
   val configKey = name
 
   /** The name of this bean. Deafults to the system name. */

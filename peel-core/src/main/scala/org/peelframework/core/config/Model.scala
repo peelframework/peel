@@ -97,8 +97,8 @@ object Model {
     *   }
     * }}}
     *
-    * will amount to a `('foo.bar', 42)` pair. The model extends [[java.util.HashMap]] and so the values can be
-    * accessed directly by key in the template engine (e.g., ${foo.bar}).
+    * will amount to a `('foo.bar', 42)` pair. The model extends `java.util.HashMap` and so the values can be
+    * accessed directly by key in the template engine (e.g., {{foo.bar}}).
     *
     * @param c The HOCON config to use when constructing the model.
     * @param prefix The prefix path which has to be rendered.

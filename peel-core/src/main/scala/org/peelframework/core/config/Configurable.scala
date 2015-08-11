@@ -7,7 +7,7 @@ trait Configurable {
   /** The Config instance associated with the object. */
   var config: Config
 
-  /** Substitutes all config parameters `${id}` in `v` with their corresponding values defined in the enclosing `config`.
+  /** Substitutes all config parameters `\${id}` in `v` with their corresponding values defined in the enclosing `config`.
     *
     * @param v The string where the values should be substituted.
     * @return The subsituted version of v.

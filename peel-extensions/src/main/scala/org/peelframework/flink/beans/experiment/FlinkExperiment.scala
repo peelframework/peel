@@ -11,9 +11,7 @@ import org.peelframework.core.util.{Version, shell}
 import org.peelframework.flink.beans.system.Flink
 import spray.json._
 
-/** An [[org.peelframework.core.beans.experiment.Experiment Experiment]] implementation which handles the execution
-  * of a single Flink job.
-  */
+/** An `Experiment` implementation which handles the execution of a single Flink job. */
 class FlinkExperiment(
     command: String,
     runner : Flink,
@@ -24,35 +22,39 @@ class FlinkExperiment(
     config : Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
 
   def this(
-    runs   : Int,
+    command: String,
     runner : Flink,
+    runs   : Int,
     input  : DataSet,
     output : ExperimentOutput,
-    command: String,
     name   : String,
     config : Config) = this(command, runner, runs, Set(input), Set(output), name, config)
 
   def this(
-    runs   : Int,
+    command: String,
     runner : Flink,
+    runs   : Int,
     inputs : Set[DataSet],
     output : ExperimentOutput,
-    command: String,
     name   : String,
     config : Config) = this(command, runner, runs, inputs, Set(output), name, config)
 
   def this(
-    runs: Int,
+    command: String,
     runner : Flink,
+    runs   : Int,
     input  : DataSet,
     outputs: Set[ExperimentOutput],
-    command: String,
     name   : String,
     config : Config) = this(command, runner, runs, Set(input), outputs, name, config)
 
-  override def run(id: Int, force: Boolean): Experiment.Run[Flink] = new FlinkExperiment.SingleJobRun(id, this, force)
+  override def run(id: Int, force: Boolean): Experiment.Run[Flink] = {
+    new FlinkExperiment.SingleJobRun(id, this, force)
+  }
 
-  def copy(name: String = name, config: Config = config) = new FlinkExperiment(command, runner, runs, inputs, outputs, name, config)
+  def copy(name: String = name, config: Config = config) = {
+    new FlinkExperiment(command, runner, runs, inputs, outputs, name, config)
+  }
 }
 
 object FlinkExperiment {

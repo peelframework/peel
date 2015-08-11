@@ -8,7 +8,7 @@ import scala.reflect.classTag
 /** Graph that holds the components of the specified Experiment/Suite with their dependencies
   *
   * The dependency-graph represents dependencies between systems, datasets and experiments.
-  * The underlying datastructure is a [[scala.collection.mutable.HashMap HashMap]] with keys of type T and values of
+  * The underlying data structure is a mutable HashMap with keys of type T and values of
   * type Set[T].
   *
   * @tparam T type of the vertices

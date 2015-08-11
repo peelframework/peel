@@ -12,9 +12,7 @@ import org.peelframework.spark.beans.system.Spark
 import org.peelframework.spark.beans.system.Spark
 import spray.json._
 
-/** An [[org.peelframework.core.beans.experiment.Experiment Experiment]] implementation which handles the execution
-  * of a single Spark job.
-  */
+/** An `Expriment` implementation which handles the execution of a single Spark job. */
 class SparkExperiment(
     command: String,
     runner : Spark,
@@ -25,35 +23,39 @@ class SparkExperiment(
     config : Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
 
   def this(
-    runs   : Int,
+    command: String,
     runner : Spark,
+    runs   : Int,
     input  : DataSet,
     output : ExperimentOutput,
-    command: String,
     name   : String,
     config : Config) = this(command, runner, runs, Set(input), Set(output), name, config)
 
   def this(
-    runs: Int,
+    command: String,
     runner : Spark,
+    runs   : Int,
     inputs : Set[DataSet],
     output : ExperimentOutput,
-    command: String,
     name   : String,
     config : Config) = this(command, runner, runs, inputs, Set(output), name, config)
 
   def this(
-    runs: Int,
+    command: String,
     runner : Spark,
+    runs   : Int,
     input  : DataSet,
     outputs: Set[ExperimentOutput],
-    command: String,
     name   : String,
     config : Config) = this(command, runner, runs, Set(input), outputs, name, config)
 
-  override def run(id: Int, force: Boolean): Experiment.Run[Spark] = new SparkExperiment.SingleJobRun(id, this, force)
+  override def run(id: Int, force: Boolean): Experiment.Run[Spark] = {
+    new SparkExperiment.SingleJobRun(id, this, force)
+  }
 
-  def copy(name: String = name, config: Config = config) = new SparkExperiment(command, runner, runs, inputs, outputs, name, config)
+  def copy(name: String = name, config: Config = config) = {
+    new SparkExperiment(command, runner, runs, inputs, outputs, name, config)
+  }
 }
 
 object SparkExperiment {

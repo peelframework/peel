@@ -156,8 +156,8 @@ object shell {
 
   /** List all directory structure descendants for a given root.
     * 
-    * @param root The root [[java.io.File File]].
-    * @return A stream of [[java.io.File File]] entries located under the given `root`.
+    * @param root The root File.
+    * @return A stream of File entries located under the given `root`.
     *
     * @see http://stackoverflow.com/questions/2637643/how-do-i-list-all-files-in-a-subdirectory-in-scala
     */
@@ -211,7 +211,7 @@ object shell {
 
   /** Downloads a file located at the given `url` at the specified `dst` and validates it against an MD5 sum.
     *
-    * @param url The source [[java.net.URL URL]].
+    * @param url The source URL.
     * @param dst The target destination.
     * @param exp The expected MD5 sum.
     */

@@ -19,10 +19,10 @@ import org.peelframework.spark.beans.system.Spark
   *      <constructor-arg name="runner" ref="spark-1.1.0"/>
   *      <constructor-arg name="command">
   *          <value>
-  *            --class org.peelframework.MyDatagenJob \
-  *            ${app.path.someConfigVar}/my-datagen-job.jar \
-  *            ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 100 \
-  *            ${app.path.config}/inputfile.csv
+  *            --class org.peelframework.MyDatagenJob                                                       \
+  *            \${app.path.someConfigVar}/my-datagen-job.jar                                                \
+  *            \${system.spark.config.defaults.spark.master} \${system.default.config.parallelism.total} 100 \
+  *            \${app.path.config}/inputfile.csv
   *          </value>
   *      </constructor-arg>
   *  </bean>

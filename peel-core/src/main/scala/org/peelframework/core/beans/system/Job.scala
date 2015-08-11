@@ -16,13 +16,13 @@ import scala.concurrent.duration._
   *
   * This class represents a normal job in a System such as Flink or Spark. It wraps the job-file (that is probably
   * packaged as a .jar file and provides the functionality to run and cancel it, similar to an
-  * [[eu/stratosphere/peel/core/beans/experiment/Experiment.scala Experiment]].
- *
- * @param command Command to run the job (as specified by the specific system)
- * @param runner System that this job is written for
- * @param timeout Timeout limit for the job. If job does not finish within the given limit, it is canceled
- * @tparam R Type of the system/runner
- */
+  * [[org.peelframework.core.beans.experiment.Experiment Experiment]].
+  *
+  * @param command Command to run the job (as specified by the specific system).
+  * @param runner System that this job is written for.
+  * @param timeout Timeout limit for the job. If job does not finish within the given limit, it is canceled.
+  * @tparam R Type of the runner system.
+  */
 abstract class Job[+R <: System](val command: String, val runner: R, timeout: Long) extends Node with Configurable with BeanNameAware {
 
   import ExecutionContext.Implicits.global

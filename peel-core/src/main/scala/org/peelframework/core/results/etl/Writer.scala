@@ -9,7 +9,10 @@ import org.springframework.context.ApplicationContext
 import scala.collection.mutable.ArrayBuffer
 import scala.language.{existentials, postfixOps}
 
-/** Writer actor. Writes [[ExperimentEvent]] instances to the database. */
+/** Writer actor.
+  *
+  * Writes [[org.peelframework.core.results.model.ExperimentEvent ExperimentEvent]] instances to the database.
+  */
 class Writer(appContext: ApplicationContext, conn: Connection) extends Actor with ActorLogging {
 
   import Writer.BatchSize

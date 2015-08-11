@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 /** Wrapper class for Zookeper
  *
  * @param version Version of the system (e.g. "7.1")
- * @param lifespan [[org.peelframework.core.beans.system.Lifespan L i f e s p a n]] of the system
+ * @param lifespan `Lifespan` of the system
  * @param dependencies Set of dependencies that this system needs
  * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
  */

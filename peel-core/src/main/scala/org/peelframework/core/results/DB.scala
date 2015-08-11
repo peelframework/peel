@@ -27,11 +27,10 @@ object DB {
     case _: Throwable => // silently ignore exception
   }
 
-  /** Creates a database connection using the 'app.db.$connName.conf' connection data.
+  /** Creates a database connection using the 'app.db.\$connName.conf' connection data.
     *
     * @param name The name of the connection configuration
     * @param config The config object holding the config data
-    * @return
     */
   def getConnection(name: String)(implicit config: Config): Connection = {
     val url = config.getString(s"app.db.$name.url")
@@ -40,7 +39,7 @@ object DB {
     DriverManager.getConnection(url, user.getOrElse(null.asInstanceOf[String]), pass.getOrElse(null.asInstanceOf[String]))
   }
 
-  /** Initialize the database schema.
+  /** Drop the database schema.
     *
     * @param conn The DB connection.
     */

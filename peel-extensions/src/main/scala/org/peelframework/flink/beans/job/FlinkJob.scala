@@ -19,10 +19,10 @@ import org.peelframework.flink.beans.system.Flink
   *      <constructor-arg name="runner" ref="flink-0.9.0"/>
   *      <constructor-arg name="command">
   *          <value>
-  *            --class org.peelframework.MyDatagenJob \
-  *            ${app.path.someConfigVar}/my-datagen-job.jar \
-  *            ${system.default.config.parallelism.total} 100 \
-  *            ${app.path.config}/inputfile.csv
+  *            --class org.peelframework.MyDatagenJob          \
+  *            \${app.path.someConfigVar}/my-datagen-job.jar   \
+  *            \${system.default.config.parallelism.total} 100 \
+  *            \${app.path.config}/inputfile.csv
   *          </value>
   *      </constructor-arg>
   *  </bean>

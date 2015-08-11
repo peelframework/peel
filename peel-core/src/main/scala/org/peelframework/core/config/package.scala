@@ -165,7 +165,7 @@ package object config {
     cb.resolve()
   }
 
-  /** Substitutes all config parameters `${id}` in `v` with their corresponding values defined in `config`.
+  /** Substitutes all config parameters `\${id}` in `v` with their corresponding values defined in `config`.
     *
     * @param v The string where the values should be substituted.
     * @param config The config instance to use for parameter value lookup
