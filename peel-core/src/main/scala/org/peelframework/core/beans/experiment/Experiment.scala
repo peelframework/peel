@@ -31,6 +31,7 @@ import scala.language.postfixOps
   *                You do not have to state the command that is used to 'run' the command (e.g. in Flink
   *                <code> ./bin/flink run </code>
   *
+  * @param systems Systems that are required for the experiment (excluding the runner).
   * @param runner The system that is used to run the experiment (e.g. Flink, Spark, ...)
   * @param runs The number of runs/repetitions of this experiment
   * @param inputs Input Datasets for the experiment
@@ -40,13 +41,14 @@ import scala.language.postfixOps
   * @tparam R The system that is used to execute the experiment
   */
 abstract class Experiment[+R <: System](
-  val command: String,
-  val runner: R,
-  val runs: Int,
-  val inputs: Set[DataSet],
-  val outputs: Set[ExperimentOutput],
-  val name: String,
-  var config: Config) extends Node with Configurable {
+  val command : String,
+  val systems : Set[System],
+  val runner  : R,
+  val runs    : Int,
+  val inputs  : Set[DataSet],
+  val outputs : Set[ExperimentOutput],
+  val name    : String,
+  var config  : Config) extends Node with Configurable {
 
   /** Experiment run factory method.
     *

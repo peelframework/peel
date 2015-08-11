@@ -7,54 +7,58 @@ import java.nio.file._
 import com.typesafe.config.Config
 import org.peelframework.core.beans.data.{DataSet, ExperimentOutput}
 import org.peelframework.core.beans.experiment.Experiment
+import org.peelframework.core.beans.system.System
 import org.peelframework.core.util.shell
-import org.peelframework.spark.beans.system.Spark
 import org.peelframework.spark.beans.system.Spark
 import spray.json._
 
 /** An `Expriment` implementation which handles the execution of a single Spark job. */
 class SparkExperiment(
     command: String,
+    systems: Set[System],
     runner : Spark,
     runs   : Int,
     inputs : Set[DataSet],
     outputs: Set[ExperimentOutput],
     name   : String,
-    config : Config) extends Experiment(command, runner, runs, inputs, outputs, name, config) {
+    config : Config) extends Experiment(command, systems, runner, runs, inputs, outputs, name, config) {
 
   def this(
     command: String,
+    systems: Set[System],
     runner : Spark,
     runs   : Int,
     input  : DataSet,
     output : ExperimentOutput,
     name   : String,
-    config : Config) = this(command, runner, runs, Set(input), Set(output), name, config)
+    config : Config) = this(command, systems, runner, runs, Set(input), Set(output), name, config)
 
   def this(
     command: String,
+    systems: Set[System],
     runner : Spark,
     runs   : Int,
     inputs : Set[DataSet],
     output : ExperimentOutput,
     name   : String,
-    config : Config) = this(command, runner, runs, inputs, Set(output), name, config)
+    config : Config) = this(command, systems, runner, runs, inputs, Set(output), name, config)
 
   def this(
     command: String,
+    systems: Set[System],
     runner : Spark,
     runs   : Int,
     input  : DataSet,
     outputs: Set[ExperimentOutput],
     name   : String,
-    config : Config) = this(command, runner, runs, Set(input), outputs, name, config)
+    config : Config) = this(command, systems, runner, runs, Set(input), outputs, name, config)
 
   override def run(id: Int, force: Boolean): Experiment.Run[Spark] = {
     new SparkExperiment.SingleJobRun(id, this, force)
   }
 
   def copy(name: String = name, config: Config = config) = {
-    new SparkExperiment(command, runner, runs, inputs, outputs, name, config)
+    new SparkExperiment(command, systems, runner, runs, inputs, outputs, name, config)
   }
 }
 

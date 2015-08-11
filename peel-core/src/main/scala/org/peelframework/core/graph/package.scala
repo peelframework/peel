@@ -41,9 +41,11 @@ package object graph {
 
     for (e <- suite.experiments) {
       g.addEdge(suite, e)
-      // add the experiment runner
-      g.addEdge(e, e.runner)
-      processDependencies(e.runner)
+      // add the experiment runner and the additional experiment systems
+      for (s <- Set(e.runner) ++ e.systems) {
+        g.addEdge(e, s)
+        processDependencies(s)
+      }
 
       // add the experiment inputs and their dependencies
       for (i <- e.inputs) {
