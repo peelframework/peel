@@ -61,7 +61,11 @@
               ${symbol_dollar}{system.hadoop-2.path.output}/wordcount
             ]]></value>
         </constructor-arg>
-        <constructor-arg name="output" ref="wordcount.output"/>
+        <constructor-arg name="outputs">
+            <set value-type="org.peelframework.core.beans.data.ExperimentOutput">
+                <ref bean="wordcount.output"/>
+            </set>
+        </constructor-arg>
     </bean>
 
     <!-- wordcount experiment (spark) -->
@@ -74,7 +78,11 @@
               ${symbol_dollar}{system.hadoop-2.path.output}/wordcount
             ]]></value>
         </constructor-arg>
-        <constructor-arg name="output" ref="wordcount.output"/>
+        <constructor-arg name="outputs">
+            <set value-type="org.peelframework.core.beans.data.ExperimentOutput">
+                <ref bean="wordcount.output"/>
+            </set>
+        </constructor-arg>
     </bean>
 
     <!--************************************************************************
@@ -87,12 +95,20 @@
             <list value-type="org.peelframework.core.beans.experiment.Experiment">
                 <bean parent="experiment.flink.wordcount">
                     <constructor-arg name="name" value="wordcount.flink"/>
-                    <constructor-arg name="input" ref="dataset.words.static"/>
+                    <constructor-arg name="inputs">
+                        <set>
+                            <ref bean="dataset.words.static" />
+                        </set>
+                    </constructor-arg>
                     <constructor-arg name="config" value=""/>
                 </bean>
                 <bean parent="experiment.spark.wordcount">
                     <constructor-arg name="name" value="wordcount.spark"/>
-                    <constructor-arg name="input" ref="dataset.words.static"/>
+                    <constructor-arg name="inputs">
+                        <set>
+                            <ref bean="dataset.words.static" />
+                        </set>
+                    </constructor-arg>
                     <constructor-arg name="config" value=""/>
                 </bean>
             </list>
@@ -115,7 +131,11 @@
                     <list value-type="org.peelframework.core.beans.experiment.Experiment">
                         <bean parent="experiment.flink.wordcount">
                             <constructor-arg name="name" value="wordcount.flink.__topXXX__"/>
-                            <constructor-arg name="input" ref="dataset.words.generated"/>
+                            <constructor-arg name="inputs">
+                                <set>
+                                    <ref bean="dataset.words.generated" />
+                                </set>
+                            </constructor-arg>
                             <constructor-arg name="config">
                                 <value><![CDATA[
                                   system.default.config.slaves            = ${symbol_dollar}{env.slaves.__topXXX__.hosts}
@@ -127,7 +147,11 @@
                         </bean>
                         <bean parent="experiment.spark.wordcount">
                             <constructor-arg name="name" value="wordcount.spark.__topXXX__"/>
-                            <constructor-arg name="input" ref="dataset.words.generated"/>
+                            <constructor-arg name="inputs">
+                                <set>
+                                    <ref bean="dataset.words.generated" />
+                                </set>
+                            </constructor-arg>
                             <constructor-arg name="config">
                                 <value><![CDATA[
                                   system.default.config.slaves            = ${symbol_dollar}{env.slaves.__topXXX__.hosts}
