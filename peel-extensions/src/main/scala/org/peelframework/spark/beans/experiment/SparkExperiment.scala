@@ -25,33 +25,12 @@ class SparkExperiment(
 
   def this(
     command: String,
-    systems: Set[System],
-    runner : Spark,
-    runs   : Int,
-    input  : DataSet,
-    output : ExperimentOutput,
-    name   : String,
-    config : Config) = this(command, systems, runner, runs, Set(input), Set(output), name, config)
-
-  def this(
-    command: String,
-    systems: Set[System],
     runner : Spark,
     runs   : Int,
     inputs : Set[DataSet],
-    output : ExperimentOutput,
-    name   : String,
-    config : Config) = this(command, systems, runner, runs, inputs, Set(output), name, config)
-
-  def this(
-    command: String,
-    systems: Set[System],
-    runner : Spark,
-    runs   : Int,
-    input  : DataSet,
     outputs: Set[ExperimentOutput],
     name   : String,
-    config : Config) = this(command, systems, runner, runs, Set(input), outputs, name, config)
+    config : Config) = this(command, Set.empty[System], runner, runs, inputs, outputs, name, config)
 
   override def run(id: Int, force: Boolean): Experiment.Run[Spark] = {
     new SparkExperiment.SingleJobRun(id, this, force)

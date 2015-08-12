@@ -41,8 +41,16 @@
                           ${system.hadoop-2.path.output}/wordcount
                         ]]></value>
                     </constructor-arg>
-                    <constructor-arg name="input" ref="dataset.rubbish"/>
-                    <constructor-arg name="output" ref="wordcount.output"/>
+                    <constructor-arg name="inputs">
+                        <set value-type="org.peelframework.core.beans.data.DataSet">
+                            <ref bean="dataset.rubbish" />
+                        </set>
+                    </constructor-arg>
+                    <constructor-arg name="outputs">
+                        <set value-type="org.peelframework.core.beans.data.ExperimentOutput">
+                            <ref bean="wordcount.output" />
+                        </set>
+                    </constructor-arg>
                     <constructor-arg name="config" value=""/>
                 </bean>
                 <bean parent="experiment.spark-1.4.0">
@@ -54,7 +62,11 @@
                           ${system.hadoop-2.path.input}/rubbish.txt
                         ]]></value>
                     </constructor-arg>
-                    <constructor-arg name="input" ref="dataset.rubbish"/>
+                    <constructor-arg name="inputs">
+                        <set value-type="org.peelframework.core.beans.data.DataSet">
+                            <ref bean="dataset.rubbish" />
+                        </set>
+                    </constructor-arg>
                     <constructor-arg name="outputs">
                         <set value-type="org.peelframework.core.beans.data.ExperimentOutput"/>
                     </constructor-arg>
