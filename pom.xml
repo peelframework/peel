@@ -467,6 +467,30 @@
                 </configuration>
             </plugin>
 
+            <!-- Generate NOTICE file -->
+            <plugin>
+                <groupId>org.jasig.maven</groupId>
+                <artifactId>maven-notice-plugin</artifactId>
+                <version>1.0.4</version>
+                <executions>
+                    <execution>
+                        <id>check-notice</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <noticeTemplate>https://gist.githubusercontent.com/aalexandrov/25a931c7d106415c8af7/raw/04e7a3d5534194929f1864d0535b8cc1c5f9cddb/NOTICE.template</noticeTemplate>
+                    <licenseMapping>
+                        <param>https://source.jasig.org/licenses/license-mappings.xml</param>
+                        <param>file://${project.basedir}/.license-mappings.xml</param>
+                    </licenseMapping>
+                    <generateChildNotices>false</generateChildNotices>
+                </configuration>
+            </plugin>
+
             <!-- Maven Deploy (disabled) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
