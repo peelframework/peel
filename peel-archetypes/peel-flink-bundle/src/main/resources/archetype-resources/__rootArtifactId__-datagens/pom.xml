@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>${groupId}</groupId>
+        <artifactId>${rootArtifactId}</artifactId>
+        <version>${version}</version>
+    </parent>
+
+    <artifactId>${artifactId}</artifactId>
+
+    <properties>
+        <!-- Scala -->
+        <scala.version>2.10.4</scala.version>
+        <scala.tools.version>2.10</scala.tools.version>
+
+        <!-- Flink -->
+        <flink.version>0.9.0</flink.version>
+    </properties>
+
+    <dependencies>
+        <!-- Scala -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>${scala.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>${scala.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Flink -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients</artifactId>
+            <version>${flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-scala</artifactId>
+            <version>${flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Java Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <!-- Scala compiler -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <configuration>
+                    <scalaCompatVersion>${scala.tools.version}</scalaCompatVersion>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                </configuration>
+            </plugin>
+
+            <!-- Shade Package (Create package with dependencies) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>shade-package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>fat-jar</id>
+            <activation>
+            </activation>
+            <dependencies>
+                <!-- Flink -->
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-clients</artifactId>
+                    <version>${flink.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-scala</artifactId>
+                    <version>${flink.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+</project>

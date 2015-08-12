@@ -14,5 +14,7 @@
 
     <modules>
         <module>peel-flinkspark-bundle</module>
+        <module>peel-flink-bundle</module>
+        <module>peel-spark-bundle</module>
     </modules>
 </project>

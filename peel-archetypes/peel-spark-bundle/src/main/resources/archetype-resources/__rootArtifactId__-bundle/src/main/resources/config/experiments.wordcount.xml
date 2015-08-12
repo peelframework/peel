@@ -1,0 +1,128 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--************************************************************************
+    * Data Generators
+    *************************************************************************-->
+
+    <bean id="datagen.words" class="org.peelframework.flink.beans.job.FlinkJob">
+        <constructor-arg name="runner" ref="flink-0.9.0"/>
+        <constructor-arg name="command">
+            <value><![CDATA[
+              -v -c ${package}.datagen.flink.WordGenerator        ${symbol_escape}
+              ${symbol_dollar}{app.path.datagens}/${parentArtifactId}-datagens-${version}.jar        ${symbol_escape}
+              ${symbol_dollar}{datagen.dictionary.dize}                                           ${symbol_escape}
+              ${symbol_dollar}{system.default.config.parallelism.total}                           ${symbol_escape}
+              ${symbol_dollar}{datagen.tuples.per.task}                                           ${symbol_escape}
+              ${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt
+            ]]>
+            </value>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Data Sets
+    *************************************************************************-->
+
+    <bean id="dataset.words.static" class="org.peelframework.core.beans.data.CopiedDataSet">
+        <constructor-arg name="src" value="${symbol_dollar}{app.path.datasets}/rubbish.txt"/>
+        <constructor-arg name="dst" value="${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt"/>
+        <constructor-arg name="fs" ref="hdfs-2.7.1"/>
+    </bean>
+
+    <bean id="dataset.words.generated" class="org.peelframework.core.beans.data.GeneratedDataSet">
+        <constructor-arg name="src" ref="datagen.words"/>
+        <constructor-arg name="dst" value="${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt"/>
+        <constructor-arg name="fs" ref="hdfs-2.7.1"/>
+    </bean>
+
+    <!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+
+    <!-- Wordcount output -->
+    <bean id="wordcount.output" class="org.peelframework.core.beans.data.ExperimentOutput">
+        <constructor-arg name="path" value="${symbol_dollar}{system.hadoop-2.path.output}/wordcount"/>
+        <constructor-arg name="fs" ref="hdfs-2.7.1"/>
+    </bean>
+
+    <!-- wordcount experiment (spark) -->
+    <bean id="experiment.spark.wordcount" parent="experiment.spark-1.4.0" abstract="true">
+        <constructor-arg name="command">
+            <value><![CDATA[
+              --class ${package}.spark.Wordcount                  ${symbol_escape}
+              ${symbol_dollar}{app.path.apps}/${parentArtifactId}-spark-jobs-${version}.jar          ${symbol_escape}
+              ${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt                            ${symbol_escape}
+              ${symbol_dollar}{system.hadoop-2.path.output}/wordcount
+            ]]></value>
+        </constructor-arg>
+        <constructor-arg name="outputs">
+            <set value-type="org.peelframework.core.beans.data.ExperimentOutput">
+                <ref bean="wordcount.output"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Suites
+    *************************************************************************-->
+
+    <!-- suite for local development and testing -->
+    <bean id="wordcount.default" class="org.peelframework.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list value-type="org.peelframework.core.beans.experiment.Experiment">
+                <bean parent="experiment.spark.wordcount">
+                    <constructor-arg name="name" value="wordcount.spark"/>
+                    <constructor-arg name="inputs">
+                        <set>
+                            <ref bean="dataset.words.static" />
+                        </set>
+                    </constructor-arg>
+                    <constructor-arg name="config" value=""/>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!-- suite for scale-out on 5, 10, and 20 nodes -->
+    <bean id="wordcount.scale-out" class="org.peelframework.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <bean class="org.peelframework.core.beans.experiment.ExperimentSequence">
+                <constructor-arg name="paramName" value="topXXX"/>
+                <constructor-arg name="paramVals">
+                    <list>
+                        <value>top005</value>
+                        <value>top010</value>
+                        <value>top020</value>
+                    </list>
+                </constructor-arg>
+                <constructor-arg name="prototypes">
+                    <list value-type="org.peelframework.core.beans.experiment.Experiment">
+                        <bean parent="experiment.spark.wordcount">
+                            <constructor-arg name="name" value="wordcount.spark.__topXXX__"/>
+                            <constructor-arg name="inputs">
+                                <set>
+                                    <ref bean="dataset.words.generated" />
+                                </set>
+                            </constructor-arg>
+                            <constructor-arg name="config">
+                                <value><![CDATA[
+                                  system.default.config.slaves            = ${symbol_dollar}{env.slaves.__topXXX__.hosts}
+                                  system.default.config.parallelism.total = ${symbol_dollar}{env.slaves.__topXXX__.total.parallelism}
+                                  datagen.dictionary.dize                 = 10000
+                                  datagen.tuples.per.task                 = 10000000 ${symbol_pound} ~ 100 MB
+                                ]]></value>
+                            </constructor-arg>
+                        </bean>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+</beans>

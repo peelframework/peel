@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
+    <version>${version}</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <!-- Common -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <encoding>UTF-8</encoding>
+
+        <!-- Maven Plugins -->
+        <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <maven-source-plugin.version>2.1.2</maven-source-plugin.version>
+        <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
+        <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
+        <scala-maven-plugin.version>3.1.6</scala-maven-plugin.version>
+
+        <!-- Java -->
+        <java.version>1.7</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+
+        <!-- Peel -->
+        <peel.version>1.0-SNAPSHOT</peel.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- bundle jars -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${rootArtifactId}-bundle</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${rootArtifactId}-peelextensions</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${rootArtifactId}-datagens</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${rootArtifactId}-flink-jobs</artifactId>
+                <version>${version}</version>
+            </dependency>
+
+            <!-- Peel -->
+            <dependency>
+                <groupId>org.peelframework</groupId>
+                <artifactId>peel-core</artifactId>
+                <version>${peel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.peelframework</groupId>
+                <artifactId>peel-extensions</artifactId>
+                <version>${peel.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Java Compiler -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+
+                <!-- Scala compiler -->
+                <plugin>
+                    <groupId>net.alchim31.maven</groupId>
+                    <artifactId>scala-maven-plugin</artifactId>
+                    <version>${scala-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>scala-compile-first</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>scala-test-compile</id>
+                            <phase>test-compile</phase>
+                            <goals>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <recompileMode>incremental</recompileMode>
+                        <useZincServer>true</useZincServer>
+                        <jvmArgs>
+                            <jvmArg>-Xms128m</jvmArg>
+                            <jvmArg>-Xmx512m</jvmArg>
+                            <javacArg>-Xlint:unchecked</javacArg>
+                            <javacArg>-Xlint:deprecation</javacArg>
+                        </jvmArgs>
+                        <args>
+                            <arg>-deprecation</arg>
+                            <arg>-feature</arg>
+                        </args>
+                    </configuration>
+                </plugin>
+
+                <!-- Shade Package (Create package with dependencies) -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${maven-shade-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>shade-package</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                            <configuration>
+                                <minimizeJar>false</minimizeJar>
+                                <filters>
+                                    <filter>
+                                        <artifact>*:*</artifact>
+                                        <excludes>
+                                            <exclude>META-INF/**</exclude>
+                                        </excludes>
+                                    </filter>
+                                </filters>
+                                <transformers>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                        <manifestEntries>
+                                            <Version>${project.version}</Version>
+                                        </manifestEntries>
+                                    </transformer>
+                                </transformers>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Disable "regular" maven deployment -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
