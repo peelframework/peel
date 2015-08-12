@@ -144,9 +144,9 @@ class Run extends Command {
           }
         }
 
-        logger.info("Setting up systems with JOB lifespan")
+        logger.info("Setting up systems with RUN lifespan")
         for (n <- allSystems) n match {
-          case s: System if s.lifespan == Lifespan.JOB => s.setUp()
+          case s: System if s.lifespan == Lifespan.RUN => s.setUp()
           case _ => Unit
         }
 
@@ -166,9 +166,9 @@ class Run extends Command {
           }
         }
 
-        logger.info("Tearing down systems with JOB lifespan")
+        logger.info("Tearing down systems with RUN lifespan")
         for (n <- allSystems) n match {
-          case s: System if s.lifespan == Lifespan.JOB => s.tearDown()
+          case s: System if s.lifespan == Lifespan.RUN => s.tearDown()
           case _ => Unit
         }
       }

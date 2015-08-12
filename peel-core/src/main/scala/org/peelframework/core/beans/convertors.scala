@@ -79,8 +79,8 @@ object convertors {
         Lifespan.SUITE
       case "EXPERIMENT" =>
         Lifespan.EXPERIMENT
-      case "JOB" =>
-        Lifespan.JOB
+      case "RUN" =>
+        Lifespan.RUN
       case _ =>
         throw new IllegalArgumentException(s + " can not be converted to Scala Lifecycle Value!")
     }

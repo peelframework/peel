@@ -15,5 +15,5 @@ package org.peelframework.core.beans.system
   */
 case object Lifespan extends Enumeration {
   type Lifespan = Value
-  final val PROVIDED, SUITE, EXPERIMENT, JOB = Value // TODO: rename to JOB to RUN
+  final val PROVIDED, SUITE, EXPERIMENT, RUN = Value
 }
