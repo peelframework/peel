@@ -10,15 +10,16 @@
 
     <context:component-scan base-package="org.peelframework"/>
 
-    <!-- converters for scala collections -->
     <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
         <property name="converters">
             <set>
-                <bean class="org.peelframework.core.beans.StringToConfig"/>
-                <bean class="org.peelframework.core.beans.StringToLifespan"/>
-                <bean class="org.peelframework.core.beans.JavaCollectionToScalaSeq"/>
-                <bean class="org.peelframework.core.beans.JavaSetToScalaSet"/>
-                <bean class="org.peelframework.core.beans.JavaMapToScalaMap"/>
+                <!-- converters for Scala collections -->
+                <bean class="org.peelframework.core.beans.convertors.JavaCollectionToScalaSeq"/>
+                <bean class="org.peelframework.core.beans.convertors.JavaSetToScalaSet"/>
+                <bean class="org.peelframework.core.beans.convertors.JavaMapToScalaMap"/>
+                <!-- string converters for custom classes -->
+                <bean class="org.peelframework.core.beans.convertors.StringToConfig"/>
+                <bean class="org.peelframework.core.beans.convertors.StringToLifespan"/>
             </set>
         </property>
     </bean>
@@ -27,7 +28,7 @@
 
     <bean id="system" class="org.peelframework.core.beans.system.System" abstract="true">
         <constructor-arg name="dependencies">
-            <set value-type="org.peelframework.core.beans.system.System" />
+            <set value-type="org.peelframework.core.beans.system.System"/>
         </constructor-arg>
         <constructor-arg name="mc" ref="mc"/>
     </bean>
