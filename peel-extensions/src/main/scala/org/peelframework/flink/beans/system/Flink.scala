@@ -17,13 +17,14 @@ package org.peelframework.flink.beans.system
 
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
-import org.peelframework.core.beans.system.{SetUpTimeoutException, System}
+import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
-/** Wrapper for Flink
+/** Wrapper class for Flink.
   *
   * Implements Flink as a Peel `System` and provides setup and teardown methods.
   *
@@ -32,7 +33,25 @@ import scala.collection.JavaConverters._
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
-class Flink(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("flink", version, lifespan, dependencies, mc) {
+class Flink(
+  version      : String,
+  lifespan     : Lifespan,
+  dependencies : Set[System] = Set(),
+  mc           : Mustache.Compiler) extends System("flink", version, lifespan, dependencies, mc)
+                                       with LogCollection {
+
+  // ---------------------------------------------------
+  // LogCollection.
+  // ---------------------------------------------------
+
+  /** The patterns of the log files to watch. */
+  override protected def logFilePatterns(): Seq[Regex] = {
+    List("flink-.+\\.log".r, "flink-.+\\.out".r)
+  }
+
+  // ---------------------------------------------------
+  // System.
+  // ---------------------------------------------------
 
   override def configuration() = SystemConfig(config, {
     val conf = config.getString("system.flink.path.config")

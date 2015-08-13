@@ -18,12 +18,12 @@ package org.peelframework.hadoop.beans.system
 import com.samskivert.mustache.Mustache
 import com.typesafe.config.ConfigException
 import org.peelframework.core.beans.system.Lifespan.Lifespan
-import org.peelframework.core.beans.system.{SetUpTimeoutException, System}
+import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
-import org.peelframework.core.beans.system.SetUpTimeoutException
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 /** Wrapper class for Yarn.
   *
@@ -34,9 +34,24 @@ import scala.collection.JavaConverters._
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
-class Yarn(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("yarn", version, lifespan, dependencies, mc) {
+class Yarn(
+  version      : String,
+  lifespan     : Lifespan,
+  dependencies : Set[System] = Set(),
+  mc           : Mustache.Compiler) extends System("yarn", version, lifespan, dependencies, mc)
+                                       with LogCollection {
 
   override val configKey = "hadoop-2"
+
+  // ---------------------------------------------------
+  // LogCollection.
+  // ---------------------------------------------------
+
+  /** The patterns of the log files to watch. */
+  override protected def logFilePatterns(): Seq[Regex] = {
+    // TODO: rework based on http://hortonworks.com/blog/simplifying-user-logs-management-and-access-in-yarn/
+    List("yarn-.+-resourcemanager-.+\\.log".r)
+  }
 
   // ---------------------------------------------------
   // System.

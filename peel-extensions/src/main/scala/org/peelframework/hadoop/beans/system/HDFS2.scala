@@ -17,13 +17,14 @@ package org.peelframework.hadoop.beans.system
 
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
-import org.peelframework.core.beans.system.{SetUpTimeoutException, System}
+import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
-/** Wrapper class for HDFS2
+/** Wrapper class for HDFS2.
   *
   * Implements HDFS2 as a Peel `System` and provides setup and teardown methods.
   * Additionally it offers the Filesysem capabilities to interact with hdfs.
@@ -33,9 +34,28 @@ import scala.collection.JavaConverters._
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
-class HDFS2(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("hdfs-2", version, lifespan, dependencies, mc) with HDFSFileSystem {
+class HDFS2(
+  version      : String,
+  lifespan     : Lifespan,
+  dependencies : Set[System] = Set(),
+  mc           : Mustache.Compiler) extends System("hdfs-2", version, lifespan, dependencies, mc)
+                                       with HDFSFileSystem
+                                       with LogCollection {
 
   override val configKey = "hadoop-2"
+
+  // ---------------------------------------------------
+  // LogCollection.
+  // ---------------------------------------------------
+
+  /** The patterns of the log files to watch. */
+  override protected def logFilePatterns(): Seq[Regex]  = {
+    List(
+      "hadoop-.+-namenode-.+\\.log".r,
+      "hadoop-.+-namenode-.+\\.out".r,
+      "hadoop-.+-datanode-.+\\.log".r,
+      "hadoop-.+-datanode-.+\\.out".r)
+  }
 
   // ---------------------------------------------------
   // System.

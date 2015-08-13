@@ -88,6 +88,26 @@ object shell {
     exit
   }
 
+  /** Checks if the given path is a writable folder.
+    *
+    * If the folder at the given path does not exists, it is created.
+    * If it exists but is not a directory or is not writable, this method throws
+    * a RuntimeException.
+    *
+    * @param folder path to the folder
+    * @return Unit
+    * @throws RuntimeException if folder exists but is not a writable directory
+    */
+  final def ensureFolderIsWritable(folder: Path): Unit = {
+    if (Files.exists(folder)) {
+      if (!(Files.isDirectory(folder) && Files.isWritable(folder))) {
+        throw new RuntimeException(s"Folder '$folder' is not a writable directory")
+      }
+    } else {
+      Files.createDirectories(folder)
+    }
+  }
+
   /** Removes a file.
     *
     * @param path the file to remove
@@ -99,6 +119,17 @@ object shell {
     * @param path the directory to remove
     */
   def rmDir(path: String) = FileUtils.deleteDirectory(new File(path))
+
+  /** List all directory structure descendants for a given root.
+    *
+    * @param root The root File.
+    * @return A stream of File entries located under the given `root`.
+    *
+    * @see http://stackoverflow.com/questions/2637643/how-do-i-list-all-files-in-a-subdirectory-in-scala
+    */
+  def fileTree(root: File): Stream[File] = {
+    root #:: (if (root.isDirectory) root.listFiles().toStream.flatMap(fileTree) else Stream.empty)
+  }
 
   /** Extracts an archive.
     *
@@ -167,17 +198,6 @@ object shell {
     } else {
       throw new IllegalStateException(s"Unsupported archive suffix for input '$src'")
     }
-  }
-
-  /** List all directory structure descendants for a given root.
-    * 
-    * @param root The root File.
-    * @return A stream of File entries located under the given `root`.
-    *
-    * @see http://stackoverflow.com/questions/2637643/how-do-i-list-all-files-in-a-subdirectory-in-scala
-    */
-  def fileTree(root: File): Stream[File] = {
-    root #:: (if (root.isDirectory) root.listFiles().toStream.flatMap(fileTree) else Stream.empty)
   }
 
   /** Compresses a folder into an archive.

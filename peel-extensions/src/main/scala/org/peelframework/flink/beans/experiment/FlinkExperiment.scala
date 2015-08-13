@@ -59,15 +59,15 @@ class FlinkExperiment(
 object FlinkExperiment {
 
   case class State(
-    name: String,
-    suiteName: String,
-    command: String,
-    runnerID: String,
-    runnerName: String,
-    runnerVersion: String,
-    var runExitCode: Option[Int] = None,
-    var runTime: Long = 0,
-    var plnExitCode: Option[Int] = None) extends Experiment.RunState {}
+    name            : String,
+    suiteName       : String,
+    command         : String,
+    runnerID        : String,
+    runnerName      : String,
+    runnerVersion   : String,
+    var runExitCode : Option[Int] = None,
+    var runTime     : Long = 0,
+    var plnExitCode : Option[Int] = None) extends Experiment.RunState
 
   object StateProtocol extends DefaultJsonProtocol with NullOptions {
     implicit val stateFormat = jsonFormat9(State)
@@ -81,8 +81,6 @@ object FlinkExperiment {
     val runnerLogPath = exp.config.getString("system.flink.path.log")
 
     override def isSuccessful = state.runExitCode.getOrElse(-1) == 0 // FIXME: && state.plnExitCode.getOrElse(-1) == 0
-
-    override protected def logFilePatterns = List(s"$runnerLogPath/flink-*.log", s"$runnerLogPath/flink-*.out")
 
     override protected def loadState(): State = {
       if (Files.isRegularFile(Paths.get(s"$home/state.json"))) {

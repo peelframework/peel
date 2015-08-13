@@ -59,14 +59,14 @@ class SparkExperiment(
 object SparkExperiment {
 
   case class State(
-    name: String,
-    suiteName: String,
-    command: String,
-    runnerID: String,
-    runnerName: String,
-    runnerVersion: String,
-    var runExitCode: Option[Int] = None,
-    var runTime: Long = 0) extends Experiment.RunState {}
+    name            : String,
+    suiteName       : String,
+    command         : String,
+    runnerID        : String,
+    runnerName      : String,
+    runnerVersion   : String,
+    var runExitCode : Option[Int] = None,
+    var runTime     : Long = 0) extends Experiment.RunState
 
   object StateProtocol extends DefaultJsonProtocol with NullOptions {
     implicit val stateFormat = jsonFormat8(State)
@@ -83,8 +83,6 @@ object SparkExperiment {
 
     override def isSuccessful = state.runExitCode.getOrElse(-1) == 0
 
-    override protected def logFilePatterns = List(s"$runnerLogPath/spark-*.out*")
-
     override protected def loadState(): State = {
       if (Files.isRegularFile(Paths.get(s"$home/state.json"))) {
         try {
@@ -94,28 +92,6 @@ object SparkExperiment {
         }
       } else {
         State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
-      }
-    }
-
-    var latestEventLogBeforeRun: Option[String] = None
-
-    val eventLogPattern = s"$runnerLogPath/app-*"
-
-    override protected def beforeRun(): Unit = {
-      super.beforeRun()
-      try {
-        latestEventLogBeforeRun = (for (f <- (shell !! s"ls -t $eventLogPattern").split(Sys.lineSeparator).map(_.trim)) yield f).headOption
-      } catch {
-        case e: Exception => latestEventLogBeforeRun = None
-      }
-    }
-
-    override protected def afterRun(): Unit = {
-      super.afterRun()
-      val eventLog = (for (f <- (shell !! s"ls -t $eventLogPattern").split(Sys.lineSeparator).map(_.trim)) yield f).headOption
-      if (eventLog.isEmpty || eventLog == latestEventLogBeforeRun) logger.warn("No event log created for experiment")
-      else {
-        shell ! s"cp ${eventLog.head} $home/logs/${Paths.get(eventLog.head).getFileName}"
       }
     }
 

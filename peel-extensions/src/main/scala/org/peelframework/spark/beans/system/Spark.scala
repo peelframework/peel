@@ -15,16 +15,22 @@
  */
 package org.peelframework.spark.beans.system
 
+import java.lang.{System => Sys}
+import java.nio.file.Paths
+
 import com.samskivert.mustache.Mustache
 import com.typesafe.config.ConfigException
+import org.peelframework.core.beans.experiment.Experiment.Run
 import org.peelframework.core.beans.system.Lifespan.Lifespan
-import org.peelframework.core.beans.system.{SetUpTimeoutException, System}
+import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
+import org.peelframework.core.util.console.ConsoleColorise
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
-/** Wrapper Class for Spark.
+/** Wrapper class for Spark.
   *
   * Implements Spark as a Peel `System` and provides setup and teardown methods.
   *
@@ -34,7 +40,61 @@ import scala.collection.JavaConverters._
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
-class Spark(version: String, lifespan: Lifespan, dependencies: Set[System] = Set(), mc: Mustache.Compiler) extends System("spark", version, lifespan, dependencies, mc) {
+class Spark(
+  version      : String,
+  lifespan     : Lifespan,
+  dependencies : Set[System] = Set(),
+  mc           : Mustache.Compiler) extends System("spark", version, lifespan, dependencies, mc)
+                                       with LogCollection {
+
+  // ---------------------------------------------------
+  // LogCollection.
+  // ---------------------------------------------------
+
+  var latestEventLogBeforeRun: Option[String] = None
+
+  def eventLogPattern() = {
+    val logDir = config.getString("system.spark.path.log")
+    s"$logDir/app-*"
+  }
+
+  /** The patterns of the log files to watch. */
+  override protected def logFilePatterns(): Seq[Regex] = {
+    List("spark-.+\\.log".r, "spark-.+\\.out".r)
+  }
+
+  override def beforeRun(run: Run[System]): Unit = {
+    // delegate to parent
+    super[LogCollection].beforeRun(run)
+    // custom logic for Spark
+    try {
+      latestEventLogBeforeRun = for {
+        f <- (shell !! s"ls -t ${eventLogPattern()}").split(Sys.lineSeparator).headOption.map(_.trim)
+      } yield f
+    } catch {
+      case e: Exception =>
+        latestEventLogBeforeRun = None
+    }
+  }
+
+  override def afterRun(run: Run[System]): Unit = {
+    // custom logic for Spark
+    val eventLog = for {
+      f <- (shell !! s"ls -t ${eventLogPattern()}").split(Sys.lineSeparator).headOption.map(_.trim)
+    } yield f
+    if (eventLog.isEmpty || eventLog == latestEventLogBeforeRun) {
+      logger.warn("No event log created for experiment".yellow)
+    }
+    else {
+      shell ! s"cp ${eventLog.head} ${run.home}/logs/$name/$beanName/${Paths.get(eventLog.head).getFileName}"
+    }
+    // delegate to parent
+    super[LogCollection].afterRun(run)
+  }
+
+  // ---------------------------------------------------
+  // System.
+  // ---------------------------------------------------
 
   /** Parses the configuration and generates the Spark configuration files (slaves, spark-env.sh, spark-defaults.conf)
     * from the moustache templates

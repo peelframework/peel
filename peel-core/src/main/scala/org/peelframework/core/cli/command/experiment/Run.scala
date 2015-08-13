@@ -16,7 +16,6 @@
 package org.peelframework.core.cli.command.experiment
 
 import java.lang.{System => Sys}
-import java.nio.file.Paths
 
 import org.peelframework.core.beans.experiment.ExperimentSuite
 import org.peelframework.core.beans.system.{Lifespan, System}

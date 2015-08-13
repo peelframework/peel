@@ -20,6 +20,7 @@ import java.nio.file.{Files, Paths}
 import com.samskivert.mustache.Mustache
 import com.typesafe.config.ConfigFactory
 import org.peelframework.core.beans.system.Lifespan.Lifespan
+import org.peelframework.core.beans.experiment.Experiment.Run
 import org.peelframework.core.config.{Configurable, SystemConfig}
 import org.peelframework.core.graph.Node
 import org.peelframework.core.util.{Version, shell}
@@ -28,8 +29,8 @@ import org.springframework.beans.factory.BeanNameAware
 
 /** This class represents a System in the Peel framework.
   *
-  * Most Nodes in the peel dependency-graph are Systems. A system can specify it's dependencies which are then set up
-  * automatically, according to their Lifespans.
+  * Most nodes in the Peel dependency-graph are systems. A [[System]] can specify it's dependencies which are then set
+  * up and torn down automatically, according to their [[Lifespan]] values.
   *
   * @param name The name of this bean. Deafults to the system name (e.g. "Flink")
   * @param version Version of the system (e.g. "7.1")
@@ -38,11 +39,11 @@ import org.springframework.beans.factory.BeanNameAware
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
 abstract class System(
-  val name: String,
-  val version: String,
-  val lifespan: Lifespan,
-  val dependencies: Set[System],
-  val mc: Mustache.Compiler) extends Node with Configurable with BeanNameAware {
+    val name         : String,
+    val version      : String,
+    val lifespan     : Lifespan,
+    val dependencies : Set[System],
+    val mc           : Mustache.Compiler) extends Node with Configurable with BeanNameAware {
 
   import scala.language.postfixOps
 
@@ -59,7 +60,7 @@ abstract class System(
   var beanName = name
 
   /** Creates a complete system installation with updated configuration and starts the system. */
-  def setUp() = {
+  def setUp(): Unit = {
     if (isRunning) {
       if (isUp)
         logger.info(s"System '$toString' is already up and running")
@@ -80,7 +81,7 @@ abstract class System(
   }
 
   /** Cleans up and shuts down the system. */
-  def tearDown() = {
+  def tearDown(): Unit = {
     if (!isRunning) {
       logger.info(s"System '$toString' is already down")
     } else {
@@ -92,7 +93,7 @@ abstract class System(
   }
 
   /** Restarts the system if the system configuration has changed. */
-  def update() = {
+  def update(): Unit = {
     val c = configuration()
     if (!c.hasChanged) {
       logger.info(s"System configuration of '$toString' did not change")
@@ -103,6 +104,14 @@ abstract class System(
       setUp()
 
     }
+  }
+
+  /** Executed before each experiment run that depends on this system. */
+  def beforeRun(run: Run[System]): Unit = {
+  }
+
+  /** Executed after each experiment run that depends on this system. */
+  def afterRun(run: Run[System]): Unit = {
   }
 
   /** Waits until the system is shut down (blocking). */

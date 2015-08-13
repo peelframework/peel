@@ -16,16 +16,15 @@
 package org.peelframework.core.beans.experiment
 
 import java.lang.{System => Sys}
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.Paths
 
 import com.typesafe.config.Config
 import org.peelframework.core.beans.data.{DataSet, ExperimentOutput}
+import org.peelframework.core.beans.system
 import org.peelframework.core.beans.system.System
 import org.peelframework.core.config.Configurable
 import org.peelframework.core.graph.Node
 import org.peelframework.core.util.console._
-import org.peelframework.core.util.shell
-import org.peelframework.core.beans.system
 import org.peelframework.core.util.shell
 import org.slf4j.LoggerFactory
 
@@ -107,31 +106,15 @@ object Experiment {
 
     // ensure experiment folder structure in the constructor
     {
-      ensureFolderIsWritable(Paths.get(s"$home"))
-      ensureFolderIsWritable(Paths.get(s"$home/logs"))
+      shell.ensureFolderIsWritable(Paths.get(s"$home"))
+      shell.ensureFolderIsWritable(Paths.get(s"$home/logs"))
     }
 
+    /** Check if the execution of this run exited successfully. */
     def isSuccessful: Boolean
 
+    /** Execute the experiment run. */
     def execute(): Unit
-
-    /** Checks if the given path is a writable folder.
-      *
-      * If the folder at the given path does not exists, it is created.
-      * If it exists but is not a directory or is not writable, this method throws
-      * a RuntimeException.
-      *
-      * @param folder path to the folder
-      * @return Unit
-      * @throws RuntimeException if folder exists but is not a writable directory
-      */
-    protected final def ensureFolderIsWritable(folder: Path): Unit = {
-      if (Files.exists(folder)) {
-        if (!(Files.isDirectory(folder) && Files.isWritable(folder))) throw new RuntimeException(s"Experiment home '$home' is not a writable directory")
-      } else {
-        Files.createDirectories(folder)
-      }
-    }
   }
 
   /* Encoding of the experiment run name */
@@ -148,12 +131,12 @@ object Experiment {
 
   /** Representation of the state of a run. */
   trait RunState {
-    val name: String
-    val runnerID: String
-    val runnerName: String
-    val runnerVersion: String
-    var runExitCode: Option[Int]
-    var runTime: Long
+    val name          : String
+    val runnerID      : String
+    val runnerName    : String
+    val runnerVersion : String
+    var runExitCode   : Option[Int]
+    var runTime       : Long
   }
 
   /** A private inner class encapsulating the logic of single run. */
@@ -161,14 +144,11 @@ object Experiment {
 
     var state = loadState()
 
-    var logFileCounts: Map[String, Long] = null
-
     /** Executes this run.
       *
       * Tries to execute the specified experiment-job. If the experiment did not finished within the given timelimit
       * (specified by experiment.timeout property in experiment-configuration), the job is canceled. The same happens
       * if the experiment was interrupted or throws an exception.
-      *
       */
     override def execute() = {
       if (!force && isSuccessful) {
@@ -180,7 +160,9 @@ object Experiment {
 
         try {
 
-          beforeRun()
+          for (s <- Set(exp.runner) ++ exp.systems) {
+            s.beforeRun(this)
+          }
 
           try {
             Await.ready(future(runJob()), exp.config.getLong("experiment.timeout") seconds)
@@ -196,35 +178,24 @@ object Experiment {
               cancelJob()
           }
 
-          afterRun()
+          for (s <- Set(exp.runner) ++ exp.systems) {
+            s.afterRun(this)
+          }
 
           if (isSuccessful)
             logger.info(s"Experiment run finished in ${state.runTime} milliseconds")
           else
-            logger.warn(s"Experiment run did not finish successfully")
+            logger.warn(s"Experiment run did not finish successfully".yellow)
         } catch {
-          case e: Exception => logger.error("Exception in experiment run %s: %s".format(name, e.getMessage).red)
+          case e: Exception =>
+            logger.error("Exception in experiment run %s: %s".format(name, e.getMessage).red)
         } finally {
           writeState()
         }
       }
     }
 
-    /** Before the run, collect runner log files and their current line counts */
-    protected def beforeRun() = {
-      val logFiles = for (pattern <- logFilePatterns; f <- (shell !! s"ls $pattern").split(Sys.lineSeparator).map(_.trim)) yield f
-      logFileCounts = Map((for (f <- logFiles) yield f -> (shell !! s"wc -l $f | xargs | cut -d' ' -f1").trim.toLong): _*)
-    }
-
-    /** After the run, copy logs */
-    protected def afterRun(): Unit = {
-      shell ! s"rm -Rf $home/logs/*"
-      for ((file, count) <- logFileCounts) shell ! s"tail -n +${count + 1} $file > $home/logs/${Paths.get(file).getFileName}"
-    }
-
-    protected def command = exp.resolve(exp.command)
-
-    protected def logFilePatterns: List[String]
+    protected def command: String = exp.resolve(exp.command)
 
     protected def loadState(): RS
 
