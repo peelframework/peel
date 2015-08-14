@@ -6,59 +6,58 @@ nav: getting-started
 
 # Getting Started
 
-A Peel package bundles together the configuration data, datasets, and programs required for the execution of a particular set of experiments, and is therefore shortly referred to as a *Peel bundle*. 
+A Peel package bundles together the configuration data, datasets, and workload applications required for the execution of a particular collection of experiments, and is therefore shortly referred to as a *Peel bundle*. 
 
-To get started, you need to get a Peel bundle using one of two methods -- a *Pre-Packaged Binary* or a *Maven Archetype*. 
+To get started, you need to bootstrap a Peel bundle using one of two methods -- a [*Pre-Packaged Binary*](#pre-packaged-binary) or a [*Maven Archetype*](#maven-archetype). 
 
-The snippets of code below rely on the following shell variables. Modify them accordingly to reflect your developer machine environment.
+The code snippets below assume that the following shell variables are set. Modify them accordingly before running the code.
 
 {% highlight bash %}
-export BUNDLE_BIN=/path/to/bundle/binaries          # bundle binaries
-export BUNDLE_SRC=/path/to/bundle/sources           # bundle sources
-export BUNDLE_GID=com.acme.peel                     # bundle group
-export BUNDLE_AID=peel-bundle                       # bundle name
-export BUNDLE_PKG=com.acme.benchmarks.example       # bundle package
+export BUNDLE_BIN=~/bundles/bin                          # bundle binaries parent
+export BUNDLE_SRC=~/bundles/src                          # bundle sources parent
+export BUNDLE_GID=com.acme.peel                          # bundle groupId
+export BUNDLE_AID=peel-bundle                            # bundle artifactId
+export BUNDLE_PKG=com.acme.benchmarks.example            # bundle root package
 {% endhighlight %}
 
-If you intend to maintain multiple bundles, we suggest to keep `BUNDLE_BIN` and `BUNDLE_SRC` in your `~/.profile` file.
+*__Tip__: If you intend to maintain multiple bundles, we suggest to define `BUNDLE_BIN` and `BUNDLE_SRC` in your `~/.profile` file.*
 
 ## Pre-Packaged Binary
 
-If you don't want to version the code and configuration data of your bundle, your best option is to download and extract the [pre-packaged empty bundle archive](http://peel-framework.org/peel-empty-bundle.tar.gz).
+If you don't want to version the code and configuration data of your bundle, your best option is to download and extract the [pre-packaged empty bundle archive](http://peel-framework.org/peel-empty-bundle-{{ site.current_version }}.tar.gz).
 
 {% highlight bash %}
-wget http://peel-framework.org/peel-bundle.tar.gz   # download
-tar -xzvf peel-bundle.tar.gz -C "$BUNDLE_BIN"       # extract
-mv "$BUNDLE_BIN/peel-bundle"                        \
-   "$BUNDLE_BIN/$BUNDLE_AID"                        # rename
-cd "$BUNDLE_BIN/$BUNDLE_AID"                        # go to bin
+wget http://peel-framework.org/peel-empty-bundle-{{ site.current_version }}.tar.gz
+tar -xzvf peel-bundle-{{ site.current_version }}.tar.gz -C "$BUNDLE_BIN"
+mv "$BUNDLE_BIN/peel-empty-bundle-{{ site.current_version }}" "$BUNDLE_BIN/$BUNDLE_AID"
+cd "$BUNDLE_BIN/$BUNDLE_AID"
 {% endhighlight %}
 
 ## Maven Archetype
 
-If you intend to version the code and configuration data in your bundle, the best way to start is to use a Peel archetype.
+If you intend to version the code and configuration data of your bundle, your best option is to bootstrap a project structure from a Peel archetype.
 
 {% highlight bash %}
-cd "$BUNDLE_SRC"                                    # go to src
-mvn archetype:generate -B                           \
-    -DarchetypeGroupId=org.peelframework            \
-    -DarchetypeArtifactId=peel-flinkspark-bundle    \
-    -DarchetypeVersion=1.0-SNAPSHOT                 \
-    -DgroupId=$BUNDLE_GID                           \
-    -DartifactId=$BUNDLE_AID                        \
-    -Dpackage=$BUNDLE_PKG                           # init. bundle
-cd "$BUNDLE_AID"                                    # go to bundle
-mvn clean deploy -DskipTests                        # build & deploy
-cd "$BUNDLE_BIN/$BUNDLE_AID"                        # go to bin
+cd "$BUNDLE_SRC"
+mvn archetype:generate -B                         \
+    -Dpackage="$BUNDLE_PKG"                       \
+    -DgroupId="$BUNDLE_GID"                       \
+    -DartifactId="$BUNDLE_AID"                    \
+    -DarchetypeGroupId=org.peelframework          \
+    -DarchetypeArtifactId=peel-flinkspark-bundle  \
+    -DarchetypeVersion={{ site.current_version }}
+cd "$BUNDLE_AID"
+mvn clean deploy -Pdev
+cd "$BUNDLE_BIN/$BUNDLE_AID"
 {% endhighlight %}
 
 The following archetypes are currently supported:
 
 | Archetype ID                 | Description                                                       |
 | ---------------------------- | ----------------------------------------------------------------- |
-| `peel-flinkspark-bundle`     | A bundle for versioned workload applications for Spark & Flink.   |
-| `peel-flink-bundle`          | A bundle for versioned workload applications for Flink only.      |
-| `peel-spark-bundle`          | A bundle for versioned workload applications for Spark only.      |
+| `peel-flinkspark-bundle`     | A bundle with versioned workload applications for Spark & Flink.  |
+| `peel-flink-bundle`          | A bundle with versioned workload applications for Flink only.     |
+| `peel-spark-bundle`          | A bundle with versioned workload applications for Spark only.     |
 
 ## Run the Example Experiment
 
@@ -68,24 +67,44 @@ From the `$BUNDLE_BIN/$BUNDLE_AID` directory, run the following command:
 ./peel.sh suite:run wordcount.default
 {% endhighlight %}
 
-This will execute an example Wordcount job on Flink and Spark on your local machines.
+This will trigger the execution of an example suite which consists of two experiments running a Wordcount job on Flink and Spark respectively. 
+Each job will be repeated three times, and the results and raw log data for each run will be stored in the `results/wordcount.default` folder.
 
 ## Check the Results
 
-To check the results of the example job, run
+Peel ships with facilities to extract, transform, and load the row data from your experiments in a relational database.
+To do this for the Wordcount job, run the following commands:
 
 {% highlight bash %}
-./peel.sh db:initialize                  # init. results database
-./peel.sh db:import wordcount.default    # import experiment results
+./peel.sh db:initialize
+./peel.sh db:import wordcount.default
 {% endhighlight %}
 
-If you're using the archetype method, you can also execute a custom query on the results:
+You can then start analyzing your experiment data with SQL queries and data analysis tools that can use a relational database as a backend. 
+For example, the following SQL query retrieves the min, median, and max runtime for the two experiments in the `wordcount.default` suite.
+
+{% highlight sql %}
+SELECT   e.suite                                 as suite       ,
+         e.name                                  as name        ,
+         MIN(r.time)                             as min_time    ,
+         MAX(r.time)                             as max_time    ,
+         SUM(r.time) - MIN(r.time) - MAX(r.time) as median_time
+FROM     experiment                              as e           ,
+         experiment_run                          as r
+WHERE    e.id    = r.experiment_id
+AND      e.suite = "wordcount.default"
+GROUP BY e.suite, e.name
+ORDER BY e.suite, e.name
+{% endhighlight %}
+
+If you're using the archetype method, you can run the above query directly through the custom Peel command shipped with your bundle:
 
 {% highlight bash %}
-./peel.sh res:import wordcount.default    # import experiment results
+./peel.sh query:runtimes wordcount.default
 {% endhighlight %}
 
 ## Next Steps
 
-Interested in learning more? Check the [Motivation]({{ site.baseurl }}/manual/motivation.html) section for a brief introduction to system experiments and an overview of the problems Peel will solve for you.
-Alternatively, go directly to [Bundle Basics]({{ site.baseurl }}/manual/bundle-basics.html) if you want to get your hands right away!
+Interested in learning more? 
+Check the [Motivation]({{ site.baseurl }}/manual/motivation.html) section for a brief introduction to system experiment vocabulary and concepts and an overview of the problems Peel will solve for you.
+Alternatively, go directly to [Bundle Basics]({{ site.baseurl }}/manual/bundle-basics.html) if you want to get your hands dirty right away!
