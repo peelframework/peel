@@ -92,7 +92,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>${project.artifactId}</finalName>
+                    <finalName>${project.artifactId}-${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <attach>false</attach>
                     <descriptors>
@@ -113,8 +113,8 @@
                                 <mkdir dir="${bundle.bin}"/>
                                 <exec executable="cp">
                                     <arg value="-R"/>
-                                    <arg value="./target/${project.artifactId}"/>
-                                    <arg value="${bundle.bin}"/>
+                                    <arg value="./target/${project.artifactId}-${project.version}"/>
+                                    <arg value="${bundle.bin}/${project.artifactId}"/>
                                 </exec>
                             </tasks>
                         </configuration>
