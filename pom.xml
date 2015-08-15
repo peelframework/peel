@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2014 TU Berlin (alexander.alexandrov@tu-berlin.de)
+    Copyright (C) 2014 TU Berlin (peel@dima.tu-berlin.de)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -454,7 +454,7 @@
                     <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
                     <properties>
                         <owner>TU Berlin</owner>
-                        <email>alexander.alexandrov@tu-berlin.de</email>
+                        <email>peel@dima.tu-berlin.de</email>
                     </properties>
                     <excludes>
                         <exclude>**/LICENSE</exclude>
