@@ -131,7 +131,6 @@ object Experiment {
 
   /** Representation of the state of a run. */
   trait RunState {
-    val name          : String
     val runnerID      : String
     val runnerName    : String
     val runnerVersion : String

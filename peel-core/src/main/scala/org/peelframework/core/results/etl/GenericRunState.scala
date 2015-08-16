@@ -15,6 +15,7 @@
  */
 package org.peelframework.core.results.etl
 
+import org.peelframework.core.beans.experiment.Experiment
 import spray.json.{NullOptions, DefaultJsonProtocol}
 
 /** A case class representing the common fields ensured to be appearing in all `state.json` files.
@@ -28,19 +29,19 @@ import spray.json.{NullOptions, DefaultJsonProtocol}
   * @param runExitCode The exit code of this run (0 indicates success).
   * @param runTime The runtime (in milliseconds) of this run.
   */
-case class RunState(
-  name: String,
-  suiteName: String,
-  command: String,
-  runnerID: String,
-  runnerName: String,
-  runnerVersion: String,
-  runExitCode: Option[Int] = None,
-  runTime: Long = 0) {}
+case class GenericRunState(
+  name            : String,
+  suiteName       : String,
+  command         : String,
+  runnerID        : String,
+  runnerName      : String,
+  runnerVersion   : String,
+  var runExitCode : Option[Int] = None,
+  var runTime     : Long = 0) extends Experiment.RunState
 
-/** An object for [[org.peelframework.core.results.etl.RunState RunState]] <-> JSON format conversion.
+/** An object for [[GenericRunState]] <-> JSON format conversion.
   *
   */
 object RunStateProtocol extends DefaultJsonProtocol with NullOptions {
-  implicit val stateFormat = jsonFormat8(RunState)
+  implicit val stateFormat = jsonFormat8(GenericRunState)
 }

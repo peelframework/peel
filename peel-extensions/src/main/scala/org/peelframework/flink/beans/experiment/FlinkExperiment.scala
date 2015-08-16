@@ -18,7 +18,6 @@ package org.peelframework.flink.beans.experiment
 import java.io.FileWriter
 import java.nio.file.{Files, Paths}
 
-import java.lang.{System => Sys}
 import com.typesafe.config.Config
 import org.peelframework.core.beans.data.{DataSet, ExperimentOutput}
 import org.peelframework.core.beans.experiment.Experiment
@@ -59,8 +58,6 @@ class FlinkExperiment(
 object FlinkExperiment {
 
   case class State(
-    name            : String,
-    suiteName       : String,
     command         : String,
     runnerID        : String,
     runnerName      : String,
@@ -70,7 +67,7 @@ object FlinkExperiment {
     var plnExitCode : Option[Int] = None) extends Experiment.RunState
 
   object StateProtocol extends DefaultJsonProtocol with NullOptions {
-    implicit val stateFormat = jsonFormat9(State)
+    implicit val stateFormat = jsonFormat7(State)
   }
 
   /** A private inner class encapsulating the logic of single run. */
@@ -87,10 +84,10 @@ object FlinkExperiment {
         try {
           scala.io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
         } catch {
-          case e: Throwable => State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
+          case e: Throwable => State(command, exp.runner.beanName, exp.runner.name, exp.runner.version)
         }
       } else {
-        State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
+        State(command, exp.runner.beanName, exp.runner.name, exp.runner.version)
       }
     }
 

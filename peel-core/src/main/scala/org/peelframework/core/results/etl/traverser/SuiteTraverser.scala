@@ -19,8 +19,7 @@ import java.io.File
 import java.nio.file.Path
 
 import com.typesafe.config.Config
-import org.peelframework.core.results.etl.{RunState, RunStateProtocol}
-import org.peelframework.core.results.etl.RunState
+import org.peelframework.core.results.etl.{GenericRunState, RunStateProtocol}
 import resource._
 import spray.json._
 
@@ -29,11 +28,11 @@ import spray.json._
   * @param suitePath The suite path to be traversed.
   * @param config The application configuration.
   */
-class SuiteTraverser(suitePath: Path)(implicit config: Config) extends Traversable[RunState] {
+class SuiteTraverser(suitePath: Path)(implicit config: Config) extends Traversable[GenericRunState] {
 
   import SuiteTraverser.loadState
 
-  override def foreach[U](f: RunState => U): Unit = for {
+  override def foreach[U](f: GenericRunState => U): Unit = for {
     dir <- suitePath.toFile.listFiles.sortBy(_.getAbsolutePath) if dir.isDirectory
     fil <- Option(new File(dir, "state.json")) if fil.isFile
     run <- loadState(fil)
@@ -47,9 +46,15 @@ object SuiteTraverser {
 
   def apply(suitePath: Path)(implicit config: Config) = new SuiteTraverser(suitePath)
 
-  private def loadState(runFile: File): Option[RunState] = {
+  private def loadState(runFile: File): Option[GenericRunState] = {
+    val prefix =
+      s"""
+       |{
+       |  "name": "${runFile.getParentFile.getName}",
+       |  "suiteName": "${runFile.getParentFile.getParentFile.getName}",
+      """.stripMargin.trim
     (for {
       src <- managed(scala.io.Source.fromFile(runFile))
-    } yield src.mkString.parseJson.convertTo[RunState]).opt
+    } yield src.mkString.replaceFirst("""\{""", prefix).parseJson.convertTo[GenericRunState]).opt
   }
 }

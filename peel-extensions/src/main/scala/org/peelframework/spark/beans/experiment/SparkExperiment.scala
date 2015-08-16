@@ -16,7 +16,6 @@
 package org.peelframework.spark.beans.experiment
 
 import java.io.FileWriter
-import java.lang.{System => Sys}
 import java.nio.file._
 
 import com.typesafe.config.Config
@@ -59,8 +58,6 @@ class SparkExperiment(
 object SparkExperiment {
 
   case class State(
-    name            : String,
-    suiteName       : String,
     command         : String,
     runnerID        : String,
     runnerName      : String,
@@ -69,7 +66,7 @@ object SparkExperiment {
     var runTime     : Long = 0) extends Experiment.RunState
 
   object StateProtocol extends DefaultJsonProtocol with NullOptions {
-    implicit val stateFormat = jsonFormat8(State)
+    implicit val stateFormat = jsonFormat6(State)
   }
 
   /**
@@ -88,10 +85,10 @@ object SparkExperiment {
         try {
           scala.io.Source.fromFile(s"$home/state.json").mkString.parseJson.convertTo[State]
         } catch {
-          case e: Throwable => State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
+          case e: Throwable => State(command, exp.runner.beanName, exp.runner.name, exp.runner.version)
         }
       } else {
-        State(name, Sys.getProperty("app.suite.name"), command, exp.runner.beanName, exp.runner.name, exp.runner.version)
+        State(command, exp.runner.beanName, exp.runner.name, exp.runner.version)
       }
     }
 
