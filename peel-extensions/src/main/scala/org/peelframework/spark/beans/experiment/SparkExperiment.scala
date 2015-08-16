@@ -100,7 +100,7 @@ object SparkExperiment {
 
     override protected def runJob() = {
       // try to execute the experiment run plan
-      val (runExit, t) = Experiment.time(this !(s"$command", s"$home/run.out", s"$home/run.err"))
+      val (runExit, t) = Experiment.time(this !(command, s"$home/run.out", s"$home/run.err"))
       state.runTime = t
       state.runExitCode = Some(runExit)
     }
@@ -110,7 +110,6 @@ object SparkExperiment {
     }
 
     private def !(command: String, outFile: String, errFile: String) = {
-      val master = exp.config.getString("system.spark.config.defaults.spark.master")
       shell ! s"${exp.config.getString("system.spark.path.home")}/bin/spark-submit ${command.trim} > $outFile 2> $errFile"
     }
   }
