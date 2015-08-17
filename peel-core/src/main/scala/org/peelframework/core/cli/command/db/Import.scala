@@ -130,8 +130,12 @@ class Import extends Command {
       val etlSystem = ResultsETLSystem(context, config)
 
       // extract, transform, and load events from files associated with successful experiments runs
-      for ((suite, run) <- states zip runs if run.exit == 0; file <- RunTraverser(suitePath.resolve(suite.name))) {
-        etlSystem ! ProcessFile(file, run)
+      for {
+        (state, run) <- states zip runs if run.exit == 0
+        basePath     =  suitePath.resolve(state.name)
+        file         <- RunTraverser(suitePath.resolve(state.name))
+      } {
+        etlSystem ! ProcessFile(basePath, file, run)
       }
 
       // shutdown the system

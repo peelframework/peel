@@ -16,6 +16,7 @@
 package org.peelframework.flink.results.etl
 
 import java.io.File
+import java.nio.file.Paths
 
 import akka.actor.{ActorRef, Props}
 import org.peelframework.core.results.etl.extractor.{EventExtractor, EventExtractorCompanion, PatternBasedProcessMatching}
@@ -47,6 +48,11 @@ class FlinkTaskEventExtractor(
 /** Companion object. */
 @Component
 object FlinkTaskEventExtractor extends EventExtractorCompanion with PatternBasedProcessMatching {
+
+  /** A prefix fore the relative file that needs to match. **/
+  override val prefix: String = {
+    Paths.get("logs", "flink").toString
+  }
 
   /** A list of file patterns for in which the event extractor is interested */
   override val filePatterns: Seq[Regex] = {

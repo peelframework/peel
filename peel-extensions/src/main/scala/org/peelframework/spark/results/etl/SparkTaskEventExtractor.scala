@@ -16,6 +16,7 @@
 package org.peelframework.spark.results.etl
 
 import java.io.File
+import java.nio.file.Paths
 import java.time.Instant
 
 import akka.actor.{ActorRef, Props}
@@ -68,6 +69,11 @@ class SparkTaskEventExtractor(
 /** Companion object. */
 @Component
 object SparkTaskEventExtractor extends EventExtractorCompanion with PatternBasedProcessMatching {
+
+  /** A prefix fore the relative file that needs to match. **/
+  override val prefix: String = {
+    Paths.get("logs", "spark").toString
+  }
 
   /** A list of file patterns for in which the event extractor is interested */
   override val filePatterns: Seq[Regex] = {

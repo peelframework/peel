@@ -16,6 +16,7 @@
 package org.peelframework.core.results.etl
 
 import java.io.File
+import java.nio.file.Path
 import java.sql.Connection
 
 import akka.actor._
@@ -56,9 +57,9 @@ class EventExtractorManager(appContext: ApplicationContext, config: Config, conn
 
   /** Normal state message handler. */
   override def receive: Receive = {
-    case process@ProcessFile(file, run) =>
+    case process@ProcessFile(basePath, file, run) =>
       // find extractors for this file
-      val extractors = for (companion <- companions; if companion.canProcess(file)) yield {
+      val extractors = for (companion <- companions; if companion.canProcess(process.relativeFile)) yield {
         val p = companion.props(run, appContext, writer) // construct extractor props
         val r = companion.reader(file) // construct reader required for this actor
         r -> p // return (reader, extractor props) pair
@@ -81,7 +82,7 @@ class EventExtractorManager(appContext: ApplicationContext, config: Config, conn
 
   /** "Shutting Down" state message handler. */
   def shuttingDown: Receive = {
-    case ProcessFile(_, _) =>
+    case ProcessFile(_, _, _) =>
       log.warning("Cannot handle 'ProcessFile' message in EventExtractorManager who is shutting down.")
     case Terminated(actor) if actor == processor =>
       writer ! PoisonPill // all processors are done now, it is safe to send the PoisonPill to the writer
@@ -95,7 +96,9 @@ class EventExtractorManager(appContext: ApplicationContext, config: Config, conn
 object EventExtractorManager {
 
   /** Used by others to ask to process a file associated with an experiment run. */
-  case class ProcessFile(file: File, run: ExperimentRun)
+  case class ProcessFile(basePath: Path, file: File, run: ExperimentRun) {
+    lazy val relativeFile = basePath.relativize(file.toPath).toFile
+  }
 
   /** Shutdown message for FileProcessor actors. */
   case class Shutdown()

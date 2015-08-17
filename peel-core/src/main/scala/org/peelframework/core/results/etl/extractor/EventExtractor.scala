@@ -55,11 +55,16 @@ trait EventExtractorCompanion {
 trait PatternBasedProcessMatching {
   self: EventExtractorCompanion =>
 
+  /** A prefix for the relative file that needs to match. **/
+  val prefix: String
+
   /** A list of file patterns in which the event extractor is interested. */
   val filePatterns: Seq[Regex]
 
   /** A file can be processed if and only if at least one of the file patterns matches. */
   override final def canProcess(file: File): Boolean = {
-    filePatterns.exists(_.pattern.matcher(file.getName).matches())
+    val preMatches = file.toString.startsWith(prefix)
+    val patMatches = filePatterns.exists(_.pattern.matcher(file.getName).matches())
+    preMatches && patMatches
   }
 }
