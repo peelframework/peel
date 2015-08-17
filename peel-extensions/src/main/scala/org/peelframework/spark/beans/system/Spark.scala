@@ -78,6 +78,8 @@ class Spark(
   }
 
   override def afterRun(run: Run[System]): Unit = {
+    // delegate to parent
+    super[LogCollection].afterRun(run)
     // custom logic for Spark
     val eventLog = for {
       f <- (shell !! s"ls -t ${eventLogPattern()}").split(Sys.lineSeparator).headOption.map(_.trim)
@@ -88,8 +90,6 @@ class Spark(
     else {
       shell ! s"cp ${eventLog.head} ${run.home}/logs/$name/$beanName/${Paths.get(eventLog.head).getFileName}"
     }
-    // delegate to parent
-    super[LogCollection].afterRun(run)
   }
 
   // ---------------------------------------------------
