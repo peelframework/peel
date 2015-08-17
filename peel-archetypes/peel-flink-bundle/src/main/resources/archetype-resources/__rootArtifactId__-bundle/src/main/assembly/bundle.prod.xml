@@ -27,7 +27,7 @@
             <fileMode>0644</fileMode>
             <directoryMode>0755</directoryMode>
             <excludes>
-                <exclude>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-datagens</exclude>
+                <exclude>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-datagens</exclude>
                 <exclude>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-jobs</exclude>
                 <exclude>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-apps</exclude>
             </excludes>
@@ -43,7 +43,7 @@
             <fileMode>0644</fileMode>
             <directoryMode>0755</directoryMode>
             <includes>
-                <include>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-*-datagens</include>
+                <include>${symbol_dollar}{project.parent.groupId}:${symbol_dollar}{project.parent.artifactId}-datagens</include>
             </includes>
         </dependencySet>
         <!-- apps -->

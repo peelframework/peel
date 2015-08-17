@@ -16,12 +16,12 @@ import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 
 /** Query the database for the runtimes of a particular experiment. */
-@Service("wc:query-runtimes")
+@Service("query:runtimes")
 class QueryRuntimes extends Command {
 
   import scala.language.postfixOps
 
-  override val name = "wc:query-runtimes"
+  override val name = "query:runtimes"
 
   override val help = "query the database for the runtimes of a particular experiment."
 
@@ -62,25 +62,17 @@ class QueryRuntimes extends Command {
     val suite = config.getString("app.suite.name")
 
     try {
-      val rowParser = {
-        get[String]          ("suite")              ~
-        get[String]          ("name")               ~
-        get[Int]             ("median_time")        map {
-          case s ~ n ~ t => (s, n, t)
-        }
-      }
-
       // Create an SQL query
       val runtimes = SQL(
           """
-          |SELECT   e.suite         as suite,
-          |         e.name          as name,
-          |         MEDIAN(er.time) as median_time,
-          |         MIN(er.time) as min_time,
-          |         MAX(er.time) as max_time
-          |FROM     experiment      e,
-          |         experiment_run  er
-          |WHERE    e.id = er.experiment_id
+          |SELECT   e.suite                                 as suite       ,
+          |         e.name                                  as name        ,
+          |         MIN(r.time)                             as min_time    ,
+          |         MAX(r.time)                             as max_time    ,
+          |         SUM(r.time) - MIN(r.time) - MAX(r.time) as median_time
+          |FROM     experiment                              as e           ,
+          |         experiment_run                          as r
+          |WHERE    e.id    = r.experiment_id
           |AND      e.suite = {suite}
           |GROUP BY e.suite, e.name
           |ORDER BY e.suite, e.name
@@ -90,26 +82,26 @@ class QueryRuntimes extends Command {
         .as({
           get[String] ("suite")       ~
           get[String] ("name")        ~
-          get[Int]    ("median_time") ~
-          get[Int]    ("min_time") ~
-          get[Int]    ("max_time") map {
-            case s ~ n ~ median ~ min ~ max => (s, n, median, min, max)
+          get[Int]    ("min_time")    ~
+          get[Int]    ("max_time")    ~
+          get[Int]    ("median_time") map {
+            case _ ~ name ~ min ~ max ~ median => (suite, name, min, max, median)
           }
         } * )
 
       logger.info(s"------------------------------------------------------------------------------------------------")
       logger.info(s"| RUNTIME RESULTS FOR '${symbol_dollar}suite' ${symbol_dollar}{" " * (69 - suite.length)} |")
       logger.info(s"------------------------------------------------------------------------------------------------")
-      logger.info(s"| name                      | name                      |     median |        min |        max |")
+      logger.info(s"| name                      | name                      |        min |        max |     median |")
       logger.info(s"------------------------------------------------------------------------------------------------")
       for ((suite, name, median, min, max) <- runtimes) {
-        logger.info(f"| ${symbol_dollar}suite%-25s | ${symbol_dollar}name%-25s | ${symbol_dollar}median%10d | ${symbol_dollar}min%10d | ${symbol_dollar}max%10d | ")
+        logger.info(f"| ${symbol_dollar}suite%-25s | ${symbol_dollar}name%-25s | ${symbol_dollar}min%10d | ${symbol_dollar}max%10d | ${symbol_dollar}median%10d | ")
       }
       logger.info(s"------------------------------------------------------------------------------------------------")
     }
     catch {
       case e: Throwable =>
-        logger.error(s"Error while querying runtime results for suite '${symbol_dollar}{Sys.getProperty("app.suite.name")}'".red)
+        logger.error(s"Error while querying runtime results for suite '${symbol_dollar}suite'".red)
         throw e
     } finally {
       logger.info(s"Closing connection to database '${symbol_dollar}connName'")
