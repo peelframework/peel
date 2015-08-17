@@ -26,17 +26,13 @@ import org.slf4j.LoggerFactory
 case class SystemConfig(config: Config, entries: List[SystemConfig.Entry[Model]]) {
 
   /** Checks if the configuration has changed. */
-  def hasChanged = (for (e <- entries) yield
-  e.hasChanged(config)
-    ).fold(false)(_ || _)
+  def hasChanged = (for (e <- entries) yield e.hasChanged(config)).exists(identity)
 
   /** Updates the configuration files based on the given config. Returns true if at least one file changed. */
-  def update() = (for (e <- entries) yield
-  e.update(config)
-    ).fold(false)(_ || _)
+  def update() = (for (e <- entries) yield e.update(config)).exists(identity)
 }
 
-/** Companion object for the [[org.peelframework.core.config.SystemConfig SystemConfig]] class. */
+/** Companion object for the [[SystemConfig]] class. */
 object SystemConfig {
 
   /** An entry represents a file with configuration parameters for the enclosing system.
@@ -94,7 +90,8 @@ object SystemConfig {
     private def compute(config: Config) = {
       val os = new ByteArrayOutputStream(INITIAL_BUFFER_SIZE)
       val ow = new OutputStreamWriter(os)
-      template.execute(Model.factory[T](config, configKey), ow)
+      val md = Model.factory[T](config, configKey)
+      template.execute(md, ow)
       ow.flush()
       ow.close()
       os.toByteArray
