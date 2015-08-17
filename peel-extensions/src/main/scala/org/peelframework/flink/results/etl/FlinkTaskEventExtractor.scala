@@ -50,7 +50,7 @@ object FlinkTaskEventExtractor extends EventExtractorCompanion with PatternBased
 
   /** A list of file patterns for in which the event extractor is interested */
   override val filePatterns: Seq[Regex] = {
-    Seq("run.out".r)
+    Seq("flink-.+-jobmanager-.+\\.log".r)
   }
 
   /** Constructs a reader that parses the file as a sequence of objects that can be handled by the extractor actor. */

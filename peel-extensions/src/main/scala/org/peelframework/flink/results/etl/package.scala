@@ -22,12 +22,12 @@ import java.time.format.DateTimeFormatter
 package object etl {
 
   /** Pattern for job output log entries. */
-  val LogEntry = """([0-9]{2}/[0-9]{2}/[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2})\t(.+)""".r
+  val LogEntry = """([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3})\t(.+)""".r
 
   /** Pattern for task state transitions. */
   val TaskState = """(.+)\((\d+)/(\d+)\) switched to (SCHEDULED|DEPLOYING|RUNNING|FINISHED)\W*""".r
 
-  private val TimestampFmt = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss")
+  private val TimestampFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,S")
 
   def toInstant(v: String): Instant = {
     LocalDateTime.parse(v, TimestampFmt).toInstant(ZoneOffset.UTC)
