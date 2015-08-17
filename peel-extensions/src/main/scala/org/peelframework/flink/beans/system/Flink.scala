@@ -57,7 +57,8 @@ class Flink(
     val conf = config.getString("system.flink.path.config")
     List(
       SystemConfig.Entry[Model.Hosts]("system.flink.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
-      SystemConfig.Entry[Model.Yaml]("system.flink.config.yaml", s"$conf/flink-conf.yaml", templatePath("conf/flink-conf.yaml"), mc)
+      SystemConfig.Entry[Model.Yaml]("system.flink.config.yaml", s"$conf/flink-conf.yaml", templatePath("conf/flink-conf.yaml"), mc),
+      SystemConfig.Entry[Model.Yaml]("system.flink.config.log4j", s"$conf/log4j.properties", templatePath("conf/log4j.properties"), mc)
     )
   })
 
