@@ -24,6 +24,7 @@ The top-level elements of a Peel bundle are shortly summarized below.
 | log       | `app.path.log`       | Peel execution logs.                                          |
 | results   | `app.path.results`   | State and log data associated with attempted experiment runs. |
 | systems   | `app.path.systems`   | Contains all running systems.                                 |
+| utils     | `app.path.utils`     | Utility scripts and files.                                    |
 | peel.sh   | `N/A`                | The Peel command line interface.                              |
 
 You can customize the [default paths](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.peel.conf) of these elements in your bundle- or host-specific configuration. For more information how to do this, please refer to the [Environment Configurations]({{ site.baseurl }}/manual/environment-configurations.html) section.
@@ -56,6 +57,74 @@ The downloads folder contains system binary archives for the systems in your exp
 
 The *results* folder contains data collected from attempted successful Peel experiment runs in a hierarchy following a *${suite}/${expName}.run${NN}* naming convention.
 
+### Utils
+
+The *utils* folder contains utility scripts (e.g., SQL queries and [gnuplot](http://www.gnuplot.info/) scripts) that can be used next to or in conjunction with Peel CLI commands.
+
 ## Example
 
-[TODO]
+Taking a closer look at the *peel-wordcount* bundle from the [Motivation]({{ site.baseurl }}/manual/motivation.html#solution) section, we can see the following structure:
+
+The source folder has the following Maven module structure:
+
+{% highlight bash %}
+# go to bundle sources parent
+cd "$BUNDLE_SRC"
+# list contents of peel-wordcount (sources)
+tree -L 1 --dirsfirst -d peel-wordcount
+# result
+peel-wordcount                       # parent package
+├── peel-wordcount-bundle            # bundle assembly
+├── peel-wordcount-datagens          # data generators
+├── peel-wordcount-flink-jobs        # Flink workload job
+├── peel-wordcount-peelextensions    # Peel extensions
+└── peel-wordcount-spark-jobs        # Spark workload job
+{% endhighlight %}
+
+To build the binary bundle from source with maven, you have one of four options:
+
+{% highlight bash %}
+mvn clean package       # package in peel-wordcount-bundle
+mvn clean package -Pdev # package with soft links
+mvn clean deploy        # package and copy to $BUNDLE_BIN
+mvn clean deploy -Pdev  # package and copy with soft links
+{% endhighlight %}
+
+The bundle binaries for the `peel-wordcount` bundle look as follows:
+
+{% highlight bash %}
+# go to bundle binaries parent
+cd "$BUNDLE_BIN"
+# list contents of peel-wordcount (binaries)
+tree -L 2 --dirsfirst peel-wordcount
+# result
+peel-wordcount
+├── apps
+│   ├── peel-wordcount-flink-jobs-1.0-SNAPSHOT.jar
+│   └── peel-wordcount-spark-jobs-1.0-SNAPSHOT.jar
+├── config
+├── datagens
+│   └── peel-wordcount-datagens-1.0-SNAPSHOT.jar
+├── datasets
+├── downloads
+├── lib
+│   ├── ...
+│   ├── peel-core-1.0-SNAPSHOT.jar
+│   ├── peel-extensions-1.0-SNAPSHOT.jar
+│   ├── peel-wordcount-peelextensions-1.0-SNAPSHOT.jar
+│   └── ...
+├── log
+├── results
+├── systems
+├── utils
+├── peel.sh
+└── VERSION
+{% endhighlight %}
+
+The *apps* folder thereby contains the jar artifacts of the two workload modules which contain the Wordcount jobs for Spark and Flink. 
+
+The *datagens* folder contains the `peel-wordcount-datagens` artifact which contains a generator for random words. 
+
+The *lib* folder contains the two common Peel artifacts `peel-core` and `peel-extensions`, as well as the `peel-wordcount-peelextensions` artifact where the user can put hers bundle-specific Peel extensions.
+
+The contents of the remaining folders are copied from the `peel-wordcount-bundle/src/main/resources` folder.

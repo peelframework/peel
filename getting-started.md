@@ -13,8 +13,10 @@ To get started, you need to bootstrap a Peel bundle using one of two methods -- 
 The code snippets below assume that the following shell variables are set. Modify them accordingly before running the code.
 
 {% highlight bash %}
+# for all bundles
 export BUNDLE_BIN=~/bundles/bin                          # bundle binaries parent
 export BUNDLE_SRC=~/bundles/src                          # bundle sources parent
+# for the current bundle
 export BUNDLE_GID=com.acme.peel                          # bundle groupId
 export BUNDLE_AID=peel-bundle                            # bundle artifactId
 export BUNDLE_PKG=com.acme.benchmarks.example            # bundle root package
@@ -47,7 +49,7 @@ mvn archetype:generate -B                         \
     -DarchetypeArtifactId=peel-flinkspark-bundle  \
     -DarchetypeVersion={{ site.current_version }}
 cd "$BUNDLE_AID"
-mvn clean deploy -Pdev
+mvn clean deploy
 cd "$BUNDLE_BIN/$BUNDLE_AID"
 {% endhighlight %}
 

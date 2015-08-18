@@ -115,4 +115,18 @@ After fiddling around for some days, you will solve the problem at hand and prod
 
 ## Solution
 
-Peel can help you solve all of the above problems. The remainder of this manual explains how by means of the running example presented above. You can find [the final version of the developed *wordcount-bundle*](https://github.com/stratosphere/wordcount-bundle) at GitHub for reference.
+Peel can help you solve all of the above problems. The remainder of this manual explains how by means of the running example presented above. To get the example, run the following code snippet:
+
+{% highlight bash %}
+cd "$BUNDLE_SRC"
+mvn archetype:generate -B                         \
+    -Dpackage="org.acme.benchmarks"               \
+    -DgroupId="org.acme"                          \
+    -DartifactId="peel-wordcount"                 \
+    -DarchetypeGroupId=org.peelframework          \
+    -DarchetypeArtifactId=peel-flinkspark-bundle  \
+    -DarchetypeVersion=1.0-SNAPSHOT
+cd "peel-wordcount"
+mvn clean deploy
+cd "$BUNDLE_BIN/peel-wordcount"
+{% endhighlight %}
