@@ -6,6 +6,10 @@
     margin-top: 60px;
 }
 
+.tabs-content .highlight pre {
+    margin-bottom: 0px;
+}
+
 .content-container h1,
 .content-container h2,
 .content-container h3 {
