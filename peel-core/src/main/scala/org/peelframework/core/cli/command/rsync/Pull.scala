@@ -107,6 +107,11 @@ class Pull extends Command {
         src = Paths.get(config.getString("app.path.systems")),
         dst = Paths.get(dst, bun, "systems"),
         inc = Seq.empty[String],
+        exc = Seq("*")),
+      FolderEntry(
+        src = Paths.get(config.getString("app.path.utils")),
+        dst = Paths.get(dst, bun, "utils"),
+        inc = Seq.empty[String],
         exc = Seq("*"))
     )
 
