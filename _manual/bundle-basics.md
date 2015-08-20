@@ -51,7 +51,7 @@ The *datasets* folder contains static, fixed-sized datasets required for the exp
 
 ### Systems
 
-The downloads folder contains system binary archives for the systems in your experiment environment managed by Peel. The system archives are per default extracted in the systems folder.
+The *downloads* folder contains system binary archives for the systems in your experiment environment managed by Peel. The system archives are per default extracted in the systems folder.
 
 ### Results
 
@@ -63,41 +63,30 @@ The *utils* folder contains utility scripts (e.g., SQL queries and [gnuplot](htt
 
 ## Example
 
-Taking a closer look at the *peel-wordcount* bundle from the [Motivation]({{ site.baseurl }}/manual/motivation.html#solution) section, we can see the following structure:
+Taking a closer look at the *peel-wordcount* bundle from the [Motivation]({{ site.baseurl }}/manual/motivation.html#solution) section, we can see the following project and folder structure.
 
-The source folder has the following Maven module structure:
+### Bundle Sources
+
+The bundle sources are organized as a multi-module Maven project with the following structure:
 
 {% highlight bash %}
-# go to bundle sources parent
-cd "$BUNDLE_SRC"
-# list contents of peel-wordcount (sources)
-tree -L 1 --dirsfirst -d peel-wordcount
-# result
-peel-wordcount                       # parent package
-├── peel-wordcount-bundle            # bundle assembly
-├── peel-wordcount-datagens          # data generators
-├── peel-wordcount-flink-jobs        # Flink workload job
-├── peel-wordcount-peelextensions    # Peel extensions
-└── peel-wordcount-spark-jobs        # Spark workload job
+# cd "$BUNDLE_SRC" && \
+# tree -L 1 --dirsfirst -d peel-wordcount
+peel-wordcount                     # parent module
+├── peel-wordcount-bundle          # module for bundle assembly
+├── peel-wordcount-datagens        # module for data generators
+├── peel-wordcount-flink-jobs      # module for Flink jobs 
+├── peel-wordcount-peelextensions  # module for Peel extensions
+└── peel-wordcount-spark-jobs      # module for Spark jobs
 {% endhighlight %}
 
-To build the binary bundle from source with maven, you have one of four options:
+### Assembled Bundle 
+
+The assembled bundle for the `peel-wordcount` bundle looks as follows:
 
 {% highlight bash %}
-mvn clean package       # package in peel-wordcount-bundle
-mvn clean package -Pdev # package with soft links
-mvn clean deploy        # package and copy to $BUNDLE_BIN
-mvn clean deploy -Pdev  # package and copy with soft links
-{% endhighlight %}
-
-The bundle binaries for the `peel-wordcount` bundle look as follows:
-
-{% highlight bash %}
-# go to bundle binaries parent
-cd "$BUNDLE_BIN"
-# list contents of peel-wordcount (binaries)
-tree -L 2 --dirsfirst peel-wordcount
-# result
+# cd "$BUNDLE_BIN" && \
+# tree -L 2 --dirsfirst peel-wordcount
 peel-wordcount
 ├── apps
 │   ├── peel-wordcount-flink-jobs-1.0-SNAPSHOT.jar
@@ -121,10 +110,24 @@ peel-wordcount
 └── VERSION
 {% endhighlight %}
 
-The *apps* folder thereby contains the jar artifacts of the two workload modules which contain the Wordcount jobs for Spark and Flink. 
+Here is how the Maven modules from the bundle sources are mapped to the assembled bundle.
 
-The *datagens* folder contains the `peel-wordcount-datagens` artifact which contains a generator for random words. 
+* The *apps* folder contains the jar artifacts for all `*-jobs` and `*-apps` modules. 
+* The *datagens* folder contains the jar artifacts for all `*-datagens` modules. 
+* The *lib* folder contains the two common Peel artifacts `peel-core` and `peel-extensions`, as well as the `*-peelextensions` artifact where the user can put hers bundle-specific Peel extensions.
+* The contents of the remaining folders are copied from the corresponding folder located under `peel-wordcount-bundle/src/main/resources`.
 
-The *lib* folder contains the two common Peel artifacts `peel-core` and `peel-extensions`, as well as the `peel-wordcount-peelextensions` artifact where the user can put hers bundle-specific Peel extensions.
+### Building
 
-The contents of the remaining folders are copied from the `peel-wordcount-bundle/src/main/resources` folder.
+To assemble the bundle from the sources with Maven, you have one of four options:
+
+{% highlight bash %}
+mvn clean package       # package in peel-wordcount-bundle
+mvn clean package -Pdev # package with soft links
+mvn clean deploy        # package and copy to $BUNDLE_BIN
+mvn clean deploy -Pdev  # package and copy with soft links
+{% endhighlight %}
+
+Running the `deploy` phase automatically copies the assembled bundle binaries folder to `$BUNDLE_BIN`.
+
+Activating the `dev` profile (with `-Pdev`) enforces certain folders in the assembled bundle binaries (*config*, *datasets*, and  *utils*) to be created as soft links to their corresponding source locations.

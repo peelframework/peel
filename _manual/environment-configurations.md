@@ -32,19 +32,24 @@ A number of problems arise with a naïve approach for manual configuration (per 
 1. **Variable Interdependence.** The sets of configuration variables associated with each system are not mutually exclusive, and care has to be taken that the corresponding values are consistent for the overlapping fragment (e.g., the *slaves* list in all systems should be the same).
 1. **Value Tuning.** For a series of related experiments, all but a very few set of values remain fixed. These values are suitably chosen based on the underlying host environment characteristics in order to maximise the performance of the corresponding systems (e.g., memory allocation, degree of parallelism, temp paths for spilling).
 
+The naïve approach therefore puts a substantial burden on the person conducting the experiments. 
+
 ## Approach
 
-The naïve approach therefore puts a substantial burden on the person conducting the experiments. Peel’s approach towards the difficulties outlined above is to associate *one global environment configuration* to each experiment. In doing this, Peel promotes
+Peel’s approach towards the difficulties outlined above is to associate *one global environment configuration* to each experiment. In doing this, Peel promotes
 
 1. configuration *reuse* through *layering*, as well as
 1. configuration *uniformity* through a *hierarchical syntax ([HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md))*.
 
-At runtime, the *experiment config* is first lazily constructed and evaluated based on the layering scheme and conventions discussed below, and then (partially) mapped to the various concrete *config* and *parameter* files and formats of the systems and applications in the experiment environment.
+At runtime, experiments are represented by [experiment beans]({{ site.baseurl }}/manual/experiments-definitions.html#experiment). 
+Each experiment bean holds a *HOCON config* that is first constructed and evaluated based on the layering scheme and conventions discussed below, and then mapped to the various concrete *config* and *parameter* files and formats of the systems and applications in the experiment environment.
+
+In our running example, this means that each of the six experiments (3x `SparkWC` + 3x `FlinkWC`) will have an associated `config` property -- a hierarchical map of key-value pairs which constitute the configuration of all systems and jobs required for that particular experiment.
 
 <div class="row">
     <figure class="large-10 large-centered medium-11 medium-centered small-12 small-centered columns">
         <img src="{{ site.baseurl }}/img/env_wc_mapping.svg" title="Mapping the environment configuration for the WC-Spark experiment" alt="Mapping the environment configuration for the WC-Spark experiment" /><br />
-        <figcaption>Mapping the environment configuration for the WC-Spark experiment</figcaption>
+        <figcaption>Mapping the environment configurations for the six Wordcount experiments</figcaption>
     </figure>
 </div>
 
@@ -52,37 +57,92 @@ At runtime, the *experiment config* is first lazily constructed and evaluated ba
 
 The Peel configuration system is built upon the concept of layered construction and resolution. Peel distinguishes between three layers of configuration:
 
-1. **Default**. Default configuration values for Peel itself and the supported systems. Packaged in Peel-related jars.
-2. **Bundle.** Bundle-specific configuration values. Located in a folder resolved via the Java system property `app.path.config` at runtime. Default is the *config* folder of the current bundle.
-3. **Host**. Host-specific configuration values. Located in the `hostname` subfolder of the `app.path.config` folder.
+1. **Default**. Default configuration values for Peel itself and the supported systems. Packaged as resources in Peel-related jars located in the bundle's `app.path.lib` folder.
+2. **Bundle.** Bundle-specific configuration values. Located in a folder resolved via the Java system property `app.path.config` at runtime. Default is the `config` subfolder of the current bundle.
+3. **Host**. Host-specific configuration values. Located in the `$HOSTNAME` subfolder of the `app.path.config` folder.
 
-For each experiment in a suite, Peel will construct an associated experiment configuration according to the following table entries (higher in the list means lower priority).
+For each experiment bean defined in an experiment suite, Peel will construct an associated configuration according to the following table entries (higher in the list means lower priority).
 
-| Path                                              | Description                                      |
-| ------------------------------------------------- | ------------------------------------------------ |
-| `reference.peel.conf`                             | Default Peel configuration.                      |
-| `reference.${systemID}.conf`                      | Default system configuration.                    |
-| `${app.path.config}/${systemID}.conf`             | Bundle-specific system configuration (optional). |
-| `${app.path.config}/${hostname}/${systemID}.conf` | Host-specific system configuration (optional).   |
-| `${app.path.config}/application.conf`             | Bundle-specific Peel configuration (optional).   |
-| `${app.path.config}/${hostname}/application.conf` | Host-specific Peel configuration (optional).     |
-| Experiment bean *config* value                    | Experiment specific configuration (optional).    |
-| *System*                                          | JVM system properties (constant).                |
+| Path                                              | Description                                | Type  |
+| ------------------------------------------------- | -------------------------------------------| ----- |
+| `reference.peel.conf`                             | Default Peel config.                       | res.  |
+| `reference.${systemID}.conf`                      | Default system config.                     | file  |
+| `${app.path.config}/${systemID}.conf`             | Bundle-specific system config (opt).       | file  |
+| `${app.path.config}/${hostname}/${systemID}.conf` | Host-specific system config (opt).         | file  |
+| `${app.path.config}/application.conf`             | Bundle-specific Peel config (opt).         | file  |
+| `${app.path.config}/${hostname}/application.conf` | Host-specific Peel config (opt).           | file  |
+| Experiment bean *config* value                    | Experiment specific config (opt).          | bean  |
+| *System*                                          | JVM system properties (constant).          | env.  | 
 
-First comes the default Peel configuration.
-Second, for each system upon which the experiment depends (with bean identified by `systemID`), the corresponding default system configuration as well as bundle- or host-specific versions.
-Third, bundle- and host-specific `application.conf` (counterpart of `reference.peel.conf`).
-Fourth, experiment-specific configuration overrides and parameters as defined in the *config* property of the corresponding experiment bean.
-Finally, a set of configuration parameters derived from the current JVM System object.
+First comes [the default Peel configuration](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.peel.conf), located in the `peel-core.jar` package.
+
+Second, for each system upon which the experiment depends (with corresponding [system bean]({{ site.baseurl }}/manual/experiments-definitions.html#system) identified by `systemID`), Peel loads the the default configuration for that system as well as (the optional) bundle- or host-specific configurations.
+
+Third, bundle- and host-specific `application.conf`, which is a counterpart and respectively overrides bundle-wide values defined in `reference.peel.conf`.
+
+Upon that come the values defined the `config` property of the current experiment bean. These are typically used to vary one particular parameter in a sequence of experiment in a suite (e.g. varying the number of workers and the DOP).
+
+Finally, Peel appends a set of configuration parameters derived from the current JVM System object (e.g., the number of CPUs or the total amount of available memory).
 
 *__Tip__: You can see the sequence of files loaded as part of the construction of a particular configuration environment in the Peel console log at runtime.*
 
 ## Sharing Configurations
 
-One of the main advantages of Peel is the ability to share hand-crafted configurations for a particular set of systems on a particular host environment.
-The suggested way to do so is through a dedicated repository for each host-specific configuration.
-Please check the [Environment Configurations Repository]({{ site.basepath }}/repository/environment-configurations.html) for more information on that matter.
+One of the main advantages of Peel is the ability to share hand-crafted configurations for a set of systems on a particular host environment.
+The suggested way to do so is through a dedicated Git repository. If you are using a versioned bundle, can then link the respository as [a Git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+For example, if the ACME cluster has a shared configuration available [at GitHub](https://github.com/stratosphere/peelconfig.acme), you can use the following command to add it as Git submodule in your `peel-wordcount` bundle:
+
+{% highlight bash %}
+git submodule add \
+    git@github.com:stratosphere/peelconfig.acme.git \
+    peel-wordcount-bundle/src/main/resources/config/acme-master
+{% endhighlight %}
+
+Don't forget to execute the following commands in order to initialize and checkout the configured submodules when you checkout Peel bundles:
+
+{% highlight bash %}
+git submodule init   # once after checkout
+git submodule update # periodically, to update linked configs
+{% endhighlight %}
+
+Please check the [Environment Configurations Repository]({{ site.baseurl }}/repository/environment-configurations.html) for more information on that matter and a list of available configuration repositories.
 
 ## Example
 
-Take a look at the config folder of the WordCount bundle. [TODO]
+Let us take a look at the `config` folder of the `peel-wordcount` bundle in order to illustrate some of the concepts presented above.
+
+{% highlight bash %}
+# cd "$BUNDLE_BIN" && \
+# tree -L 2 --dirsfirst peel-wordcount/config
+peel-wordcount/config
+├── acme-master
+│   ├── application.conf
+│   ├── flink-0.8.0.conf
+│   ├── flink-0.8.1.conf
+│   ├── flink-0.9.0.conf
+│   ├── flink.conf
+│   ├── hadoop-2.conf
+│   ├── hdfs-2.4.1.conf
+│   ├── hdfs-2.7.1.conf
+│   ├── hosts.conf
+│   ├── spark-1.3.1.conf
+│   └── spark.conf
+├── experiments.wordcount.xml
+├── experiments.xml
+└── systems.xml
+{% endhighlight %}
+
+We can see that our bundle does not include bundle-wide environment configuration, because the `config` folder does not contain any `*.conf` files as direct children. 
+
+On the other side, under `acme-master` (which is the `$HOSTNAME` of the master node in our ACME cluster) we can see multiple `*.conf` files which provide:
+
+* A host-specific system configuration for the following system beans:
+  * [flink-0.8.0](https://github.com/stratosphere/peelconfig.acme/blob/master/flink-0.8.0.conf) which delegates to [flink.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/flink.conf),
+  * [flink-0.8.1](https://github.com/stratosphere/peelconfig.acme/blob/master/flink-0.8.1.conf) which delegates to [flink.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/flink.conf),
+  * [flink-0.9.0](https://github.com/stratosphere/peelconfig.acme/blob/master/flink-0.9.0.conf) which delegates to [flink.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/flink.conf),
+  * [spark-1.3.1](https://github.com/stratosphere/peelconfig.acme/blob/master/spark-1.3.1) which delegates to [spark.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/spark.conf),
+  * [hdfs-2.4.1](https://github.com/stratosphere/peelconfig.acme/blob/master/hdfs-2.4.1) which delegates to [hadoop-2.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/hadoop-2.conf), and
+  * [hdfs-2.7.1](https://github.com/stratosphere/peelconfig.acme/blob/master/hdfs-2.7.1) which delegates to [hadoop-2.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/hadoop-2.conf).
+* A [host-specific Peel configuration](https://github.com/stratosphere/peelconfig.acme/blob/master/application.conf).
+
+When we run Peel experiment suites from the `acme-master` host, we will therefore use the host-specific settings defined under `config/acme-master`, and in all other cases Peel will load and use only the default `reference.*.conf` files from the `peel-core` and `peel-extensions` jars.

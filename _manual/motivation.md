@@ -101,11 +101,11 @@ If you, as a practitioner, want to realize the steps outlined above, you will fa
 
 Each system comes with its own installation and configuration manual. You need to have good prior knowledge or invest time reading these manuals in order to understand (i) which parameters work out of the box, (ii) which ones need to be tuned to your current execution environment, and (iii) which what values to chose for those.
 
-### Execution Glue Code
+### Execution Code
 
 When you come to [Step 3](#step-3-running-the-experiments), you will have the option to either sit in front of the console and steer the experiment lifecycle (system setup & configuration, execution, cleanup) manually, or write a bunch of glue code that does this automatically for you. In a distributed setting, each of these phases is susceptible to occasional errors, so your glue code will need a couple of iterations until it becomes robust enough so you can rely on it.
 
-### Analysis Glue Code
+### Analysis Code
 
 When you come to [Step 4](#step-4-result-analysis--closing-the-loop), you will have to extract the data observed at execution time. Since every system has it’s own logging format and specifics, you will have to write more glue code that deals with that, most likely handling the specific problem at hand.
 
