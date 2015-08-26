@@ -34,6 +34,7 @@ import org.springframework.beans.factory.BeanNameAware
   *
   * @param name The name of this bean. Deafults to the system name (e.g. "Flink")
   * @param version Version of the system (e.g. "7.1")
+  * @param configKey The system configuration resides under `system.\${configKey}`.
   * @param lifespan `Lifespan` of the system
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.BeanNameAware
 abstract class System(
     val name         : String,
     val version      : String,
+    val configKey    : String,
     val lifespan     : Lifespan,
     val dependencies : Set[System],
     val mc           : Mustache.Compiler) extends Node with Configurable with BeanNameAware {
@@ -52,9 +54,6 @@ abstract class System(
   override var config = ConfigFactory.empty()
 
   var isUp = lifespan == Lifespan.PROVIDED
-
-  /** The system configuration resides under `system.\${configKey}`. */
-  val configKey = name
 
   /** The name of this bean. Deafults to the system name. */
   var beanName = name

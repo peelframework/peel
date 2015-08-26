@@ -30,18 +30,18 @@ import scala.util.matching.Regex
   * Implements Yarn as a Peel `System` and provides setup and teardown methods.
   *
   * @param version Version of the system (e.g. "7.1")
+  * @param configKey The system configuration resides under `system.\${configKey}`
   * @param lifespan `Lifespan` of the system
   * @param dependencies Set of dependencies that this system needs
   * @param mc The moustache compiler to compile the templates that are used to generate property files for the system
   */
 class Yarn(
   version      : String,
+  configKey    : String,
   lifespan     : Lifespan,
   dependencies : Set[System] = Set(),
-  mc           : Mustache.Compiler) extends System("yarn", version, lifespan, dependencies, mc)
+  mc           : Mustache.Compiler) extends System("yarn", version, configKey, lifespan, dependencies, mc)
                                        with LogCollection {
-
-  override val configKey = "hadoop-2"
 
   // ---------------------------------------------------
   // LogCollection.

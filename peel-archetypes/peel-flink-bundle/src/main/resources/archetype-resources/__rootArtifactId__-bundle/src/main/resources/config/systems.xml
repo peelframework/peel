@@ -21,6 +21,7 @@
     <!-- Flink (overridden 'flink-0.9.0' bean that depends on 'hdfs-2.7.1') -->
     <bean id="flink-0.9.0" class="org.peelframework.flink.beans.system.Flink" parent="system">
         <constructor-arg name="version" value="0.9.0"/>
+        <constructor-arg name="configKey" value="flink" />
         <constructor-arg name="lifespan" value="EXPERIMENT"/>
         <constructor-arg name="dependencies">
             <set value-type="org.peelframework.core.beans.system.System">
