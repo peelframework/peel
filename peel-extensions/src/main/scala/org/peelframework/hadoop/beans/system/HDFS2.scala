@@ -138,10 +138,9 @@ class HDFS2(
 
   private def format() = {
     val user = config.getString(s"system.$configKey.user")
-    val nameDir = new java.net.URI(config.getString(s"system.$configKey.config.hdfs.dfs.namenode.name.dir")).getPath
 
     logger.info(s"Formatting namenode")
-    shell ! ("%s/bin/hdfs namenode -format -nonInteractive -force".format(config.getString(s"system.$configKey.path.home")),
+    shell ! (s"${config.getString(s"system.$configKey.path.home")}/bin/hdfs namenode -format -nonInteractive -force",
       "Unable to format namenode.")
 
     logger.info(s"Fixing data directories")
