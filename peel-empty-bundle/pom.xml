@@ -110,11 +110,11 @@
                         <phase>install</phase>
                         <configuration>
                             <tasks if="bundle.bin">
-                                <mkdir dir="${bundle.bin}"/>
+                                <mkdir dir="${bundle.bin}/${project.artifactId}"/>
                                 <exec executable="cp">
                                     <arg value="-R"/>
-                                    <arg value="./target/${project.artifactId}-${project.version}"/>
-                                    <arg value="${bundle.bin}/${project.artifactId}"/>
+                                    <arg value="./target/${project.artifactId}-${project.version}/."/>
+                                    <arg value="${bundle.bin}/${project.artifactId}/."/>
                                 </exec>
                             </tasks>
                         </configuration>
@@ -163,17 +163,17 @@
                                 <!-- link config directory -->
                                 <link>
                                     <src>${basedir}/src/main/resources/config</src>
-                                    <dst>${project.build.directory}/${project.parent.artifactId}/config</dst>
+                                    <dst>${project.build.directory}/${project.artifactId}-${project.version}/config</dst>
                                 </link>
                                 <!-- link datasets directory -->
                                 <link>
                                     <src>${basedir}/src/main/resources/datasets</src>
-                                    <dst>${project.build.directory}/${project.parent.artifactId}/datasets</dst>
+                                    <dst>${project.build.directory}/${project.artifactId}-${project.version}/datasets</dst>
                                 </link>
                                 <!-- link utils directory  -->
                                 <link>
                                     <src>${basedir}/src/main/resources/utils</src>
-                                    <dst>${project.build.directory}/${project.parent.artifactId}/utils</dst>
+                                    <dst>${project.build.directory}/${project.artifactId}-${project.version}/utils</dst>
                                 </link>
                             </links>
                         </configuration>
