@@ -19,42 +19,35 @@ import com.typesafe.config.{ConfigFactory, ConfigRenderOptions}
 import org.peelframework.core.beans.system.System
 
 /** A factory for experiment sequences.
-  * 
-  * @param parameters A collection of `(paramName, paramVals)`. All value sequences must have the same size.
-  * @param prototypes A collection of experiment prototypes. Instantiated once per value index.
+  *
+  * @param parameters A sequence of parameter maps.
+  * @param prototypes A collection of experiment prototypes. Instantiated once per parameter map.
   */
 class ExperimentSequence(
-  parameters: Seq[(String, Seq[AnyRef])],
+  parameters: ExperimentSequence.Parameters,
   prototypes: Seq[Experiment[System]]) extends Seq[Experiment[System]] {
 
   import org.peelframework.core.beans.experiment.ExperimentSequence.substituteSequenceParameters
 
-  require(parameters.nonEmpty, "At least one parameter sequence required")
-  require(parameters.map(_._2.size).distinct.size == 1, "All parameter sequences must be of the same length")
-  require(parameters.forall(_._2.nonEmpty), "All parameter sequences must be non-empty")
-
-  private val N = parameters.map(_._2.size).distinct.head
-
   def this(
-    paramName : String,
-    paramVals : Seq[AnyRef],
-    prototype : Experiment[System]) = this(Seq((paramName, paramVals)), Seq(prototype))
-
-  def this(
-    paramName : String,
-    paramVals : Seq[AnyRef],
-    prototypes: Seq[Experiment[System]]) = this(Seq((paramName, paramVals)), prototypes)
-
-  def this(
-    parameters: Seq[(String, Seq[AnyRef])],
+    parameters: ExperimentSequence.Parameters,
     prototype : Experiment[System]) = this(parameters, Seq(prototype))
+
+  def this(
+    paramName : String,
+    paramVals : Seq[Any],
+    prototype : Experiment[System]) = this(new ExperimentSequence.SimpleParameters(paramName, paramVals), Seq(prototype))
+
+  def this(
+    paramName : String,
+    paramVals : Seq[Any],
+    prototypes: Seq[Experiment[System]]) = this(new ExperimentSequence.SimpleParameters(paramName, paramVals), prototypes)
 
   private val experiments = {
     val opts = ConfigRenderOptions.defaults().setOriginComments(false)
 
     val exps = for {
-      idx       <- 0 until N
-      map       =  Map(parameters map { case (key, params) => key -> params(idx) }: _*)
+      map       <- parameters
       prototype <- prototypes
       conf      =  prototype.config.root().render(opts)
       name      =  prototype.name
@@ -64,7 +57,8 @@ class ExperimentSequence(
       // copy prototype
       prototype.copy(config = c, name = n)
     }
-    exps
+
+    exps.toList
   }
 
   override def length: Int = experiments.length
@@ -85,10 +79,76 @@ object ExperimentSequence {
     * @return The substituted version of v.
     * @throws com.typesafe.config.ConfigException.Missing if value is absent or null
     */
-  private def substituteSequenceParameters(v: String)(implicit map: Map[String, AnyRef]) = {
+  private def substituteSequenceParameters(v: String)(implicit map: Map[String, Any]) = {
     val keys = (for (m <- parameter findAllMatchIn v) yield m group 1).toSet.toList
     val vals = for (k <- keys) yield map(k)
     (keys.map(k => s"__${k}__") zip vals.map(_.toString)).foldLeft(v) { case (z, (s, r)) => z replaceAllLiterally(s, r) }
+  }
+
+  /** Parameter class */
+  case class Parameter(name: String, vals: Seq[Any])
+
+  /** Base type for the experiment parameters. */
+  abstract class Parameters extends Traversable[Map[String, Any]] {
+  }
+
+  /** Iterates over the underlying parameter values and constructs a singleton map for each one.
+    *
+    * @param paramName Parameter name.
+    * @param paramVals Parameter values.
+    */
+  class SimpleParameters(paramName: String, paramVals: Seq[Any]) extends Parameters {
+
+    require(paramVals.nonEmpty, "All parameter sequences must be non-empty")
+
+    private val N = paramVals.size
+
+    override def foreach[U](f: (Map[String, Any]) => U): Unit = {
+      for {
+        idx <- 0 until N
+        map = Map(paramName -> paramVals(idx))
+      } yield f(map)
+    }
+  }
+
+  /** Iterates over the underlying parameter values in 'zipped' mode.
+    *
+    * @param parameters A collection of `(paramName, paramVals)`. All value sequences must have the same size.
+    */
+  class ZippedParameters(parameters: Seq[Parameter]) extends Parameters {
+
+    require(parameters.nonEmpty, "At least one parameter sequence required")
+    require(parameters.forall(_.vals.nonEmpty), "All parameter sequences must be non-empty")
+    require(parameters.map(_.vals.size).distinct.size == 1, "All parameter sequences must be of the same length")
+
+    private val N = parameters.map(_.vals.size).distinct.head
+
+    override def foreach[U](f: (Map[String, Any]) => U): Unit = {
+      for {
+        idx <- 0 until N
+        map = Map(parameters map { p => p.name -> p.vals(idx) }: _*)
+      } yield f(map)
+    }
+  }
+
+  /** Iterates over the underlying parameter values in 'cross' mode (all combinations).
+    *
+    * @param parameters A collection of `(paramName, paramVals)`.
+    */
+  class CrossedParameters(parameters: Seq[Parameter]) extends Parameters {
+
+    require(parameters.nonEmpty, "At least one parameter sequence required")
+    require(parameters.forall(_.vals.nonEmpty), "All parameter sequences must be non-empty")
+
+    private val N = parameters.map(_.vals.size).distinct.head
+
+    override def foreach[U](f: (Map[String, Any]) => U): Unit = {
+      for (pars <- crossParameters()) f(pars.toMap)
+    }
+
+    private def crossParameters(): Seq[Seq[(String, Any)]] = {
+      parameters.foldLeft(Seq(Seq.empty[(String, Any)]))((res, par) => for (map <- res; value <- par.vals) yield map :+ par.name -> value)
+    }
   }
 
 }
