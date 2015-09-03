@@ -143,6 +143,6 @@ On the other side, under `acme-master` (which is the `$HOSTNAME` of the master n
   * [spark-1.3.1](https://github.com/stratosphere/peelconfig.acme/blob/master/spark-1.3.1) which delegates to [spark.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/spark.conf),
   * [hdfs-2.4.1](https://github.com/stratosphere/peelconfig.acme/blob/master/hdfs-2.4.1) which delegates to [hadoop-2.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/hadoop-2.conf), and
   * [hdfs-2.7.1](https://github.com/stratosphere/peelconfig.acme/blob/master/hdfs-2.7.1) which delegates to [hadoop-2.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/hadoop-2.conf).
-* A [host-specific Peel configuration](https://github.com/stratosphere/peelconfig.acme/blob/master/application.conf).
+* A [host-specific Peel configuration](https://github.com/stratosphere/peelconfig.acme/blob/master/application.conf) which includes [an auto-generated hosts.conf for the ACME cluster](https://github.com/stratosphere/peelconfig.acme/blob/master/hosts.conf).
 
-When we run Peel experiment suites from the `acme-master` host, we will therefore use the host-specific settings defined under `config/acme-master`, and in all other cases Peel will load and use only the default `reference.*.conf` files from the `peel-core` and `peel-extensions` jars.
+When we run Peel experiment suites from the `acme-master` host, we will therefore use the host-specific environment configuration values defined under `config/acme-master`. Otherwise, Peel will load and use only the default `reference.*.conf` files from the `peel-core` and `peel-extensions` jars.

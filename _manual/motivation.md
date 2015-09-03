@@ -120,8 +120,8 @@ Peel can help you solve all of the above problems. The remainder of this manual 
 {% highlight bash %}
 cd "$BUNDLE_SRC"
 mvn archetype:generate -B                         \
-    -Dpackage="org.acme.benchmarks"               \
-    -DgroupId="org.acme"                          \
+    -Dpackage="org.peelframework.wordcount"       \
+    -DgroupId="org.peelframework"                 \
     -DartifactId="peel-wordcount"                 \
     -DarchetypeGroupId=org.peelframework          \
     -DarchetypeArtifactId=peel-flinkspark-bundle  \
