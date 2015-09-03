@@ -55,7 +55,7 @@
     <bean id="experiment.spark.wordcount" parent="experiment.spark-1.4.0" abstract="true">
         <constructor-arg name="command">
             <value><![CDATA[
-              --class ${package}.spark.Wordcount                  ${symbol_escape}
+              --class ${package}.spark.SparkWC                    ${symbol_escape}
               ${symbol_dollar}{app.path.apps}/${parentArtifactId}-spark-jobs-${version}.jar          ${symbol_escape}
               ${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt                            ${symbol_escape}
               ${symbol_dollar}{system.hadoop-2.path.output}/wordcount

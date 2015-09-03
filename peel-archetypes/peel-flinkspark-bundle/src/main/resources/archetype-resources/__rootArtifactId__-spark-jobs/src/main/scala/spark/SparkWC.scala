@@ -1,12 +1,12 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package ${package}.flink
+package ${package}.spark
 
-import org.apache.flink.api.scala._
+import org.apache.spark.{SparkConf, SparkContext}
 
-/** A `WordCount` workload job for Flink. */
-object Wordcount {
+/** A `WordCount` workload job for Spark. */
+object SparkWC {
 
   def main(args: Array[String]) {
     if (args.length != 2) {
@@ -17,15 +17,12 @@ object Wordcount {
     val inputPath = args(0)
     val outputPath = args(1)
 
-    val env = ExecutionEnvironment.getExecutionEnvironment
-    env.readTextFile(inputPath)
+    val spark = new SparkContext(new SparkConf().setAppName("${parentArtifactId}-spark"))
+    spark.textFile(inputPath)
       .flatMap(_.toLowerCase.split("${symbol_escape}${symbol_escape}W+"))
       .map((_, 1))
-      .groupBy(0)
-      .sum(1)
-      .writeAsCsv(outputPath)
-
-    env.execute("${parentArtifactId}-flink")
+      .reduceByKey(_ + _)
+      .saveAsTextFile(outputPath)
   }
 
 }

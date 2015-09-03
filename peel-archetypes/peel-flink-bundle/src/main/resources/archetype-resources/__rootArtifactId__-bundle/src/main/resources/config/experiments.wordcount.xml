@@ -55,7 +55,7 @@
     <bean id="experiment.flink.wordcount" parent="experiment.flink-0.9.0" abstract="true">
         <constructor-arg name="command">
             <value><![CDATA[
-              -v -c ${package}.flink.Wordcount                    ${symbol_escape}
+              -v -c ${package}.flink.FlinkWC                      ${symbol_escape}
               ${symbol_dollar}{app.path.apps}/${parentArtifactId}-flink-jobs-${version}.jar          ${symbol_escape}
               ${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt                            ${symbol_escape}
               ${symbol_dollar}{system.hadoop-2.path.output}/wordcount
