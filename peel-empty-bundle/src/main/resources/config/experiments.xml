@@ -3,6 +3,10 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!-- Peel configuratoins -->
+    <import resource="classpath:peel-core.xml"/>
+    <import resource="classpath:peel-extensions.xml"/>
+
     <!-- custom system beans -->
     <import resource="systems.xml"/>
     <!-- wordcount experiment beans -->

@@ -31,9 +31,7 @@ object PeelApplicationContext {
   def apply(experimentsXMLPath: Option[String] = None): ApplicationContext = {
     // construct classpath
     val cp = Array(
-      Option(getClass.getResource("/peel-core.xml")) /* */ map { x => s"classpath:${lastPartOf(x)}" },
-      Option(getClass.getResource("/peel-extensions.xml")) map { x => s"classpath:${lastPartOf(x)}" },
-      experimentsXMLPath /*                             */ map { x => s"file:$x" }
+      experimentsXMLPath map { x => s"file:$x" }
     ).flatten
     // construct and return application context
     val ac = new ClassPathXmlApplicationContext(cp, true)
