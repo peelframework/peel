@@ -21,7 +21,7 @@
 
     <!-- Option A: XML-based definitions -->
 
-    <!-- Peel configuratoins -->
+    <!-- Peel configurations -->
     <import resource="classpath:peel-core.xml"/>
     <import resource="classpath:peel-extensions.xml"/>
 
@@ -33,7 +33,7 @@
 
     <!-- Option B: Code-based definitions -->
 
-    <!-- Peel configuratoins -->
+    <!-- Peel configurations -->
     <!--<import resource="classpath:peel-core.xml"/>-->
 
     <!-- Code-based experiment definitions -->
