@@ -12,11 +12,31 @@
     <context:annotation-config/>
 
     <!-- Scan for annotated Peel components in the '${package}' package -->
-    <context:component-scan base-package="${package}"/>
+    <context:component-scan base-package="${package}" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>
+    </context:component-scan>
 
+    <!-- Experiments Definitions can be written in one of two ways -->
+
+    <!-- Option A: XML-based definitions -->
+
+    <!-- Peel configuratoins -->
+    <import resource="classpath:peel-core.xml"/>
+    <import resource="classpath:peel-extensions.xml"/>
+
+    <!-- XML-based experiment definitions -->
     <!-- custom system beans -->
     <import resource="systems.xml"/>
     <!-- wordcount experiment beans -->
     <import resource="experiments.wordcount.xml"/>
+
+    <!-- Option B: Code-based definitions -->
+
+    <!-- Peel configuratoins -->
+    <!--<import resource="classpath:peel-core.xml"/>-->
+
+    <!-- Code-based experiment definitions -->
+    <!--<bean class="${package}.ExperimentsDefinitions"/>-->
 
 </beans>
