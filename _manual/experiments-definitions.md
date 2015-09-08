@@ -7,11 +7,13 @@ nav: [ manual, experiments-definitions ]
 
 # {{ page.title }}
 
-Experiments are defined in Peel using a Spring [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container. The set of beans required to define an experiment represent the system experiments domain introduced in the [Motivation]({{ site.baseurl }}/manual/motivation.html) section.
+Experiments are defined in Peel using a Spring [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container as a set of inter-connected beans.
+In this section we present the available bean types and illustrate how they can be defined in XML or Scala syntax based on our `peel-wordcount` example.
 
 ## Domain Model
 
-The domain model adopted by Peel reflects the basic experiment structure outlined above. A UML diagram of the domain model can be seen below.
+The beans required to define an experiment realize the system experiments domain introduced in the [Motivation]({{ site.baseurl }}/manual/motivation.html) section.
+A UML diagram of the domain model can be seen below.
 
 <div class="row">
     <figure class="large-10 large-centered medium-11 medium-centered small-12 small-centered columns">
@@ -356,7 +358,7 @@ def `wordcount.output`: ExperimentOutput = new ExperimentOutput(
 
 ### Experiments and Experiment Suites
 
-With the above beans we can define the two experiments that respecitvely run [the FlinkWc job](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-flink-jobs/src/main/scala/org/peelframework/wordcount/flink/FlinkWC.scala) on Flink and [the SparkWC job](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-spark-jobs/src/main/scala/org/peelframework/wordcount/spark/SparkWC.scala) on Spark.
+With the above beans we can define the two experiments that respectively run [the FlinkWc job](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-flink-jobs/src/main/scala/org/peelframework/wordcount/flink/FlinkWC.scala) on Flink and [the SparkWC job](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-spark-jobs/src/main/scala/org/peelframework/wordcount/spark/SparkWC.scala) on Spark.
 
 If we leave the `config` parameters empty, the experiments will be executed using the default configuration for the current environment.
 We wrap this variant in a `word-count.default` bundle.
@@ -472,7 +474,8 @@ def `wordcount.default`: ExperimentSuite = {
 
 </div>
 
-Here is again the environment layout for the scale-out experiment.
+Now let us consider a situation where we want to execute a series of experiments with a varying parameter, e.g. varying both the input size and the number of workes in a `wordcount.scale-out` suite.
+Here is again the desired environment layout.
 
 <div class="row">
     <figure class="large-9 large-centered medium-10 medium-centered small-12 small-centered columns">
@@ -520,7 +523,7 @@ Because the unit is set to 5 and the number of workers is 40 (`acme-001` through
 
 Per default, we have the following config values set in ACME's [application.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/application.conf):
 
-{% highlight scala %}
+{% highlight docker %}
 system {
     default {
         config {
@@ -536,7 +539,7 @@ system {
 Recall that the `parallelism.total` parameter [is used in the command of data generation job](#input-and-output-data-1).
 Based on this insight, we know that for the weak scale-out suite we need to parameterize the environment configuration per experiment as follows:
 
-{% highlight scala %}
+{% highlight docker %}
 system {
     default {
         config {
