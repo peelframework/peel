@@ -1,4 +1,8 @@
 language: java
 
+# use Java 8 for the build
+jdk:
+  - oraclejdk8
+
 # use of container-based infrastructure
 sudo: false
