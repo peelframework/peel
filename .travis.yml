@@ -1,2 +1,4 @@
 language: java
 
+# use of container-based infrastructure
+sudo: false
