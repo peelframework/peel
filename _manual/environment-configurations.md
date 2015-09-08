@@ -90,7 +90,8 @@ Finally, Peel appends a set of configuration parameters derived from the current
 
 One of the main advantages of Peel is the ability to share hand-crafted configurations for a set of systems on a particular host environment.
 The suggested way to do so is through a dedicated Git repository. If you are using a versioned bundle, can then link the respository as [a Git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
-For example, if the ACME cluster has a shared configuration available [at GitHub](https://github.com/stratosphere/peelconfig.acme), you can use the following command to add it as Git submodule in your `peel-wordcount` bundle:
+
+For example, we offer an example ACME cluster has a shared configuration available [at GitHub](https://github.com/stratosphere/peelconfig.acme), you can use the following command to add it as Git submodule in your `peel-wordcount` bundle:
 
 {% highlight bash %}
 git submodule add \
@@ -98,10 +99,20 @@ git submodule add \
     peel-wordcount-bundle/src/main/resources/config/acme-master
 {% endhighlight %}
 
-Don't forget to execute the following commands in order to initialize and checkout the configured submodules when you checkout Peel bundles:
+We also encourage beginners to use the [devhost config](https://github.com/stratosphere/peelconfig.devhost) which contains best practice configurations for your developer machine.
 
 {% highlight bash %}
-git submodule init   # once after checkout
+git submodule add \
+    git@github.com:stratosphere/peelconfig.devhost.git \
+    peel-wordcount-bundle/src/main/resources/config/$HOSTNAME
+{% endhighlight %}
+
+If you intend to modify those settings, we suggest to fork the repository and link the fork URL instead.
+
+Don't forget to execute the following commands in order to initialize and checkout the configured Git submodules when you clone Peel bundles:
+
+{% highlight bash %}
+git submodule init   # once after clone
 git submodule update # periodically, to update linked configs
 {% endhighlight %}
 
@@ -115,6 +126,11 @@ Let us take a look at the `config` folder of the `peel-wordcount` bundle in orde
 # cd "$BUNDLE_BIN" && \
 # tree -L 2 --dirsfirst peel-wordcount/config
 peel-wordcount/config
+├── $HOSTNAME
+│   ├── application.conf
+│   ├── hadoop-2.conf
+│   ├── hdfs-2.4.1.conf
+│   ├── hdfs-2.7.1.conf
 ├── acme-master
 │   ├── application.conf
 │   ├── flink-0.8.0.conf
@@ -134,7 +150,16 @@ peel-wordcount/config
 
 We can see that our bundle does not include bundle-wide environment configuration, because the `config` folder does not contain any `*.conf` files as direct children. 
 
-On the other side, under `acme-master` (which is the `$HOSTNAME` of the master node in our ACME cluster) we can see multiple `*.conf` files which provide:
+On the other side, we have two host-specific configurations.
+
+Under the `$HOSTNAME` of your machine we can see the following `*.conf` files:
+
+* A host-specific system configuration for the following system beans:
+  * [hdfs-2.4.1](https://github.com/stratosphere/peelconfig.devhost/blob/master/hdfs-2.4.1) which delegates to [hadoop-2.conf](https://github.com/stratosphere/peelconfig.devhost/blob/master/hadoop-2.conf), and
+  * [hdfs-2.7.1](https://github.com/stratosphere/peelconfig.devhost/blob/master/hdfs-2.7.1) which delegates to [hadoop-2.conf](https://github.com/stratosphere/peelconfig.devhost/blob/master/hadoop-2.conf).
+* A [host-specific Peel configuration](https://github.com/stratosphere/peelconfig.devhost/blob/master/application.conf) which sets a shared `downloads` and `systems` paths and configures an rsync connection to the ACME cluster.
+
+Under `acme-master` (which is the `$HOSTNAME` of the master node in the ACME cluster) we can see the following `*.conf` files:
 
 * A host-specific system configuration for the following system beans:
   * [flink-0.8.0](https://github.com/stratosphere/peelconfig.acme/blob/master/flink-0.8.0.conf) which delegates to [flink.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/flink.conf),
