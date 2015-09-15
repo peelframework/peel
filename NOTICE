@@ -39,7 +39,7 @@ This project includes:
   Joda-Time under Apache 2
   JUnit under Common Public License Version 1.0
   Mockito under The MIT License
-  monetdb:monetdb-jdbc under MonetDB Public License Version 1.1
+  monetdb-jdbc under MonetDB Public License Version 1.1
   Objenesis under MIT License
   parboiled-core under Apache 2
   parboiled-java under Apache 2
