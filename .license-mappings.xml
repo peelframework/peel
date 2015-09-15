@@ -28,5 +28,6 @@
         <artifactId>monetdb-jdbc</artifactId>
         <version>11.19.15</version>
         <license>MonetDB Public License Version 1.1</license>
+        <name>monetdb-jdbc</name>
     </artifact>
 </license-lookup>
