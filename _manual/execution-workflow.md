@@ -228,7 +228,7 @@ Since the system bean is loaded outside of the context of a particular experimen
 
 ## Archiving the Results
 
-Experiment results are maintained in subfolders of `app.path.results` and tend to get bigger when you scale out the data and the number of slaves due to the increased number of log files.
+Experiment results are maintained in subfolders of `${app.path.results}` and tend to get bigger when you scale out the data and the number of slaves due to the increased number of log files.
 To save space and make use of the inherent log file entropy, Peel offers the following commands.
 
 {% highlight bash %}
