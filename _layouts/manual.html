@@ -17,7 +17,7 @@ rightMenu: true
 
 
 <script type="text/javascript">
-followTo = function (selector) {
+function followTo(selector) {
     var $this = $(selector),
         $window = $(window);
 
@@ -42,5 +42,29 @@ followTo = function (selector) {
     });
 };
 
-followTo('.man-nav');
+$(function(){
+    $('.tabs').on('click', function (event) {
+        if (event.originalEvent == null)    //not clicked by human
+            return;
+
+        var clickedId = $(event.target).attr("href");
+        var type = "";
+        if (clickedId.indexOf("scala") != -1) {
+            type = "scala";
+        }
+
+        if (clickedId.indexOf("xml") != -1) {
+            type = "xml";
+        }
+
+        if (type != "") {
+            $(".tabs li a[href*='"+type+"']").each(function(i, tab){
+                $(tab).click();
+            });
+        }
+    });
+
+    followTo('.man-nav');
+});
+
 </script>
