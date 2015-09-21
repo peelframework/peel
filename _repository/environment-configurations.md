@@ -14,6 +14,8 @@ The table below lists some shared configurations available at GitHub (to access 
 
 | Hostname        | URL                                                       | Owner                                        | Public |
 | --------------- | --------------------------------------------------------- | -------------------------------------------- |:------:|
+| acme-master     | https://github.com/stratosphere/peelconfig.acme           | [DIMA, TU Berlin](http://dima.tu-berlin.de/) | No     |
+| [your-host]     | https://github.com/stratosphere/peelconfig.devhost        | [DIMA, TU Berlin](http://dima.tu-berlin.de/) | No     |
 | cloud-7         | https://github.com/stratosphere/peelconfig.cloud-7        | [DIMA, TU Berlin](http://dima.tu-berlin.de/) | No     |
 | cloud-11        | https://github.com/stratosphere/peelconfig.cloud-11       | [DIMA, TU Berlin](http://dima.tu-berlin.de/) | No     |
 | alexander-t540p | https://github.com/aalexandrov/peelconfig.alexander-t540p | [A. Alexandrov](http://alex.androv.de/)      | Yes    |
