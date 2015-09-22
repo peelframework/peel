@@ -90,7 +90,7 @@ The `peel-extensions` module ships with several `System` implementations. The fo
 | ---------------- | ----------------------------------
 | HDFS             | 1.2.1          | hdfs-1.2.1      |
 | HDFS             | 2.4.1          | hdfs-2.4.1      |
-| HDFS             | 2.4.1          | hdfs-2.7.1      |
+| HDFS             | 2.7.1          | hdfs-2.7.1      |
 | Flink            | 0.8.0          | flink-0.8.0     |
 | Flink            | 0.8.1          | flink-0.8.1     |
 | Flink            | 0.9.0          | flink-0.9.0     |
