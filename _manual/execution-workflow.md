@@ -219,8 +219,8 @@ In addition to the lifecycle-based commands explained above, Peel also offers co
 To start and stop the `flink-0.9.0` system bean, for example, you can use the following command.
 
 {% highlight bash %}
-./peel.sh exp:setup flink-0.9.0     # start 
-./peel.sh exp:teardown flink-0.9.0  # stop
+./peel.sh sys:setup flink-0.9.0     # start 
+./peel.sh sys:teardown flink-0.9.0  # stop
 {% endhighlight %}
 
 Dependent systems are thereby transitively started and stopped (in the above example this includes `hdfs-2.7.1`).
