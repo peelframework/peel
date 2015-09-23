@@ -136,3 +136,12 @@ button.copy {
     background-color: transparent;
     color: #40a13b;
 }
+
+.tabs dd>a, .tabs .tab-title>a {
+    color: #8AD386;
+    background-color: white;
+}
+.tabs dd.active a, .tabs .tab-title.active a {
+    background-color: #E4F5E3;
+    color: #167411;
+}
