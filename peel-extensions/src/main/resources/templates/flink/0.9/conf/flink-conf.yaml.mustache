@@ -38,6 +38,13 @@
 {{#env.java.opts}}env.java.opts: {{env.java.opts}}{{/env.java.opts}}{{^env.java.opts}}# env.java.opts: {{/env.java.opts}}
 
 #==============================================================================
+# Environment Options
+#==============================================================================
+
+# The directory where the PID files are stored
+{{#env.pid.dir}}env.pid.dir: {{env.pid.dir}}{{/env.pid.dir}}{{^env.pid.dir}}env.pid.dir: /tmp{{/env.pid.dir}}
+
+#==============================================================================
 # JobManager & TaskManager
 #==============================================================================
 

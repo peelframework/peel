@@ -127,10 +127,11 @@ class Flink(
   override protected def stop() = {
     shell ! s"${config.getString("system.flink.path.home")}/bin/stop-cluster.sh"
     shell ! s"${config.getString("system.flink.path.home")}/bin/stop-webclient.sh"
+    shell ! s"rm -f ${config.getString("system.flink.config.yaml.env.pid.dir")}/flink-*.pid"
     isUp = false
   }
 
   def isRunning = {
-    (shell ! s"""ps -ef | grep 'flink' | grep 'java' | grep 'jobmanager' | grep -v 'grep' """) == 0 // TODO: fix using PID
+    (shell ! s"""ps -p `cat ${config.getString("system.flink.config.yaml.env.pid.dir")}/flink-*.pid`""") == 0
   }
 }
