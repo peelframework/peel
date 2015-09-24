@@ -144,16 +144,16 @@ class HDFS1(
     for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
       for (dirURI <- config.getString(s"system.$configKey.config.hdfs.dfs.data.dir").split(',')) {
         val dataDir = new java.net.URI(dirURI).getPath
-        logger.info(s"Ensuring 0755 permissions for directory $dataDir at datanode $dataNode")
-        shell ! (s""" ssh $user@$dataNode "chmod 0755 $dataDir" """, "Unable to change rights on data directories.")
         logger.info(s"Initializing data directory $dataDir at datanode $dataNode")
         shell ! (s""" ssh $user@$dataNode "rm -Rf $dataDir/current" """, "Unable to remove hdfs data directories.")
         shell ! (s""" ssh $user@$dataNode "mkdir -p $dataDir/current" """, "Unable to create hdfs data directories.")
-        logger.info(s"Copying namenode's VERSION file to datanode $dataNode")
-        shell ! s""" scp $nameDir/current/VERSION $user@$dataNode:$dataDir/current/VERSION.backup """
+        logger.info(s"Ensuring 0755 permissions for directory $dataDir at datanode $dataNode")
+        shell ! (s""" ssh $user@$dataNode "chmod 0755 $dataDir" """, "Unable to change rights on data directories.")
         logger.info(s"Adapting VERSION file on datanode $dataNode")
-        shell ! s""" ssh $user@$dataNode "cat $dataDir/current/VERSION.backup | sed '3 i storageID=' | sed 's/storageType=NAME_NODE/storageType=DATA_NODE/g'" > $dataDir/current/VERSION """
-        shell ! s""" ssh $user@$dataNode "rm -Rf $dataDir/current/VERSION.backup" """
+        shell ! raw""" cat $nameDir/current/VERSION | sed $$'3 i\\\nstorageID=\n' | sed 's/storageType=NAME_NODE/storageType=DATA_NODE/g' > $nameDir/current/VERSION.data """
+        logger.info(s"Copying namenode's VERSION file to datanode $dataNode")
+        shell ! s""" scp $nameDir/current/VERSION.data $user@$dataNode:$dataDir/current/VERSION """
+        shell ! s""" rm -f $nameDir/current/VERSION.data """
       }
     }
   }
