@@ -129,7 +129,10 @@ class HDFS2(
   }
 
   def isRunning = {
-    (shell ! s""" ps -ef | grep 'hadoop' | grep 'java' | grep 'namenode' | grep -v 'grep' """) == 0 // TODO: fix using PID
+    val pidDir = config.getString(s"system.$configKey.config.env.HADOOP_PID_DIR")
+    (shell ! s""" ps -p `cat ${pidDir}/hadoop-*-namenode.pid` """) == 0 ||
+      (shell ! s""" ps -p `cat ${pidDir}/hadoop-*-secondarynamenode.pid` """) == 0 ||
+      (shell ! s""" ps -p `cat ${pidDir}/hadoop-*-datanode.pid` """) == 0
   }
 
   // ---------------------------------------------------
