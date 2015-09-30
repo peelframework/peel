@@ -130,6 +130,7 @@ class Yarn(
   }
 
   def isRunning = {
-    (shell ! s"""ps -ef | grep 'yarn' | grep 'java' | grep 'resourcemanager' | grep -v 'grep' """) == 0 // TODO: fix using PID
+    (shell ! s""" ps -p `cat ${config.getString(s"system.$configKey.config.env.YARN_PID_DIR")}/yarn-*-resourcemanager.pid` """) == 0 ||
+    (shell ! s""" ps -p `cat ${config.getString(s"system.$configKey.config.env.YARN_PID_DIR")}/yarn-*-nodemanager.pid` """) == 0
   }
 }
