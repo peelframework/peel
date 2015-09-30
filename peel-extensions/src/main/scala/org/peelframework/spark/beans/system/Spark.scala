@@ -182,7 +182,9 @@ class Spark(
   }
 
   def isRunning = {
-    (shell ! s"""ps -ef | grep 'spark' | grep 'java' | grep 'Master' | grep -v 'grep' """) == 0 // TODO: fix using PID
+    val pidDir = config.getString("system.spark.config.env.SPARK_PID_DIR")
+    (shell ! s""" ps -p `cat ${pidDir}/spark-*Master*.pid` """) == 0 ||
+      (shell ! s""" ps -p `cat ${pidDir}/spark-*Worker*.pid` """) == 0
   }
 
 }

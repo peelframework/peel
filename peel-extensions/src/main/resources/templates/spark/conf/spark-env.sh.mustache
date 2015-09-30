@@ -4,6 +4,8 @@
 # Copy it as spark-env.sh and edit that to configure Spark for your site.
 {{#JAVA_HOME}}JAVA_HOME={{JAVA_HOME}}{{/JAVA_HOME}}{{^JAVA_HOME}}# - JAVA_HOME, to set the path to your Java installation{{/JAVA_HOME}}
 
+{{#SPARK_PID_DIR}}SPARK_PID_DIR={{SPARK_PID_DIR}}{{/SPARK_PID_DIR}}{{^SPARK_PID_DIR}}# - SPARK_PID_DIR, directory where pid files are stored{{/SPARK_PID_DIR}}
+
 # Options read when launching programs locally with
 # ./bin/run-example or ./bin/spark-submit
 {{#HADOOP_CONF_DIR}}HADOOP_CONF_DIR={{HADOOP_CONF_DIR}}{{/HADOOP_CONF_DIR}}{{^HADOOP_CONF_DIR}}# - HADOOP_CONF_DIR, to point Spark towards Hadoop configuration files{{/HADOOP_CONF_DIR}}
