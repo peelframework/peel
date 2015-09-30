@@ -39,7 +39,7 @@ class MapReduce1(
   mc           : Mustache.Compiler) extends System("mapred-1", version, configKey, lifespan, dependencies, mc) {
 
   override def configuration() = SystemConfig(config, {
-    val conf = config.getString("system.stratosphere.path.config")
+    val conf = config.getString(s"system.$configKey.path.config")
     List(
       SystemConfig.Entry[Model.Hosts](s"system.$configKey.config.masters", s"$conf/masters", templatePath("conf/hosts"), mc),
       SystemConfig.Entry[Model.Hosts](s"system.$configKey.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
@@ -95,6 +95,8 @@ class MapReduce1(
   }
 
   def isRunning = {
-    (shell ! s"""ps -ef | grep 'hadoop' | grep 'java' | grep 'jobtracker' | grep -v 'grep' """) == 0 // TODO: fix using PID
+    val pidDir = config.getString(s"system.$configKey.config.env.HADOOP_PID_DIR")
+    (shell ! s""" ps -p `cat ${pidDir}/hadoop-*-jobtracker.pid` """) == 0 ||
+      (shell ! s""" ps -p `cat ${pidDir}/hadoop-*-tasktracker.pid` """) == 0
   }
 }
