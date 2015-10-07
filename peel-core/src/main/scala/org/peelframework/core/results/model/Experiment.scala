@@ -53,10 +53,10 @@ object Experiment extends PersistedAPI[Experiment] {
   override def createTable()(implicit conn: Connection): Unit = if (!tableExists) {
     SQL( s"""
       CREATE TABLE experiment (
-        id     INTEGER     NOT NULL,
-        name   VARCHAR(63) NOT NULL,
-        suite  VARCHAR(63) NOT NULL,
-        system VARCHAR(63) NOT NULL,
+        id     INTEGER      NOT NULL,
+        name   VARCHAR(127) NOT NULL,
+        suite  VARCHAR(63)  NOT NULL,
+        system VARCHAR(63)  NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY (system) REFERENCES system(id) ON DELETE RESTRICT
       )""").execute()
