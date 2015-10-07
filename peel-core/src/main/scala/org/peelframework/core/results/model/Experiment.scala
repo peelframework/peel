@@ -54,7 +54,7 @@ object Experiment extends PersistedAPI[Experiment] {
     SQL( s"""
       CREATE TABLE experiment (
         id     INTEGER     NOT NULL,
-        name   VARCHAR(63) NOT NULL,
+        name   VARCHAR(127) NOT NULL,
         suite  VARCHAR(63) NOT NULL,
         system VARCHAR(63) NOT NULL,
         PRIMARY KEY (id),
