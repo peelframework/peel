@@ -82,6 +82,7 @@ object shell {
     */
   def !!(cmd: String) = {
     val plog = processLogger()
+    plog.in(cmd)
     val exit = Process("/bin/bash", Seq("-c", s"CLASSPATH=;${cmd.trim}")) !! plog
     plog.flush()
     plog.close()
