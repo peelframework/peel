@@ -111,7 +111,8 @@ class Spark(
     List(
       SystemConfig.Entry[Model.Hosts]("system.spark.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
       SystemConfig.Entry[Model.Env]("system.spark.config.env", s"$conf/spark-env.sh", templatePath("conf/spark-env.sh"), mc),
-      SystemConfig.Entry[Model.Site]("system.spark.config.defaults", s"$conf/spark-defaults.conf", templatePath("conf/spark-defaults.conf"), mc)
+      SystemConfig.Entry[Model.Site]("system.spark.config.defaults", s"$conf/spark-defaults.conf", templatePath("conf/spark-defaults.conf"), mc),
+      SystemConfig.Entry[Model.Yaml]("system.spark.config.log4j", s"$conf/log4j.properties", templatePath("conf/log4j.properties"), mc)
     )
   })
 
