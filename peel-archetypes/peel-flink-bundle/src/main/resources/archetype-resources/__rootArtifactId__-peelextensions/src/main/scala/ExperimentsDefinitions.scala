@@ -35,7 +35,7 @@ class ExperimentsDefinitions extends ApplicationContextAware {
 
   @Bean(name = Array("hdfs-2.7.1"))
   def `hdfs-2.7.1`: HDFS2 = new HDFS2(
-    version      = "0.9.0",
+    version      = "2.7.1",
     configKey    = "hadoop-2",
     lifespan     = Lifespan.SUITE,
     mc           = ctx.getBean(classOf[Mustache.Compiler])
