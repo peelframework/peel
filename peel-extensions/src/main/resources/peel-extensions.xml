@@ -77,7 +77,7 @@
         <constructor-arg name="lifespan" value="EXPERIMENT"/>
     </bean>
     <bean id="flink-0.10" class="org.peelframework.flink.beans.system.Flink" parent="system">
-        <constructor-arg name="version" value="0.10-SNAPSHOT"/>
+        <constructor-arg name="version" value="0.10"/>
         <constructor-arg name="configKey" value="flink" />
         <constructor-arg name="lifespan" value="EXPERIMENT"/>
     </bean>
