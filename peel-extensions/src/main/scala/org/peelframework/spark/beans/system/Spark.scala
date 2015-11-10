@@ -19,13 +19,12 @@ import java.lang.{System => Sys}
 import java.nio.file.Paths
 
 import com.samskivert.mustache.Mustache
-import com.typesafe.config.ConfigException
 import org.peelframework.core.beans.experiment.Experiment.Run
 import org.peelframework.core.beans.system.Lifespan.Lifespan
 import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
-import org.peelframework.core.util.shell
 import org.peelframework.core.util.console.ConsoleColorise
+import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
@@ -130,16 +129,20 @@ class Spark(
     val logDir = config.getString("system.spark.path.log")
 
     // check if tmp dir exists and create if not
-    try {
-      val tmpDir = config.getString("system.spark.config.defaults.spark.local.dir")
+    val tmpDirs = config.getString(s"system.$configKey.config.defaults.spark.local.dir")
 
-      for (dataNode <- config.getStringList(s"system.spark.config.slaves").asScala) {
-        logger.info(s"Initializing tmp directory $tmpDir at taskmanager node $dataNode")
-        shell ! (s""" ssh $user@$dataNode "rm -Rf $tmpDir" """, "Unable to remove Spark tmp directory.")
-        shell ! (s""" ssh $user@$dataNode "mkdir -p $tmpDir" """, "Unable to create Spark tmp directory.")
+    for (tmHost <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
+      for (tmpDir <- tmpDirs.split(',')) {
+        logger.info(s"Initializing Spark tmp directory $tmpDir at host $tmHost")
+        shell ! (s""" ssh $user@$tmHost "rm -Rf $tmpDir" """, "Unable to remove Spark tmp directory.")
+        shell ! (s""" ssh $user@$tmHost "mkdir -p $tmpDir" ""","Unable to create Spark tmp directory.")
       }
-    } catch {
-      case _: ConfigException => // ignore not set explicitly, java default is taken
+    }
+
+    for (dataNode <- config.getStringList(s"system.spark.config.slaves").asScala) {
+      logger.info(s"Initializing tmp directory $tmpDirs at taskmanager node $dataNode")
+      shell ! (s""" ssh $user@$dataNode "rm -Rf $tmpDirs" """, "Unable to remove Spark tmp directory.")
+      shell ! (s""" ssh $user@$dataNode "mkdir -p $tmpDirs" """, "Unable to create Spark tmp directory.")
     }
 
     var failedStartUpAttempts = 0
@@ -184,8 +187,8 @@ class Spark(
 
   def isRunning = {
     val pidDir = config.getString("system.spark.config.env.SPARK_PID_DIR")
-    (shell ! s""" ps -p `cat ${pidDir}/spark-*Master*.pid` """) == 0 ||
-      (shell ! s""" ps -p `cat ${pidDir}/spark-*Worker*.pid` """) == 0
+    (shell ! s""" ps -p `cat $pidDir/spark-*Master*.pid` """) == 0 ||
+      (shell ! s""" ps -p `cat $pidDir/spark-*Worker*.pid` """) == 0
   }
 
 }

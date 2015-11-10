@@ -78,7 +78,7 @@ class Flink(
       shell ! (s""" ssh $user@$jmHost "mkdir -p $tmpDir" ""","Unable to create Flink tmp directory.")
 
       for (tmHost <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-        logger.info(s"Initializing tmp directory $tmpDir at taskmanager host $tmHost")
+        logger.info(s"Initializing Flink tmp directory $tmpDir at host $tmHost")
         shell ! (s""" ssh $user@$tmHost "rm -Rf $tmpDir" """, "Unable to remove Flink tmp directory.")
         shell ! (s""" ssh $user@$tmHost "mkdir -p $tmpDir" ""","Unable to create Flink tmp directory.")
       }
