@@ -125,7 +125,7 @@ object Peel {
     // general options
     parser.addArgument("--hostname")
       .`type`(classOf[String])
-      .dest("app.hostname (app.hostname)")
+      .dest("app.hostname")
       .metavar("NAME")
       .help("hostname for config resolution (app.hostname)")
     parser.addArgument("--config")
