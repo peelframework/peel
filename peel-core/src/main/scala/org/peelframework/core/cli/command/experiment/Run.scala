@@ -73,7 +73,7 @@ class Run extends Command {
   }
 
   override def run(context: ApplicationContext) = {
-    val suiteName = Sys.getProperty("app.suite.suite.name")
+    val suiteName = Sys.getProperty("app.suite.name")
     val expName = Sys.getProperty("app.suite.experiment.name")
     val expRun = Sys.getProperty("app.suite.experiment.run").toInt
     val justRun = Sys.getProperty("app.suite.experiment.just") == "true"

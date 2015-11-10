@@ -56,7 +56,7 @@ class SetUp extends Command {
   }
 
   override def run(context: ApplicationContext) = {
-    val suiteName = Sys.getProperty("app.suite.suite.name")
+    val suiteName = Sys.getProperty("app.suite.name")
     val expName = Sys.getProperty("app.suite.experiment.name")
 
     logger.info(s"Running experiment '${Sys.getProperty("app.suite.experiment.name")}' from suite '${Sys.getProperty("app.suite.name")}'")
