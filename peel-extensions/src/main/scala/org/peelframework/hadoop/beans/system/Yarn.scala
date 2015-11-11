@@ -16,13 +16,11 @@
 package org.peelframework.hadoop.beans.system
 
 import com.samskivert.mustache.Mustache
-import com.typesafe.config.ConfigException
 import org.peelframework.core.beans.system.Lifespan.Lifespan
 import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
 
-import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 
 /** Wrapper class for Yarn.
@@ -70,19 +68,6 @@ class Yarn(
   override def start(): Unit = {
     val user = config.getString(s"system.$configKey.user")
     val logDir = config.getString(s"system.$configKey.path.log")
-
-    // check if tmp dir exists and create if not
-    try {
-      val tmpDir = config.getString(s"system.$configKey.config.defaults.spark.local.dir")
-
-      for (nodemanager <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-        logger.info(s"Initializing tmp directory $tmpDir at taskmanager node $nodemanager")
-        shell ! s""" ssh $user@$nodemanager "rm -Rf $tmpDir" """
-        shell ! s""" ssh $user@$nodemanager "mkdir -p $tmpDir" """
-      }
-    } catch {
-      case _: ConfigException => // ignore not set explicitly, java default is taken
-    }
 
     var failedStartUpAttempts = 0
     while(!isUp) {
