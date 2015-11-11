@@ -66,7 +66,7 @@ package object config {
     }
     // load {app.path.config}/{app.hostname}/application.conf
     for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-      cb.loadFile(s"$configPath/$hostname/application.conf")
+      cb.loadFile(s"$configPath/hosts/$hostname/application.conf")
     }
 
     // load current runtime config
@@ -102,7 +102,7 @@ package object config {
         }
         // load {app.path.config}/{app.hostname}/{system.name}.conf
         for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-          cb.loadFile(s"$configPath/$hostname/${s.beanName}.conf")
+          cb.loadFile(s"$configPath/hosts/$hostname/${s.beanName}.conf")
         }
       case _ => Unit
     }
@@ -113,7 +113,7 @@ package object config {
     }
     // load {app.path.config}/{app.hostname}/application.conf
     for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-      cb.loadFile(s"$configPath/$hostname/application.conf")
+      cb.loadFile(s"$configPath/hosts/$hostname/application.conf")
     }
 
     // load current runtime config
@@ -149,7 +149,7 @@ package object config {
         }
         // load {app.path.config}/{app.hostname}/{system.name}.conf
         for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-          cb.loadFile(s"$configPath/$hostname/${s.beanName}.conf")
+          cb.loadFile(s"$configPath/hosts/$hostname/${s.beanName}.conf")
         }
       case _ => Unit
     }
@@ -160,7 +160,7 @@ package object config {
     }
     // load {app.path.config}/{app.hostname}/application.conf
     for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-      cb.loadFile(s"$configPath/$hostname/application.conf")
+      cb.loadFile(s"$configPath/hosts/$hostname/application.conf")
     }
 
     // load the experiment config
