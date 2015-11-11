@@ -2,11 +2,15 @@
 <archetype-descriptor xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd" name="peel-wordcount">
   <fileSets>
     <fileSet encoding="UTF-8">
+      <directory>peel-wordcount-flink-jobs</directory>
+      <includes/>
+    </fileSet>
+    <fileSet encoding="UTF-8">
       <directory/>
       <includes>
-        <include>README.md</include>
         <include>LICENSE</include>
         <include>.gitignore</include>
+        <include>README.md</include>
       </includes>
     </fileSet>
   </fileSets>
@@ -31,6 +35,7 @@
           <includes>
             <include>**/*.txt</include>
             <include>**/*.sh</include>
+            <include>**/*.gitignore</include>
             <include>**/*.md</include>
             <include>**/*.sql</include>
           </includes>
@@ -59,12 +64,6 @@
           <directory>src/main/java</directory>
           <includes>
             <include>**/*.java</include>
-          </includes>
-        </fileSet>
-        <fileSet encoding="UTF-8">
-          <directory>src/main/resources</directory>
-          <includes>
-            <include>**/*.</include>
           </includes>
         </fileSet>
       </fileSets>

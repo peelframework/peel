@@ -16,9 +16,10 @@
             <value><![CDATA[
               -v -c ${package}.datagen.flink.WordGenerator        ${symbol_escape}
               ${symbol_dollar}{app.path.datagens}/${parentArtifactId}-datagens-${version}.jar        ${symbol_escape}
-              ${symbol_dollar}{datagen.dictionary.dize}                                           ${symbol_escape}
               ${symbol_dollar}{system.default.config.parallelism.total}                           ${symbol_escape}
               ${symbol_dollar}{datagen.tuples.per.task}                                           ${symbol_escape}
+              ${symbol_dollar}{datagen.dictionary.dize}                                           ${symbol_escape}
+              ${symbol_dollar}{datagen.data-distribution}                                         ${symbol_escape}
               ${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt
             ]]>
             </value>
@@ -142,6 +143,7 @@
                                   system.default.config.parallelism.total = ${symbol_dollar}{env.slaves.__topXXX__.total.parallelism}
                                   datagen.dictionary.dize                 = 10000
                                   datagen.tuples.per.task                 = 10000000 ${symbol_pound} ~ 100 MB
+                                  datagen.data-distribution               = Uniform
                                 ]]></value>
                             </constructor-arg>
                         </bean>
@@ -158,6 +160,7 @@
                                   system.default.config.parallelism.total = ${symbol_dollar}{env.slaves.__topXXX__.total.parallelism}
                                   datagen.dictionary.dize                 = 10000
                                   datagen.tuples.per.task                 = 10000000 ${symbol_pound} ~ 100 MB
+                                  datagen.data-distribution               = Uniform
                                 ]]></value>
                             </constructor-arg>
                         </bean>

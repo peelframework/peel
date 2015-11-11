@@ -3,44 +3,34 @@
 #set( $symbol_escape = '\' )
 package ${package}.datagen.flink
 
-import ${package}.datagen.util.RanHash
 import org.apache.flink.api.scala._
 import org.apache.flink.core.fs.FileSystem
 import org.apache.flink.util.NumberSequenceIterator
+import ${package}.datagen.flink.Distributions.{Zipf, Binomial, DiscreteUniform, DiscreteDistribution}
+import ${package}.datagen.util.RanHash
 
-import scala.io.{Codec, Source}
-
-/** A simple word generator that samples words uniformly from a dictionary */
 object WordGenerator {
 
-  type DistributionSampler = (RanHash, Int) => Int
-
-  val SEED = 1010
+  val SEED = 0xC00FFEE
 
   def main(args: Array[String]): Unit = {
 
-    if (args.length != 4) {
-      Console.err.println("Usage: <jar> dictionarySize numberOfTasks tuplesPerTask outputPath")
+    if (args.length != 5) {
+      Console.err.println("Usage: <jar> numberOfTasks tuplesPerTask sizeOfDictionary distribution[params] outputPath")
       System.exit(-1)
     }
 
-    val dictionarySize = args(0).toInt
-    val numberOfTasks = args(1).toInt
-    val tuplesPerTask = args(2).toInt
-    val outputPath = args(3)
-    val numberOfWords = numberOfTasks * tuplesPerTask
+    val numberOfTasks         = args(0).toInt
+    val tuplesPerTask         = args(1).toLong
+    val sizeOfDictionary      = args(2).toInt
+    implicit val distribution = parseDist(sizeOfDictionary, args(3))
+    val outputPath            = args(4)
 
-    // load dictionary from the resources folder and partially apply the sampleWord function to it
-    val dictionary = {
-      val src = Source.fromInputStream(getClass.getResourceAsStream("/dictionary"), Codec.UTF8.toString())
-      val res = src.getLines().toArray
-      if (dictionarySize > 0 && dictionarySize < res.length) res.slice(0, dictionarySize) else res
-    }
+//    val numberOfTasks         = coresPerWorker * numberOfWorkers
+    val numberOfWords         = numberOfTasks * tuplesPerTask
 
-    // define sampling function that returns uniformly distributed integers in the [0, dictionary.length) range
-    def sampleUniform(ran: RanHash): Int = {
-      Math.floor(ran.next() * dictionary.length + 0.5).toInt % dictionary.length
-    }
+    // generate dictionary of random words
+    implicit val dictionary = new Dictionary(SEED, sizeOfDictionary).words()
 
     val environment = ExecutionEnvironment.getExecutionEnvironment
 
@@ -50,10 +40,27 @@ object WordGenerator {
       // set up workers
       .setParallelism(numberOfTasks)
       // map every n <- [1 .. N] to a random word sampled from a word list
-      .map(i => dictionary(sampleUniform(new RanHash(SEED + i))))
+      .map(i => word(i))
       // write result to file
       .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE)
 
     environment.execute(s"WordGenerator[${symbol_dollar}numberOfWords]")
   }
+
+  def word(i: Long)(implicit dictionary: Array[String], distribution: DiscreteDistribution) = {
+    dictionary(distribution.sample(new RanHash(SEED + i).next()))
+  }
+
+  object Patterns {
+    val DiscreteUniform = """(Uniform)""".r
+    val Binomial = """Binomial${symbol_escape}[(1|1${symbol_escape}.0|0${symbol_escape}.${symbol_escape}d+)${symbol_escape}]""".r
+    val Zipf = """Zipf${symbol_escape}[(${symbol_escape}d+(?:${symbol_escape}.${symbol_escape}d+)?)${symbol_escape}]""".r
+  }
+
+  def parseDist(card: Int, s: String): DiscreteDistribution = s match {
+    case Patterns.DiscreteUniform(_) => DiscreteUniform(card)
+    case Patterns.Binomial(a) => Binomial(card, a.toDouble)
+    case Patterns.Zipf(a) => Zipf(card, a.toDouble)
+  }
+
 }

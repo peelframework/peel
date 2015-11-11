@@ -9,7 +9,6 @@ import org.peelframework.core.beans.data.{CopiedDataSet, DataSet, ExperimentOutp
 import org.peelframework.core.beans.experiment.ExperimentSequence.SimpleParameters
 import org.peelframework.core.beans.experiment.{ExperimentSequence, ExperimentSuite}
 import org.peelframework.core.beans.system.Lifespan
-import org.peelframework.flink.beans.experiment.FlinkExperiment
 import org.peelframework.flink.beans.job.FlinkJob
 import org.peelframework.flink.beans.system.Flink
 import org.peelframework.hadoop.beans.system.HDFS2
@@ -50,9 +49,9 @@ class ExperimentsDefinitions extends ApplicationContextAware {
     mc           = ctx.getBean(classOf[Mustache.Compiler])
   )
 
-  @Bean(name = Array("spark-1.3.1"))
-  def `spark-1.3.1`: Spark = new Spark(
-    version      = "1.3.1",
+  @Bean(name = Array("spark-1.4.0"))
+  def `spark-1.4.0`: Spark = new Spark(
+    version      = "1.4.0",
     configKey    = "spark",
     lifespan     = Lifespan.EXPERIMENT,
     dependencies = Set(ctx.getBean("hdfs-2.7.1", classOf[HDFS2])),
@@ -70,9 +69,10 @@ class ExperimentsDefinitions extends ApplicationContextAware {
       """
         |-v -c ${package}.datagen.flink.WordGenerator        ${symbol_escape}
         |${symbol_dollar}{app.path.datagens}/${parentArtifactId}-datagens-${version}.jar        ${symbol_escape}
-        |${symbol_dollar}{datagen.dictionary.dize}                                           ${symbol_escape}
         |${symbol_dollar}{system.default.config.parallelism.total}                           ${symbol_escape}
         |${symbol_dollar}{datagen.tuples.per.task}                                           ${symbol_escape}
+        |${symbol_dollar}{datagen.dictionary.dize}                                           ${symbol_escape}
+        |${symbol_dollar}{datagen.data-distribution}                                         ${symbol_escape}
         |${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt
       """.stripMargin.trim
   )
@@ -107,22 +107,6 @@ class ExperimentsDefinitions extends ApplicationContextAware {
 
   @Bean(name = Array("wordcount.default"))
   def `wordcount.default`: ExperimentSuite = {
-    val `wordcount.flink.default` = new FlinkExperiment(
-      name    = "wordcount.flink.default",
-      command =
-        """
-          |-v -c ${package}.flink.FlinkWC                      ${symbol_escape}
-          |${symbol_dollar}{app.path.apps}/${parentArtifactId}-flink-jobs-${version}.jar          ${symbol_escape}
-          |${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt                            ${symbol_escape}
-          |${symbol_dollar}{system.hadoop-2.path.output}/wordcount
-        """.stripMargin.trim,
-      config  = ConfigFactory.parseString(""),
-      runs    = 3,
-      runner  = ctx.getBean("flink-0.9.0", classOf[Flink]),
-      inputs  = Set(ctx.getBean("dataset.words.static", classOf[DataSet])),
-      outputs = Set(ctx.getBean("wordcount.output", classOf[ExperimentOutput]))
-    )
-
     val `wordcount.spark.default` = new SparkExperiment(
       name    = "wordcount.spark.default",
       command =
@@ -134,40 +118,17 @@ class ExperimentsDefinitions extends ApplicationContextAware {
         """.stripMargin.trim,
       config  = ConfigFactory.parseString(""),
       runs    = 3,
-      runner  = ctx.getBean("spark-1.3.1", classOf[Spark]),
+      runner  = ctx.getBean("spark-1.4.0", classOf[Spark]),
       inputs  = Set(ctx.getBean("dataset.words.static", classOf[DataSet])),
       outputs = Set(ctx.getBean("wordcount.output", classOf[ExperimentOutput]))
     )
 
     new ExperimentSuite(Seq(
-      `wordcount.flink.default`,
       `wordcount.spark.default`))
   }
 
   @Bean(name = Array("wordcount.scale-out"))
   def `wordcount.scale-out`: ExperimentSuite = {
-    val `wordcount.flink.prototype` = new FlinkExperiment(
-      name    = "wordcount.flink.__topXXX__",
-      command =
-        """
-          |-v -c ${package}.flink.FlinkWC                      ${symbol_escape}
-          |${symbol_dollar}{app.path.apps}/${parentArtifactId}-flink-jobs-${version}.jar          ${symbol_escape}
-          |${symbol_dollar}{system.hadoop-2.path.input}/rubbish.txt                            ${symbol_escape}
-          |${symbol_dollar}{system.hadoop-2.path.output}/wordcount
-        """.stripMargin.trim,
-      config  = ConfigFactory.parseString(
-        """
-          |system.default.config.slaves            = ${symbol_dollar}{env.slaves.__topXXX__.hosts}
-          |system.default.config.parallelism.total = ${symbol_dollar}{env.slaves.__topXXX__.total.parallelism}
-          |datagen.dictionary.dize                 = 10000
-          |datagen.tuples.per.task                 = 10000000 ${symbol_pound} ~ 100 MB
-        """.stripMargin.trim),
-      runs    = 3,
-      runner  = ctx.getBean("flink-0.9.0", classOf[Flink]),
-      inputs  = Set(ctx.getBean("dataset.words.generated", classOf[DataSet])),
-      outputs = Set(ctx.getBean("wordcount.output", classOf[ExperimentOutput]))
-    )
-
     val `wordcount.spark.prototype` = new SparkExperiment(
       name    = "wordcount.spark.__topXXX__",
       command =
@@ -183,9 +144,10 @@ class ExperimentsDefinitions extends ApplicationContextAware {
           |system.default.config.parallelism.total = ${symbol_dollar}{env.slaves.__topXXX__.total.parallelism}
           |datagen.dictionary.dize                 = 10000
           |datagen.tuples.per.task                 = 10000000 ${symbol_pound} ~ 100 MB
+          |datagen.data-distribution               = Uniform
         """.stripMargin.trim),
       runs    = 3,
-      runner  = ctx.getBean("spark-1.3.1", classOf[Spark]),
+      runner  = ctx.getBean("spark-1.4.0", classOf[Spark]),
       inputs  = Set(ctx.getBean("dataset.words.generated", classOf[DataSet])),
       outputs = Set(ctx.getBean("wordcount.output", classOf[ExperimentOutput]))
     )
@@ -196,7 +158,6 @@ class ExperimentsDefinitions extends ApplicationContextAware {
           paramName = "topXXX",
           paramVals = Seq("top005", "top010", "top020")),
         prototypes = Seq(
-          `wordcount.flink.prototype`,
           `wordcount.spark.prototype`)))
   }
 }

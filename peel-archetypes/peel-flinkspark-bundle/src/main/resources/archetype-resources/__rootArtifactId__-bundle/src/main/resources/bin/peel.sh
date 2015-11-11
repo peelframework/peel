@@ -42,7 +42,7 @@ manglePathList() {
 # -or- the respective environment variables are not set.
 ########################################################################################################################
 
-DEFAULT_JAVA_HOME="/usr/lib/jvm/java-7-oracle"      # Java home
+DEFAULT_JAVA_HOME="/usr/lib/jvm/java-8-oracle"      # Java home
 DEFAULT_JAVA_OPTS=""                                # Optional JVM parameters
 
 ########################################################################################################################
