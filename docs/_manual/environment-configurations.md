@@ -58,25 +58,25 @@ In our running example, this means that each of the six experiments (3x `SparkWC
 The Peel configuration system is built upon the concept of layered construction and resolution. Peel distinguishes between three layers of configuration:
 
 1. **Default**. Default configuration values for Peel itself and the supported systems. Packaged as resources in Peel-related jars located in the bundle's `app.path.lib` folder.
-2. **Bundle.** Bundle-specific configuration values. Located in a folder resolved via the Java system property `app.path.config` at runtime. Default is the `config` subfolder of the current bundle.
+2. **Bundle.** Bundle-specific configuration values. Located in `${app.path.config}/hosts`. Default is the `config/hosts` subfolder of the current bundle.
 3. **Host**. Host-specific configuration values. Located in the `$HOSTNAME` subfolder of the `app.path.config` folder.
 
 For each experiment bean defined in an experiment suite, Peel will construct an associated configuration according to the following table entries (higher in the list means lower priority).
 
-| Path                                              | Description                                | Type  |
-| ------------------------------------------------- | -------------------------------------------| ----- |
-| `reference.peel.conf`                             | Default Peel config.                       | res.  |
-| `reference.${systemID}.conf`                      | Default system config.                     | file  |
-| `${app.path.config}/${systemID}.conf`             | Bundle-specific system config (opt).       | file  |
-| `${app.path.config}/${hostname}/${systemID}.conf` | Host-specific system config (opt).         | file  |
-| `${app.path.config}/application.conf`             | Bundle-specific Peel config (opt).         | file  |
-| `${app.path.config}/${hostname}/application.conf` | Host-specific Peel config (opt).           | file  |
-| Experiment bean *config* value                    | Experiment specific config (opt).          | bean  |
-| *System*                                          | JVM system properties (constant).          | env.  | 
+| Path                                                    | Description                                |
+| ------------------------------------------------------- | -------------------------------------------|
+| `reference.peel.conf`                                   | Default Peel config.                       |
+| `reference.${systemID}.conf`                            | Default system config.                     |
+| `${app.path.config}/${systemID}.conf`                   | Bundle-specific system config (opt).       |
+| `${app.path.config}/hosts/${hostname}/${systemID}.conf` | Host-specific system config (opt).         |
+| `${app.path.config}/application.conf`                   | Bundle-specific Peel config (opt).         |
+| `${app.path.config}/hosts/${hostname}/application.conf` | Host-specific Peel config (opt).           |
+| Experiment bean *config* value                          | Experiment specific config (opt).          |
+| *System*                                                | JVM system properties (constant).          | 
 
 First comes [the default Peel configuration](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.peel.conf), located in the `peel-core.jar` package.
 
-Second, for each system upon which the experiment depends (with corresponding [system bean]({{ site.baseurl }}/manual/experiments-definitions.html#system) identified by `systemID`), Peel loads the the default configuration for that system as well as (the optional) bundle- or host-specific configurations.
+Second, for each system upon which the experiment depends (with corresponding [system bean]({{ site.baseurl }}/manual/experiments-definitions.html#system) identified by `systemID`), Peel tries to loads the the default configuration for that system as well as bundle- or host-specific configurations.
 
 Third, bundle- and host-specific `application.conf`, which is a counterpart and respectively overrides bundle-wide values defined in `reference.peel.conf`.
 
@@ -89,32 +89,27 @@ Finally, Peel appends a set of configuration parameters derived from the current
 ## Sharing Configurations
 
 One of the main advantages of Peel is the ability to share hand-crafted configurations for a set of systems on a particular host environment.
-The suggested way to do so is through a dedicated Git repository. If you are using a versioned bundle, can then link the respository as [a Git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+The suggested way to do so is through a dedicated Git repository. 
 
-For example, we offer an example ACME cluster has a shared configuration available [at GitHub](https://github.com/stratosphere/peelconfig.acme), you can use the following command to add it as Git submodule in your `peel-wordcount` bundle:
+If you are using a versioned bundle, must clone the repository under your `*-bundle` project.
+
+For example, we offer an example ACME cluster has a shared configuration available [at GitHub](https://github.com/stratosphere/peelconfig.acme), you can use the following command to add it to your `peel-wordcount` bundle:
 
 {% highlight bash %}
-git submodule add \
+git clone \
     git@github.com:stratosphere/peelconfig.acme.git \
-    peel-wordcount-bundle/src/main/resources/config/acme-master
+    peel-wordcount-bundle/src/main/resources/config/hosts/acme-master
 {% endhighlight %}
 
 We also encourage beginners to use the [devhost config](https://github.com/stratosphere/peelconfig.devhost) which contains best practice configurations for your developer machine.
 
 {% highlight bash %}
-git submodule add \
+git clone \
     git@github.com:stratosphere/peelconfig.devhost.git \
-    peel-wordcount-bundle/src/main/resources/config/$HOSTNAME
+    peel-wordcount-bundle/src/main/resources/config/hosts/$HOSTNAME
 {% endhighlight %}
 
-If you intend to modify those settings, we suggest to fork the repository and link the fork URL instead.
-
-Don't forget to execute the following commands in order to initialize and checkout the configured Git submodules when you clone Peel bundles:
-
-{% highlight bash %}
-git submodule init   # once after clone
-git submodule update # periodically, to update linked configs
-{% endhighlight %}
+If you intend to modify those settings, we suggest to fork the repository and clone the fork instead.
 
 Please check the [Environment Configurations Repository]({{ site.baseurl }}/repository/environment-configurations.html) for more information on that matter and a list of available configuration repositories.
 
@@ -124,25 +119,26 @@ Let us take a look at the `config` folder of the `peel-wordcount` bundle in orde
 
 {% highlight bash %}
 # cd "$BUNDLE_BIN" && \
-# tree -L 2 --dirsfirst peel-wordcount/config
+# tree -L 3 --dirsfirst peel-wordcount/config
 peel-wordcount/config
-├── $HOSTNAME
-│   ├── application.conf
-│   ├── hadoop-2.conf
-│   ├── hdfs-2.4.1.conf
-│   ├── hdfs-2.7.1.conf
-├── acme-master
-│   ├── application.conf
-│   ├── flink-0.8.0.conf
-│   ├── flink-0.8.1.conf
-│   ├── flink-0.9.0.conf
-│   ├── flink.conf
-│   ├── hadoop-2.conf
-│   ├── hdfs-2.4.1.conf
-│   ├── hdfs-2.7.1.conf
-│   ├── hosts.conf
-│   ├── spark-1.3.1.conf
-│   └── spark.conf
+├── hosts
+│   ├── acme-master
+│   │   ├── application.conf
+│   │   ├── flink-0.8.0.conf
+│   │   ├── flink-0.8.1.conf
+│   │   ├── flink-0.9.0.conf
+│   │   ├── flink.conf
+│   │   ├── hadoop-2.conf
+│   │   ├── hdfs-2.4.1.conf
+│   │   ├── hdfs-2.7.1.conf
+│   │   ├── hosts.conf
+│   │   ├── spark-1.3.1.conf
+│   │   └── spark.conf
+│   └── $HOSTNAME
+│       ├── application.conf
+│       ├── hadoop-2.conf
+│       ├── hdfs-2.4.1.conf
+│       └── hdfs-2.7.1.conf
 ├── experiments.wordcount.xml
 ├── experiments.xml
 └── systems.xml
@@ -150,7 +146,7 @@ peel-wordcount/config
 
 We can see that our bundle does not include bundle-wide environment configuration, because the `config` folder does not contain any `*.conf` files as direct children. 
 
-On the other side, we have two host-specific configurations.
+On the other side, we have two host-specific configurations in the `hosts` subfolder.
 
 Under the `$HOSTNAME` of your machine we can see the following `*.conf` files:
 
