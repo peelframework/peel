@@ -17,15 +17,14 @@ package org.peelframework.core.cli.command.suite
 
 import java.lang.{System => Sys}
 
+import net.sourceforge.argparse4j.impl.Arguments
+import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.peelframework.core.beans.experiment.{Experiment, ExperimentSuite}
 import org.peelframework.core.beans.system.{Lifespan, System}
 import org.peelframework.core.cli.command.Command
 import org.peelframework.core.config.{Configurable, loadConfig}
 import org.peelframework.core.graph.{Node, createGraph}
 import org.peelframework.core.util.console._
-import net.sourceforge.argparse4j.impl.Arguments
-import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
-import org.peelframework.core.beans.experiment.ExperimentSuite
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 
@@ -181,11 +180,15 @@ class Run extends Command {
         throw e
 
     } finally {
-      logger.info("#" * 60)
-      logger.info("Tearing down systems with SUITE lifespan")
-      for (n <- graph.traverse()) n match {
-        case s: System if s.lifespan == Lifespan.SUITE => s.tearDown()
-        case _ => Unit
+      // Explicit shutdown only makes sense if at least one experiment is in the list,
+      // otherwise the systems would not have been configured at all
+      if (exps.nonEmpty) {
+        logger.info("#" * 60)
+        logger.info("Tearing down systems with SUITE lifespan")
+        for (n <- graph.traverse()) n match {
+          case s: System if s.lifespan == Lifespan.SUITE => s.tearDown()
+          case _ => Unit
+        }
       }
     }
   }
