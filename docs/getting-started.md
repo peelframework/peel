@@ -29,9 +29,8 @@ export BUNDLE_PKG=com.acme.benchmarks.example            # bundle root package
 If you don't want to version the code and configuration data of your bundle, your best option is to download and extract the [pre-packaged empty bundle archive](http://peel-framework.org/peel-empty-bundle-{{ site.current_version }}.tar.gz).
 
 {% highlight bash %}
-wget http://peel-framework.org/peel-empty-bundle-{{ site.current_version }}.tar.gz
-tar -xzvf peel-bundle-{{ site.current_version }}.tar.gz -C "$BUNDLE_BIN"
-mv "$BUNDLE_BIN/peel-empty-bundle-{{ site.current_version }}" "$BUNDLE_BIN/$BUNDLE_AID"
+wget https://github.com/stratosphere/peel/releases/download/v{{ site.current_version }}/peel-empty-bundle-{{ site.current_version }}.tar.gz
+tar -xzvf peel-empty-bundle-{{ site.current_version }}.tar.gz -C "$BUNDLE_BIN/$BUNDLE_AID"
 cd "$BUNDLE_BIN/$BUNDLE_AID"
 {% endhighlight %}
 

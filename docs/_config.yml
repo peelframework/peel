@@ -2,7 +2,7 @@ highlighter:        pygments
 
 title:              Peel Framework<sup>beta</sup>
 
-current_version:    1.0-SNAPSHOT
+current_version:    1.0.0-rc1
 
 collections:
   manual:
