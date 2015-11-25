@@ -59,7 +59,14 @@ class Zookeeper(
   private def start(s: Zookeeper.Server) = {
     logger.info(s"Starting zookeeper at ${s.host}:${s.leaderPort}:${s.quorumPort}")
     val user = config.getString(s"system.$configKey.user")
-    shell ! s""" ssh $user@${s.host} ${config.getString(s"system.$configKey.path.home")}/bin/zkServer.sh start """
+    shell !
+      s"""
+        |ssh -t -t "$user@${s.host}" << SSHEND
+        |  ${config.getString(s"system.$configKey.path.home")}/bin/zkServer.sh start
+        |  echo ${s.id} > ${config.getString(s"system.$configKey.config.dataDir")}/myid
+        |  exit
+        |SSHEND
+      """.stripMargin.trim
   }
 
   private def stop(s: Zookeeper.Server) = {
@@ -91,19 +98,19 @@ class Zookeeper(
 
   private def servers = {
     // grab servers from config
-    val serverConfigs = config.getConfig(s"system.$configKey.config.server").entrySet().asScala.map(v => v.getValue.unwrapped().toString)
+    val serverConfigs = config.getConfig(s"system.$configKey.config.server").entrySet().asScala.map(v => v.getKey.substring(1, v.getKey.length() - 1) + ":" + v.getValue.unwrapped().toString)
     // match and return valid server configs
     serverConfigs.collect({
-      case Zookeeper.ServerConf(host, quorumPort, leaderPort) => Zookeeper.Server(host, quorumPort.toInt, leaderPort.toInt)
+      case Zookeeper.ServerConf(id, host, quorumPort, leaderPort) => Zookeeper.Server(id.toInt, host, quorumPort.toInt, leaderPort.toInt)
     })
   }
 }
 
 object Zookeeper {
 
-  val ServerConf = "([\\w\\-\\_\\.]+):(\\d+):(\\d+)".r
+  val ServerConf = "(\\d+):([\\w\\-\\_\\.]+):(\\d+):(\\d+)".r
 
-  case class Server(host: String, quorumPort: Int, leaderPort: Int)
+  case class Server(id: Int, host: String, quorumPort: Int, leaderPort: Int)
 
   class Cli(home: String, serverHost: String, serverPort: Int) {
 
