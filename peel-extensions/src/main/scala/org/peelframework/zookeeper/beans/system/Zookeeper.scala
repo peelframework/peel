@@ -79,21 +79,7 @@ class Zookeeper(
     val user = config.getString(s"system.$configKey.user")
     val pidFile = s"${config.getString(s"system.$configKey.config.dataDir")}/zookeeper_server.pid"
 
-    val output = shell !!
-      s"""
-        |ssh -t -t "$user@${s.host}" << SSHEND
-        | if [ -f $pidFile ]; then
-        |   if kill -0 `cat $pidFile` > /dev/null 2>&1; then
-        |     echo TRUE
-        |   else
-        |     echo FALSE
-        |   fi
-        | fi
-        | exit
-        |SSHEND
-       """.stripMargin.trim
-
-    output.split("\\n").count(_.trim == "TRUE") > 0
+    (shell !! s""" ssh $user@${s.host} "ps -p `cat $pidFile` >/dev/null 2>&1; echo $$?" """).stripLineEnd.toInt == 0
   }
 
   private def servers = {
