@@ -104,4 +104,11 @@
         <constructor-arg name="lifespan" value="EXPERIMENT"/>
     </bean>
 
+    <!-- Dstat -->
+    <bean id="dstat-0.7.2" class="org.peelframework.dstat.beans.system.Dstat" parent="system">
+        <constructor-arg name="version" value="0.7.2"/>
+        <constructor-arg name="configKey" value="dstat"/>
+        <constructor-arg name="lifespan" value="RUN"/>
+    </bean>
+
 </beans>
