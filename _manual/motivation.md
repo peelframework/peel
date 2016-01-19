@@ -125,7 +125,7 @@ mvn archetype:generate -B                         \
     -DartifactId="peel-wordcount"                 \
     -DarchetypeGroupId=org.peelframework          \
     -DarchetypeArtifactId=peel-flinkspark-bundle  \
-    -DarchetypeVersion=1.0-SNAPSHOT
+    -DarchetypeVersion={{ site.current_version }}
 cd "peel-wordcount"
 mvn clean deploy
 cd "$BUNDLE_BIN/peel-wordcount"
