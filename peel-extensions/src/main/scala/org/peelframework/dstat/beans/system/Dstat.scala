@@ -15,15 +15,17 @@
  */
 package org.peelframework.dstat.beans.system
 
-import java.nio.file.Paths
+import java.nio.file.{StandardOpenOption, Files, Paths}
 
 import com.samskivert.mustache.Mustache
+import org.peelframework.core.beans.experiment.Experiment.Run
 import org.peelframework.core.beans.system.Lifespan.Lifespan
 import org.peelframework.core.beans.system.{LogCollection, System}
 import org.peelframework.core.config.SystemConfig
 import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
+import scala.io.Source
 import scala.util.matching.Regex
 
 /**
@@ -53,7 +55,7 @@ class Dstat(
   mc           : Mustache.Compiler) extends System("dstat", version, configKey, lifespan, dependencies, mc)
                                        with LogCollection {
 
-  var pids: Map[String, String] = Map.empty
+//  var pids: Map[String, String] = Map.empty
 
   override protected def logFilePatterns(): Seq[Regex] = {
     List("dstat-.+\\.csv".r)
@@ -65,38 +67,86 @@ class Dstat(
   }
 
   override protected def stop(): Unit = {
-    for ((slave, pid) <- pids) {
-      shell ! s""" ssh $slave "kill $pid 2>/dev/null >/dev/null" """
+    val pidDir = Paths.get(s"${config.getString("system.flink.config.yaml.env.pid.dir")}/dstat.pid")
+    if (Files.exists(pidDir)) {
+      Closeable.guard(Files.newBufferedReader(pidDir)) on { reader =>
+        while(reader.ready()) {
+          val v = reader.readLine().split(',')
+          shell ! s""" ssh ${v(0)} "kill ${v(1)} 2>/dev/null >/dev/null" """
+        }
+      }
     }
   }
 
   // TODO how to handle partial state?
   // currently this works because `isRunning` is used when shutting down systems
   override def isRunning: Boolean = {
-    for ((slave, pid) <- pids) {
-      if ((shell ! s""" ssh $slave "kill -0 $pid" """) == 0) {
-        return true
+    val pidDir = Paths.get(s"${config.getString("system.flink.config.yaml.env.pid.dir")}/dstat.pid")
+    Files.exists(pidDir) && (
+      Closeable.guard(Files.newBufferedReader(pidDir)) on { reader =>
+        var ret = true
+        while(reader.ready()) {
+          val v = reader.readLine().split(',')
+          ret = ret & (shell ! s""" ssh ${v(1)} "ps -p ${v(2)}" """) == 0
+        }
+        ret
       }
-    }
-    false
+    )
   }
 
   override protected def start(): Unit = {
+  }
+
+  def savePids(pids: Map[String, String]) = {
+    val pidDir = Paths.get(s"${config.getString("system.flink.config.yaml.env.pid.dir")}/dstat.pid")
+    require(!Files.exists(pidDir))
+    Closeable.guard { Files.newBufferedWriter(pidDir) } on { writer =>
+      for ((slave, pid) <- pids) {
+        writer.write(s"$slave,$pid")
+        writer.newLine()
+      }
+    }
+  }
+
+  private def _start(): Unit = {
     val user = config.getString(s"system.$configKey.user")
     val logDir = config.getString(s"system.$configKey.path.log")
     val dstat = config.getString(s"system.$configKey.path.home") + "/dstat"
 
+    logger.info(s"user: $user, logDir: $logDir, dstat: $dstat")
+
     shell.ensureFolderIsWritable(Paths.get(logDir))
-    pids = (for (slave <- config.getStringList(s"system.$configKey.config.slaves").asScala) yield {
+    val pids = (for (slave <- config.getStringList(s"system.$configKey.config.slaves").asScala) yield {
+      logger.info(s"reached $slave")
       val options = buildOptions(slave)
       val cmd = s"$dstat $options --output $logDir/dstat-$user-$slave.csv 1"
 
-      logger.debug(s"""Executing "$cmd" on host "$slave"""")
-      val dstatPid = shell !! s""" ssh $slave "nohup $cmd >/dev/null 2>/dev/null & echo \\$$!" """
-      logger.debug(s"Dstat started on $slave with PID $dstatPid")
+      logger.info(s"""Executing "$cmd" on host "$slave"""")
+      val ssh = s""" ssh $slave "nohup $cmd >/dev/null 2>/dev/null & echo \\$$!" """
+      val dstatPid = shell !! ssh //shell !! s""" ssh $slave "nohup $cmd >/dev/null 2>/dev/null & echo \\$$!" """
+      logger.info(ssh)
+      logger.info(s"Dstat started on $slave with PID $dstatPid")
 
       (slave, dstatPid)
     }).toMap
+
+    savePids(pids)
+  }
+
+  private def touch(): Unit = {
+    val user = config.getString(s"system.$configKey.user")
+    val logDir = config.getString(s"system.$configKey.path.log")
+    for (slave <- config.getStringList(s"system.$configKey.config.slaves").asScala) yield {
+      val cmd = s"touch $logDir/dstat-$user-$slave.csv"
+      shell ! s""" ssh $slave "$cmd" """
+    }
+  }
+
+  override def beforeRun(run: Run[System]): Unit = {
+    // delegate to parent
+    touch()
+    super[LogCollection].beforeRun(run)
+    _start()
   }
 
   /**
@@ -123,11 +173,22 @@ class Dstat(
       cpuList = "total," + (1 to nCpu).map(x => x.toString).reduce((s1, s2) => s"$s1,$s2")
     }
 
+//    ifaces=`$dstat --net --full --nocolor 1 0 | head -n 1 | tr -d '-' | sed 's/net\///g'`
+//    iface_list="total"
+//    for i in $ifaces
+//    do
+//      eth=`echo $i | sed -r 's/.*eth([0-9]*).*/\1/g'`
+//    iface_list="$iface_list,eth$eth"
+//    done
+
     var netList = config.getString(s"system.$configKey.cli.net.list")
     if (netList == "") {
+
       val netListCmd = s"$dstat --net --full --nocolor 1 0 | head -n 1 | tr -d '-' | sed 's/net\\///g'"
       val netListRes = shell !! s""" ssh $slave "$netListCmd" """
-      netList = "total," + netListRes.split("\\s+").reduce((s1, s2) => s"$s1,$s2")
+
+      val pattern = """.*eth([0-9]*).*""".r
+      netList = "total," + netListRes.split("\\s+").map { case pattern(num) => s"eth$num"; case s => s }.reduce((s1, s2) => s"$s1,$s2")
     }
 
     var diskList = config.getString(s"system.$configKey.cli.disk.list")
@@ -138,5 +199,33 @@ class Dstat(
     }
 
     s"--epoch --cpu -C $cpuList --mem --net -N $netList --disk -D $diskList --noheaders --nocolor"
+  }
+
+
+  object Closeable {
+    class Guard[A <: AutoCloseable](closeable: A) {
+      def on[B](block: A => B) = {
+        var t: Throwable = null
+        try {
+          block(closeable)
+        } catch {
+          case e: Exception => t = e; throw t
+        } finally {
+          if (closeable != null) {
+            if (t != null) {
+              try {
+                closeable.close()
+              } catch {
+                case e: Throwable => t.addSuppressed(e)
+              }
+            } else {
+              closeable.close()
+            }
+          }
+        }
+      }
+    }
+
+    def guard[A <: AutoCloseable](closable: A) = new Guard[A](closable)
   }
 }
