@@ -50,10 +50,17 @@ private[system] trait HDFSFileSystem extends FileSystem {
 
   override def copyFromLocal(src: String, dst: String) = {
     val hadoopHome = config.getString(s"system.$configKey.path.home")
-    if (src.endsWith(".gz"))
-      shell !( s"""gunzip -c \"$src\" | $hadoopHome/bin/hadoop fs -put - \"$dst\" """, "Unable to copy file to HDFS.")
-    else
-      shell !( s"""$hadoopHome/bin/hadoop fs -copyFromLocal "$src" "$dst" """, "Unable to copy file to HDFS.")
+    val HDFS = """^hdfs://.*""".r
+    src match {
+      case HDFS(_*) =>
+        shell !(s"""$hadoopHome/bin/hadoop distcp $src $dst """, "Unable to copy file between HDFS instances.")
+
+      case _ =>
+        if (src.endsWith(".gz"))
+          shell !( s"""gunzip -c \"$src\" | $hadoopHome/bin/hadoop fs -put - \"$dst\" """, "Unable to copy file to HDFS.")
+        else
+          shell !( s"""$hadoopHome/bin/hadoop fs -copyFromLocal "$src" "$dst" """, "Unable to copy file to HDFS.")
+    }
   }
 
   def mkdir(dir: String) = {
