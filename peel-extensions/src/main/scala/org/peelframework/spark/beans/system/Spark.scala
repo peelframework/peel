@@ -54,7 +54,7 @@ class Spark(
   var latestEventLogBeforeRun: Option[String] = None
 
   def eventLogPattern() = {
-    val logDir = config.getString("system.spark.path.log")
+    val logDir = config.getString(s"system.$configKey.path.log")
     s"$logDir/app-*"
   }
 
@@ -102,16 +102,16 @@ class Spark(
     * @return System configuration for this system.
     */
   override def configuration() = SystemConfig(config, {
-    val conf = config.getString("system.spark.path.config")
+    val conf = config.getString(s"system.$configKey.path.config")
     //rename template files - strip the .template
     // TODO: this needs to be done only on demand
     shell ! s"""if [ ! -e "$conf/spark-env.sh" ]; then mv "$conf/spark-env.sh.template" "$conf/spark-env.sh"; fi """
     shell ! s"""if [ ! -e "$conf/spark-defaults.conf" ]; then mv "$conf/spark-defaults.conf.template" "$conf/spark-defaults.conf"; fi """
     List(
-      SystemConfig.Entry[Model.Hosts]("system.spark.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
-      SystemConfig.Entry[Model.Env]("system.spark.config.env", s"$conf/spark-env.sh", templatePath("conf/spark-env.sh"), mc),
-      SystemConfig.Entry[Model.Site]("system.spark.config.defaults", s"$conf/spark-defaults.conf", templatePath("conf/spark-defaults.conf"), mc),
-      SystemConfig.Entry[Model.Yaml]("system.spark.config.log4j", s"$conf/log4j.properties", templatePath("conf/log4j.properties"), mc)
+      SystemConfig.Entry[Model.Hosts](s"system.$configKey.config.slaves", s"$conf/slaves", templatePath("conf/hosts"), mc),
+      SystemConfig.Entry[Model.Env](s"system.$configKey.config.env", s"$conf/spark-env.sh", templatePath("conf/spark-env.sh"), mc),
+      SystemConfig.Entry[Model.Site](s"system.$configKey.config.defaults", s"$conf/spark-defaults.conf", templatePath("conf/spark-defaults.conf"), mc),
+      SystemConfig.Entry[Model.Yaml](s"system.$configKey.config.log4j", s"$conf/log4j.properties", templatePath("conf/log4j.properties"), mc)
     )
   })
 
@@ -125,8 +125,8 @@ class Spark(
     *                               `\${startup.pollingCounter}` times `\${startup.pollingInterval}` milliseconds.
     */
   override def start(): Unit = {
-    val user = config.getString("system.spark.user")
-    val logDir = config.getString("system.spark.path.log")
+    val user = config.getString(s"system.$configKey.user")
+    val logDir = config.getString(s"system.$configKey.path.log")
 
     // check if tmp dir exists and create if not
     val tmpDirs = config.getString(s"system.$configKey.config.defaults.spark.local.dir")
@@ -139,7 +139,7 @@ class Spark(
       }
     }
 
-    for (dataNode <- config.getStringList(s"system.spark.config.slaves").asScala) {
+    for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
       logger.info(s"Initializing tmp directory $tmpDirs at taskmanager node $dataNode")
       shell ! (s""" ssh $user@$dataNode "rm -Rf $tmpDirs" """, "Unable to remove Spark tmp directory.")
       shell ! (s""" ssh $user@$dataNode "mkdir -p $tmpDirs" """, "Unable to create Spark tmp directory.")
@@ -148,18 +148,18 @@ class Spark(
     var failedStartUpAttempts = 0
     while (!isUp) {
       try {
-        val totl = config.getStringList("system.spark.config.slaves").size()
+        val totl = config.getStringList(s"system.$configKey.config.slaves").size()
         val init = 0 // Spark resets the job manager log on startup
 
-        shell ! s"${config.getString("system.spark.path.home")}/sbin/start-all.sh"
+        shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/start-all.sh"
         logger.info(s"Waiting for nodes to connect")
 
         var curr = init
-        var cntr = config.getInt("system.spark.startup.polling.counter")
+        var cntr = config.getInt(s"system.$configKey.startup.polling.counter")
         while (curr - init < totl) {
           logger.info(s"Connected ${curr - init} from $totl nodes")
           // wait a bit
-          Thread.sleep(config.getInt("system.spark.startup.polling.interval"))
+          Thread.sleep(config.getInt(s"system.$configKey.startup.polling.interval"))
           // get new values
           curr = Integer.parseInt((shell !! s"""cat $logDir/spark-$user-org.apache.spark.deploy.master.Master-*.out | grep 'Registering worker' | wc -l""").trim())
           // timeout if counter goes below zero
@@ -170,8 +170,8 @@ class Spark(
       } catch {
         case e: SetUpTimeoutException =>
           failedStartUpAttempts = failedStartUpAttempts + 1
-          if (failedStartUpAttempts < config.getInt("system.spark.startup.max.attempts")) {
-            shell ! s"${config.getString("system.spark.path.home")}/sbin/stop-all.sh"
+          if (failedStartUpAttempts < config.getInt(s"system.$configKey.startup.max.attempts")) {
+            shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/stop-all.sh"
             logger.info(s"Could not bring system '$toString' up in time, trying again...")
           } else {
             throw e
@@ -181,12 +181,12 @@ class Spark(
   }
 
   override def stop(): Unit = {
-    shell ! s"${config.getString("system.spark.path.home")}/sbin/stop-all.sh"
+    shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/stop-all.sh"
     isUp = false
   }
 
   def isRunning = {
-    val pidDir = config.getString("system.spark.config.env.SPARK_PID_DIR")
+    val pidDir = config.getString(s"system.$configKey.config.env.SPARK_PID_DIR")
     (shell ! s""" ps -p `cat $pidDir/spark-*Master*.pid` """) == 0 ||
       (shell ! s""" ps -p `cat $pidDir/spark-*Worker*.pid` """) == 0
   }

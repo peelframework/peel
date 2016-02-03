@@ -75,7 +75,7 @@ object FlinkExperiment {
 
     import org.peelframework.flink.beans.experiment.FlinkExperiment.StateProtocol._
 
-    val runnerLogPath = exp.config.getString("system.flink.path.log")
+    val runnerLogPath = exp.config.getString(s"system.${exp.runner.configKey}.path.log")
 
     override def isSuccessful = state.runExitCode.getOrElse(-1) == 0 // FIXME: && state.plnExitCode.getOrElse(-1) == 0
 
@@ -115,14 +115,14 @@ object FlinkExperiment {
     }
 
     override def cancelJob() = {
-      val ids = (shell !! s"${exp.config.getString("system.flink.path.home")}/bin/flink list -r | tail -n +2 | head -n 1 | cut -d':' -f4 | tr -d ' '").split(Array('\n', ' '))
-      for (id <- ids) shell ! s"${exp.config.getString("system.flink.path.home")}/bin/flink cancel -i $id"
+      val ids = (shell !! s"${exp.config.getString(s"system.${exp.runner.configKey}.path.home")}/bin/flink list -r | tail -n +2 | head -n 1 | cut -d':' -f4 | tr -d ' '").split(Array('\n', ' '))
+      for (id <- ids) shell ! s"${exp.config.getString(s"system.${exp.runner.configKey}.path.home")}/bin/flink cancel -i $id"
       state.runTime = exp.config.getLong("experiment.timeout") * 1000
       state.runExitCode = Some(-1)
     }
 
     private def !(command: String, outFile: String, errFile: String) = {
-      shell ! s"${exp.config.getString("system.flink.path.home")}/bin/flink ${command.trim} > $outFile 2> $errFile"
+      shell ! s"${exp.config.getString(s"system.${exp.runner.configKey}.path.home")}/bin/flink ${command.trim} > $outFile 2> $errFile"
     }
   }
 

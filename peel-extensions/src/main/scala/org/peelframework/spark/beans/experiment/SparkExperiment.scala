@@ -76,7 +76,7 @@ object SparkExperiment {
 
     import org.peelframework.spark.beans.experiment.SparkExperiment.StateProtocol._
 
-    val runnerLogPath = exp.config.getString("system.spark.path.log")
+    val runnerLogPath = exp.config.getString(s"system.${exp.runner.configKey}.path.log")
 
     override def isSuccessful = state.runExitCode.getOrElse(-1) == 0
 
@@ -110,7 +110,7 @@ object SparkExperiment {
     }
 
     private def !(command: String, outFile: String, errFile: String) = {
-      shell ! s"${exp.config.getString("system.spark.path.home")}/bin/spark-submit ${command.trim} > $outFile 2> $errFile"
+      shell ! s"${exp.config.getString(s"system.${exp.runner.configKey}.path.home")}/bin/spark-submit ${command.trim} > $outFile 2> $errFile"
     }
   }
 

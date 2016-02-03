@@ -60,6 +60,6 @@ class FlinkJob(command: String, runner: Flink, timeout: Long) extends Job(comman
   def cancelJob() = {}
 
   private def !(command: String) = {
-    shell ! s"${config.getString("system.flink.path.home")}/bin/flink run ${command.trim} >> $home/run.out 2>> $home/run.err"
+    shell ! s"${config.getString(s"system.${runner.configKey}.path.home")}/bin/flink run ${command.trim} >> $home/run.out 2>> $home/run.err"
   }
 }

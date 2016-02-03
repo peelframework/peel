@@ -62,7 +62,7 @@ class SparkJob(command: String, runner: Spark, timeout: Long) extends Job(comman
   def cancelJob() = {}
 
   private def !(command: String) = {
-    val master = config.getString("system.spark.config.defaults.spark.master")
-    shell ! s"${config.getString("system.spark.path.home")}/bin/spark-submit --master $master ${command.trim} >> $home/run.out 2>> $home/run.err"
+    val master = config.getString(s"system.${runner.configKey}.config.defaults.spark.master")
+    shell ! s"${config.getString(s"system.${runner.configKey}.path.home")}/bin/spark-submit --master $master ${command.trim} >> $home/run.out 2>> $home/run.err"
   }
 }
