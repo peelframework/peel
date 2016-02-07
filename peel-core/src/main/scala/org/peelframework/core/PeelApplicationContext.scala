@@ -25,13 +25,13 @@ object PeelApplicationContext {
 
   /** Creates a Spring `ApplicationContext`.
     *
-    * @param experimentsXMLPath Optionally, a path to the `experiments.xml` file.
+    * @param configPath Optionally, a path to the `experiments.xml` file.
     * @return The constructed `ApplicationContext`.
     */
-  def apply(experimentsXMLPath: Option[String] = None): ApplicationContext = {
+  def apply(configPath: Option[String] = None): ApplicationContext = {
     // construct classpath
     val cp = Array(
-      experimentsXMLPath map { x => s"file:$x" }
+      configPath map { x => s"file:$x/experiments.xml" }
     ).flatten
     // construct and return application context
     val ac = new ClassPathXmlApplicationContext(cp, true)

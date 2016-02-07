@@ -44,18 +44,10 @@ object Peel {
       // parse the arguments
       val ns = parser.parseArgs(args.takeWhile(arg => arg.startsWith("-") || arg.startsWith("--")))
 
-      for (v <- Option(ns.getString("app.hostname"))) {
-        System.setProperty("app.hostname", ns.getString("app.hostname"))
-      }
-      for (v <- Option(ns.getString("app.path.config"))) {
-        System.setProperty("app.path.config", Paths.get(v).normalize().toAbsolutePath.toString)
-      }
-      for (v <- Option(ns.getString("app.path.log"))) {
-        System.setProperty("app.path.log", Paths.get(v).normalize().toAbsolutePath.toString)
-      }
-      for (v <- Option(ns.getString("app.path.experiments"))) {
-        System.setProperty("app.path.experiments", Paths.get(v).normalize.toAbsolutePath.toString)
-      }
+      System.setProperty("app.hostname", ns.getString("app.hostname"))
+      System.setProperty("app.path.config", Paths.get("config").normalize().toAbsolutePath.toString)
+      System.setProperty("app.path.log", Paths.get("log").normalize().toAbsolutePath.toString)
+
     } catch {
       case e: Throwable =>
         System.err.println(String.format("Unexpected error while parsing basic arguments: %s", e.getMessage))
@@ -71,7 +63,7 @@ object Peel {
     org.apache.log4j.Logger.getRootLogger.addAppender(appender)
 
     // construct application context
-    val context = PeelApplicationContext(Option(System.getProperty("app.path.experiments")))
+    val context = PeelApplicationContext(Option(System.getProperty("app.path.config")))
 
     // construct argument parser with commands
     parser = argumentParser(basicOnly = false)
@@ -128,21 +120,6 @@ object Peel {
       .dest("app.hostname")
       .metavar("NAME")
       .help(s"environment hostname (default: $hostname)")
-    parser.addArgument("--config")
-      .`type`(classOf[String])
-      .dest("app.path.config")
-      .metavar("PATH")
-      .help("config folder (default: config)")
-    parser.addArgument("--experiments")
-      .`type`(classOf[String])
-      .dest("app.path.experiments")
-      .metavar("EXPFILE")
-      .help("experiments spec (default: config/experiments.xml)")
-    parser.addArgument("--log")
-      .`type`(classOf[String])
-      .dest("app.path.log")
-      .metavar("PATH")
-      .help("log folder (default: log)")
 
     if (!basicOnly) {
       parser.addSubparsers()
@@ -159,9 +136,6 @@ object Peel {
 
     // general option defaults
     parser.setDefault("app.hostname", hostname)
-    parser.setDefault("app.path.config", "config")
-    parser.setDefault("app.path.log", "log")
-    parser.setDefault("app.path.experiments", "config/experiments.xml")
 
     parser
   }
