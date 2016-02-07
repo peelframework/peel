@@ -15,10 +15,14 @@
  */
 package org.peelframework.core
 
-import java.net.URL
+import org.peelframework.core.util.shell
+import java.io.File
 
 import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.ClassPathXmlApplicationContext
+
+import scala.tools.nsc.{Global, Settings}
 
 /** Spring application context factory. */
 object PeelApplicationContext {
@@ -29,18 +33,51 @@ object PeelApplicationContext {
     * @return The constructed `ApplicationContext`.
     */
   def apply(configPath: Option[String] = None): ApplicationContext = {
-    // construct classpath
-    val cp = Array(
-      configPath map { x => s"file:$x/experiments.xml" }
-    ).flatten
-    // construct and return application context
-    val ac = new ClassPathXmlApplicationContext(cp, true)
-    ac.registerShutdownHook()
-    ac
+
+    val appCtx = (for (p <- configPath) yield {
+      if (new File(s"$p/experiments.xml").isFile) {
+        // XML-based configuration
+        new ClassPathXmlApplicationContext(Array(s"file:$p/experiments.xml"), false)
+
+      } else if (new File(s"$p/experiments.scala").isFile) {
+        // Scala-based configuration
+        compileScalaSources(new File(p))
+
+        val cl = new java.net.URLClassLoader(
+          Array(new File(".").toURI.toURL),  // Using current directory .
+          this.getClass.getClassLoader)
+
+        val ac = new AnnotationConfigApplicationContext()
+        ac.setClassLoader(cl)
+        ac.register(cl.loadClass("config.experiments"))
+        ac
+
+      } else {
+        // neither `experiments.xml` nor `experiments.scala` is available
+        // return an empty XML application context
+        new ClassPathXmlApplicationContext()
+      }
+    }) getOrElse {
+      // default: an empty XML application context
+      new ClassPathXmlApplicationContext()
+    }
+
+    appCtx.registerShutdownHook()
+    appCtx.refresh()
+
+    appCtx
   }
 
-  /** Returns the last part of an URL, e.g. for `http://example.com/foo/bar.html` the result will be `bar.html`. */
-  private def lastPartOf(url: URL): String = {
-    url.getPath.split('/').reverse.head
+  /** Compiles all `*.scala` sources in the given path. */
+  private def compileScalaSources(root: File): Unit = {
+    val set = new Settings()
+    set.usejavacp.value = true
+    val glb = new Global(set)
+    val run = new glb.Run
+
+    // compile all `*.scala` files that don't have a matching `*.class` file
+    run.compile(shell.fileTree(root).map(_.toString).filter(f => {
+      f.endsWith(".scala") && !new File(f.replace(".scala", ".class")).exists()
+    }).toList)
   }
 }
