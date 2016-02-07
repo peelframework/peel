@@ -15,16 +15,16 @@
  */
 package org.peelframework.core.cli
 
-import java.net.InetAddress
 import java.nio.file.Paths
 
-import org.peelframework.core.PeelApplicationContext
-import org.peelframework.core.cli.command.Command
 import net.sourceforge.argparse4j.ArgumentParsers
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.ArgumentParserException
 import net.sourceforge.argparse4j.internal.HelpScreenException
 import org.apache.log4j.{PatternLayout, RollingFileAppender}
+import org.peelframework.core.PeelApplicationContext
+import org.peelframework.core.cli.command.Command
+import org.peelframework.core.util.shell
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConversions._
@@ -127,12 +127,12 @@ object Peel {
       .`type`(classOf[String])
       .dest("app.hostname")
       .metavar("NAME")
-      .help("hostname for config resolution (app.hostname)")
+      .help(s"environment hostname (default: $hostname)")
     parser.addArgument("--config")
       .`type`(classOf[String])
       .dest("app.path.config")
       .metavar("PATH")
-      .help("config folder (app.path.config)")
+      .help("config folder (default: config)")
     parser.addArgument("--experiments")
       .`type`(classOf[String])
       .dest("app.path.experiments")
@@ -142,7 +142,7 @@ object Peel {
       .`type`(classOf[String])
       .dest("app.path.log")
       .metavar("PATH")
-      .help("log folder (app.path.log)")
+      .help("log folder (default: log)")
 
     if (!basicOnly) {
       parser.addSubparsers()
@@ -166,12 +166,9 @@ object Peel {
     parser
   }
 
-  def hostname = {
-    try {
-      InetAddress.getLocalHost.getHostName
-    } catch {
-      case _: Throwable => "localhost"
-    }
+  lazy val hostname = {
+    val name = shell !! "echo $HOSTNAME"
+    if (name.nonEmpty) name.trim else "localhost"
   }
 
   def printHeader(logger: Logger) {
