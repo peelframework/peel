@@ -1,4 +1,4 @@
-highlighter:        pygments
+highlighter:        rouge
 
 title:              Peel Framework<sup>beta</sup>
 
