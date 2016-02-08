@@ -7,27 +7,27 @@ nav: [ manual, bundle-basics]
 
 # Bundle Basics
 
-A Peel package bundles together the configuration data, datasets, and programs required for the execution of a particular set of experiments, and is therefore shortly referred to as a Peel bundle.
+A Peel bundle packages together the configuration data, datasets, and programs required for the execution of a particular set of experiments.
 
 ## Folder Structure
 
 The top-level elements of a Peel bundle are shortly summarized below.
 
-| Path      | Config Parameter     | Description                                                   |
-| --------- | -------------------- | ------------------------------------------------------------- |
-| apps      | `app.path.apps`      | Workload applications.                                        |
-| config    | `app.path.config`    | Environment configurations and experiments definitions.       |
-| datagens  | `app.path.datagens`  | Data generators.                                              |
-| datasets  | `app.path.datasets`  | Static datasets.                                              |
-| downloads | `app.path.downloads` | Archived system binaries.                                     |
-| lib       | `N/A`                | Peel libraries and dependencies.                              |
-| log       | `app.path.log`       | Peel execution logs.                                          |
-| results   | `app.path.results`   | State and log data associated with attempted experiment runs. |
-| systems   | `app.path.systems`   | Contains all running systems.                                 |
-| utils     | `app.path.utils`     | Utility scripts and files.                                    |
-| peel.sh   | `N/A`                | The Peel command line interface.                              |
+| Default Path    | Config Parameter     | Fixed | Description                                               |
+| --------------- | -------------------- |:-----:| --------------------------------------------------------- |
+| ./apps          | `app.path.apps`      | Yes   | Workload applications.                                    |
+| ./config        | `app.path.config`    | Yes   | Environment configurations and experiments definitions.   |
+| ./datagens      | `app.path.datagens`  | No    | Data generators.                                          |
+| ./datasets      | `app.path.datasets`  | No    | Static datasets.                                          |
+| ./downloads     | `app.path.downloads` | No    | Archived system binaries.                                 |
+| ./lib           | `app.path.log`       | Yes   | Peel libraries and dependencies.                          |
+| ./log           | `app.path.log`       | Yes   | Peel execution logs.                                      |
+| ./results       | `app.path.results`   | No    | State and log data from experiment runs.                  |
+| ./systems       | `app.path.systems`   | No    | Contains all running systems.                             |
+| ./utils         | `app.path.utils`     | No    | Utility scripts and files.                                |
+| ./peel.sh       | `app.path.cli`       | Yes   | The Peel command line interface.                          |
 
-You can customize the [default paths](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.peel.conf) of these elements in your bundle- or host-specific configuration. For more information how to do this, please refer to the [Environment Configurations]({{ site.baseurl }}/manual/environment-configurations.html) section.
+You can customize the [default paths](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.peel.conf) of non-fixed paths in your bundle- or host-specific configuration. For more information how to do this, please refer to the [Environment Configurations]({{ site.baseurl }}/manual/environment-configurations.html) section.
 
 ## Components
 

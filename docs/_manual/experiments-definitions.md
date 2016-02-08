@@ -8,7 +8,20 @@ nav: [ manual, experiments-definitions ]
 # {{ page.title }}
 
 Experiments are defined in Peel using a Spring [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container as a set of inter-connected beans.
-In this section we present the available bean types and illustrate how they can be defined in XML or Scala syntax based on our `peel-wordcount` example.
+In this section we present the available bean types and illustrate how they can be defined based on our `peel-wordcount` example.
+
+Beans definitions can be done either in [XML](http://docs.spring.io/autorepo/docs/spring/current/spring-framework-reference/html/expressions.html#expressions-beandef-xml-based) or in [annotated Scala classes](http://docs.spring.io/autorepo/docs/spring/current/spring-framework-reference/html/expressions.html#expressions-beandef-annotation-based). 
+We recommend the first for small experiments and the latter for more complex fixtures.
+
+The entry point of your definitions is either
+
+* [`config/experiments.xml` (for XML-based definitions)](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-bundle/src/main/resources/config/experiments.xml), or 
+* [`config/experiments.scala` (for Scala-based definitions)](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-bundle/src/main/resources/config/experiments.scala).  
+
+Scala files are kept as source and compiled lazily in order to ease late modifications on the server side.
+If you change something in a Scala source, make sure to delete the corresponding `*.class` before you run Peel in order to reflect the source changes.
+
+If both files exist, XML-based definitions have precedence and the `*.scala` files are silently ignored. 
 
 ## Domain Model
 
@@ -40,7 +53,7 @@ It specifies the following properties:
 The second important class in the model is [*System*](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/scala/org/peelframework/core/beans/system/System.scala). 
 It specifies the following properties:
 
-* the system *name*, usually fixed per `System` implementation, e.g. `flink` for [the *Flink* system](https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/scala/org/peelframework/flink/beans/system/Flink.scala) or `spark` for [the *Spark* system](https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/scala/org/peelframework/spark/beans/system/Spark.scala);
+* the system *name*, usually fixed per *System* implementation, e.g. `flink` for [the *Flink* system](https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/scala/org/peelframework/flink/beans/system/Flink.scala) or `spark` for [the *Spark* system](https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/scala/org/peelframework/spark/beans/system/Spark.scala);
 * the system *version*, e.g. `0.9.0` for Flink or `1.3.1` for Spark;
 * a *configKey* under which config parameters will be located in the environment configuration, usually the same as the system name;
 * a [*Lifespan*](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/scala/org/peelframework/core/beans/system/Lifespan.scala) value (one of *Provided*, *Suite*, *Experiment*, or *Run*) which tells Peel when to start and stop the system;
@@ -84,7 +97,7 @@ This dependency graph is used to determine which systems need to be running at v
 
 ## Supported Systems
 
-The `peel-extensions` module ships with several `System` implementations. The following systems are defined in the [peel-extensions.xml](https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/resources/peel-extensions.xml) and can be used out of the box.
+The `peel-extensions` module ships with several *System* implementations. The following systems are defined in the [peel-extensions.xml](https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/resources/peel-extensions.xml) and can be used out of the box.
 
 | System           | Version        | System bean ID  |
 | ---------------- | ----------------------------------
@@ -94,12 +107,14 @@ The `peel-extensions` module ships with several `System` implementations. The fo
 | Flink            | 0.8.0          | flink-0.8.0     |
 | Flink            | 0.8.1          | flink-0.8.1     |
 | Flink            | 0.9.0          | flink-0.9.0     |
-| Flink            | 0.10-SNAPSHOT  | flink-0.10      |
+| Flink            | 0.10.0         | flink-0.10.0    |
+| Flink            | 0.10.1         | flink-0.10.1    |
 | MapReduce        | 1.2.1          | mapred-1.2.1    |
 | MapReduce        | 2.4.1          | mapred-2.4.1    |
 | Spark            | 1.3.1          | spark-1.3.1     |
 | Spark            | 1.4.0          | spark-1.4.0     |
 | Zookeeper        | 3.4.5          | zookeeper-3.4.5 |
+| Dstat            | 0.7.2          | dstat-0.7.2     |
 
 Each system bean has a [a default configuration entry](https://github.com/stratosphere/peel/tree/master/peel-extensions/src/main/resources) with name `reference.${systemID}.conf` which sets values suitable for running experiments on your local machine. Browse the corresponding [*peel-extensions*](https://github.com/stratosphere/peel/tree/master/peel-extensions/src/main/scala/org/peelframework/extensions) packages to see what other beans are implemented and available for each system.
 
@@ -129,9 +144,7 @@ We will now go through each of the above elements and show the corresponding bea
 ### Systems
 
 We start with the definition of the systems. 
-In the XML-based syntax, we can include the [peel-extensions.xml](https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/resources/peel-extensions.xml) and just override the `flink-0.9.0` and `spark-1.3.1` beans so they depend on `hdfs-2.7.1`.
-However, due [a limitation in Spring's DI container](https://jira.spring.io/browse/SPR-7028), annotation-based bean definitions cannot override XML-based ones with the same name.
-Because of that, in the Scala-based syntax we need to omit the inclusion of [peel-extensions.xml](https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/resources/peel-extensions.xml) and define all three systems manually.
+For our setup, we want to override the `flink-0.9.0` and `spark-1.3.1` beans so they depend on `hdfs-2.7.1` and reuse `hdfs-2.7.1` unmodified.
 
 <ul class="tabs" data-tab>
   <li class="tab-title active"><a href="#ex01-xml">XML</a></li>
@@ -168,14 +181,6 @@ Because of that, in the Scala-based syntax we need to omit the inclusion of [pee
 
 <div class="content" id="ex01-scala">
 {% highlight scala %}
-@Bean(name = Array("hdfs-2.7.1"))
-def `hdfs-2.7.1`: HDFS2 = new HDFS2(
-  version      = "0.9.0",
-  configKey    = "hadoop-2",
-  lifespan     = Lifespan.SUITE,
-  mc           = ctx.getBean(classOf[Mustache.Compiler])
-)
-
 @Bean(name = Array("flink-0.9.0"))
 def `flink-0.9.0`: Flink = new Flink(
   version      = "0.9.0",
@@ -197,6 +202,11 @@ def `spark-1.3.1`: Spark = new Spark(
 </div>
 
 </div>
+
+For better structuring and maintenance, the definitions are factored out in dedicated files 
+
+* [`config/fixtures/systems.xml`](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-bundle/src/main/resources/config/fixtures/systems.xml) and 
+* [`config/fixtures/systems.scala`](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-bundle/src/main/resources/config/fixtures/systems.scala).
 
 ### Input and Output Data
 
@@ -686,6 +696,9 @@ def `wordcount.scale-out`: ExperimentSuite = {
 
 </div>
 
-The full configuration as initialized in your `peel-wordcount` bundle [can be found in the GitHub repository](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-bundle/src/main/resources/config/experiments.xml).
-In order to improve modularity and code reuse, the final version also employs other Spring DI features like abstract bean definitions and file imports.
-Choose and comment one of the two options in order to enable the XML or the Scala-based configuration, respectively.
+Similar to the *System* beans, the definitions of the *DataSet*, *Experiment*, and *ExperimentSuite* beans for the WordCount experiment are factored out in dedicated files
+ 
+* [`config/fixtures/wordcount.xml`](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-bundle/src/main/resources/config/fixtures/wordcount.xml) and  
+* [`config/fixtures/wordcount.scala`](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-bundle/src/main/resources/config/fixtures/wordcount.scala).   
+
+The full configuration as initialized in your `peel-wordcount` bundle [can be found in the GitHub repository](https://github.com/stratosphere/peel-wordcount/blob/master/peel-wordcount-bundle/src/main/resources/config).

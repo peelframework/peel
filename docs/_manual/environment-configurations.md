@@ -58,21 +58,21 @@ In our running example, this means that each of the six experiments (3x `SparkWC
 The Peel configuration system is built upon the concept of layered construction and resolution. Peel distinguishes between three layers of configuration:
 
 1. **Default**. Default configuration values for Peel itself and the supported systems. Packaged as resources in Peel-related jars located in the bundle's `app.path.lib` folder.
-2. **Bundle.** Bundle-specific configuration values. Located in `${app.path.config}/hosts`. Default is the `config/hosts` subfolder of the current bundle.
+2. **Bundle.** Bundle-specific configuration values. Located in `config/hosts`. Default is the `config/hosts` subfolder of the current bundle.
 3. **Host**. Host-specific configuration values. Located in the `$HOSTNAME` subfolder of the `app.path.config` folder.
 
 For each experiment bean defined in an experiment suite, Peel will construct an associated configuration according to the following table entries (higher in the list means lower priority).
 
-| Path                                                    | Description                                |
-| ------------------------------------------------------- | -------------------------------------------|
-| `reference.peel.conf`                                   | Default Peel config.                       |
-| `reference.${systemID}.conf`                            | Default system config.                     |
-| `${app.path.config}/${systemID}.conf`                   | Bundle-specific system config (opt).       |
-| `${app.path.config}/hosts/${hostname}/${systemID}.conf` | Host-specific system config (opt).         |
-| `${app.path.config}/application.conf`                   | Bundle-specific Peel config (opt).         |
-| `${app.path.config}/hosts/${hostname}/application.conf` | Host-specific Peel config (opt).           |
-| Experiment bean *config* value                          | Experiment specific config (opt).          |
-| *System*                                                | JVM system properties (constant).          | 
+| Path                                        | Description                                |
+| ------------------------------------------- | -------------------------------------------|
+| `reference.peel.conf`                       | Default Peel config.                       |
+| `reference.${systemID}.conf`                | Default system config.                     |
+| `config/${systemID}.conf`                   | Bundle-specific system config (opt).       |
+| `config/hosts/${hostname}/${systemID}.conf` | Host-specific system config (opt).         |
+| `config/application.conf`                   | Bundle-specific Peel config (opt).         |
+| `config/hosts/${hostname}/application.conf` | Host-specific Peel config (opt).           |
+| Experiment bean *config* value              | Experiment specific config (opt).          |
+| *System*                                    | JVM system properties (constant).          | 
 
 First comes [the default Peel configuration](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.peel.conf), located in the `peel-core.jar` package.
 
