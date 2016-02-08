@@ -150,7 +150,7 @@ object Peel {
         .dest("app.command")
         .metavar("COMMAND")
     } else {
-      parser.addArgument("--help", "-f")
+      parser.addArgument("--help", "-h")
         .`type`(classOf[Boolean])
         .dest("app.printHelp")
         .action(Arguments.storeTrue)
