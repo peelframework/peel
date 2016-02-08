@@ -17,9 +17,9 @@ The code snippets below assume that the following shell variables are set. Modif
 export BUNDLE_BIN=~/bundles/bin                          # bundle binaries parent
 export BUNDLE_SRC=~/bundles/src                          # bundle sources parent
 # for the current bundle
-export BUNDLE_GID=com.acme.peel                          # bundle groupId
-export BUNDLE_AID=peel-bundle                            # bundle artifactId
-export BUNDLE_PKG=com.acme.benchmarks.example            # bundle root package
+export BUNDLE_GID=com.acme                               # bundle groupId
+export BUNDLE_AID=peel-wordcount                         # bundle artifactId
+export BUNDLE_PKG=com.acme.benchmarks.wordcount          # bundle root package
 {% endhighlight %}
 
 *__Tip__: If you intend to maintain multiple bundles, we suggest to define `BUNDLE_BIN` and `BUNDLE_SRC` in your `~/.profile` file.*
@@ -30,6 +30,7 @@ If you don't want to version the code and configuration data of your bundle, you
 
 {% highlight bash %}
 wget https://github.com/stratosphere/peel/releases/download/v{{ site.current_version }}/peel-empty-bundle-{{ site.current_version }}.tar.gz
+mkdir -p "$BUNDLE_BIN/$BUNDLE_AID"
 tar -xzvf peel-empty-bundle-{{ site.current_version }}.tar.gz -C "$BUNDLE_BIN/$BUNDLE_AID"
 cd "$BUNDLE_BIN/$BUNDLE_AID"
 {% endhighlight %}
