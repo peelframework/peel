@@ -17,26 +17,12 @@
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>
     </context:component-scan>
 
-    <!-- Experiments Definitions can be written in one of two ways -->
-
-    <!-- Option A: XML-based definitions -->
-
-    <!-- Peel configurations -->
     <import resource="classpath:peel-core.xml"/>
     <import resource="classpath:peel-extensions.xml"/>
 
-    <!-- XML-based experiment definitions -->
     <!-- custom system beans -->
-    <import resource="systems.xml"/>
+    <import resource="fixtures/systems.xml"/>
     <!-- wordcount experiment beans -->
-    <import resource="experiments.wordcount.xml"/>
-
-    <!-- Option B: Code-based definitions -->
-
-    <!-- Peel configurations -->
-    <!--<import resource="classpath:peel-core.xml"/>-->
-
-    <!-- Code-based experiment definitions -->
-    <!--<bean class="${package}.ExperimentsDefinitions"/>-->
+    <import resource="fixtures/wordcount.xml"/>
 
 </beans>
