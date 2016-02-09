@@ -27,6 +27,9 @@ import org.peelframework.core.util.console.ConsoleColorise
 import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, Future}
 import scala.util.matching.Regex
 
 /** Wrapper class for Spark.
@@ -128,22 +131,21 @@ class Spark(
     val user = config.getString(s"system.$configKey.user")
     val logDir = config.getString(s"system.$configKey.path.log")
 
-    // check if tmp dir exists and create if not
-    val tmpDirs = config.getString(s"system.$configKey.config.defaults.spark.local.dir")
-
-    for (tmHost <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-      for (tmpDir <- tmpDirs.split(',')) {
-        logger.info(s"Initializing Spark tmp directory $tmpDir at host $tmHost")
-        shell ! (s""" ssh $user@$tmHost "rm -Rf $tmpDir" """, "Unable to remove Spark tmp directory.")
-        shell ! (s""" ssh $user@$tmHost "mkdir -p $tmpDir" ""","Unable to create Spark tmp directory.")
-      }
+    val init = (host: String, paths: Seq[String]) => {
+      val cmd = paths.map(path => s"rm -Rf $path && mkdir -p $path").mkString(" && ")
+      s""" ssh $user@$host "$cmd" """
     }
 
-    for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-      logger.info(s"Initializing tmp directory $tmpDirs at taskmanager node $dataNode")
-      shell ! (s""" ssh $user@$dataNode "rm -Rf $tmpDirs" """, "Unable to remove Spark tmp directory.")
-      shell ! (s""" ssh $user@$dataNode "mkdir -p $tmpDirs" """, "Unable to create Spark tmp directory.")
-    }
+    val hosts = config.getStringList(s"system.$configKey.config.slaves").asScala
+    val paths = config.getString(s"system.$configKey.config.defaults.spark.local.dir").split(',')
+
+    val futureInitOps = Future.traverse(hosts)(host => Future {
+      logger.info(s"Initializing Spark tmp directories '${paths.mkString(",")}' at $host")
+      shell ! (init(host, paths), s"Unable to initialize Spark tmp directories '${paths.mkString(",")}' at $host.")
+    })
+
+    // await for all futureInitOps to finish
+    Await.result(futureInitOps, (5 * hosts.size).seconds)
 
     var failedStartUpAttempts = 0
     while (!isUp) {
