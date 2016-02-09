@@ -9,4 +9,4 @@ https://archive.apache.org/dist/flink/flink-0.10.0/flink-0.10.0-bin-hadoop2-scal
 https://archive.apache.org/dist/flink/flink-0.10.1/flink-0.10.1-bin-hadoop2-scala_2.10.tgz
 https://archive.apache.org/dist/spark/spark-1.3.1/spark-1.3.1-bin-hadoop2.4.tgz
 https://archive.apache.org/dist/spark/spark-1.4.0/spark-1.4.0-bin-hadoop2.4.tgz
-https://fossies.org/linux/privat/dstat-0.7.2.tar.gz
+http://fossies.org/linux/privat/dstat-0.7.2.tar.gz
