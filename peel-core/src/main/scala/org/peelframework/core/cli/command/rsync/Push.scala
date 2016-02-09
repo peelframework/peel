@@ -71,8 +71,8 @@ class Push extends Command {
       FolderEntry(
         src = Paths.get(config.getString("app.path.config")),
         dst = Paths.get(dst, bun, "config"),
-        inc = Seq("*"),
-        exc = Seq.empty[String]),
+        inc = Seq("*.xml", "*.scala", "*.conf"),
+        exc = Seq("*.class")),
       FolderEntry(
         src = Paths.get(config.getString("app.path.datagens")),
         dst = Paths.get(dst, bun, "datagens"),
