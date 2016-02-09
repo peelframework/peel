@@ -15,6 +15,8 @@
  */
 package org.peelframework.hadoop.beans.system
 
+import java.net.URI
+
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
 import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
@@ -22,6 +24,9 @@ import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, Future}
 import scala.util.matching.Regex
 
 /** Wrapper class for HDFS2.
@@ -76,6 +81,7 @@ class HDFS2(
     if (config.getBoolean(s"system.$configKey.format")) format()
 
     val user = config.getString(s"system.$configKey.user")
+    val home = config.getString(s"system.$configKey.path.home")
     val logDir = config.getString(s"system.$configKey.path.log")
     val hostname = config.getString("app.hostname")
 
@@ -85,11 +91,11 @@ class HDFS2(
         val totl = config.getStringList(s"system.$configKey.config.slaves").size()
         var init = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
 
-        shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/start-dfs.sh"
+        shell ! s"$home/sbin/start-dfs.sh"
         logger.info(s"Waiting for nodes to connect")
 
         var curr = init
-        var safe = !(shell !! s"${config.getString(s"system.$configKey.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
+        var safe = !(shell !! s"$home/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
         var cntr = config.getInt(s"system.$configKey.startup.polling.counter")
         while (curr - init < totl || safe) {
           logger.info(s"Connected ${curr - init} from $totl nodes, safemode is ${if (safe) "ON" else "OFF"}")
@@ -101,7 +107,7 @@ class HDFS2(
           if (curr == 0) {
             curr = Integer.parseInt((shell !! s"""cat $logDir/hadoop-$user-namenode-$hostname.log | grep 'registerDatanode:' | wc -l""").trim())
           }
-          safe = !(shell !! s"${config.getString(s"system.$configKey.path.home")}/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
+          safe = !(shell !! s"$home/bin/hadoop dfsadmin -safemode get").toLowerCase.contains("off")
           // timeout if counter goes below zero
           cntr = cntr - 1
           if (curr - init < 0) init = 0 // protect against log reset on startup
@@ -112,7 +118,7 @@ class HDFS2(
         case e: SetUpTimeoutException =>
           failedStartUpAttempts = failedStartUpAttempts + 1
           if (failedStartUpAttempts < config.getInt(s"system.$configKey.startup.max.attempts")) {
-            shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/stop-dfs.sh"
+            shell ! s"$home/bin/stop-dfs.sh"
             logger.info(s"Could not bring system '$toString' up in time, trying again...")
           } else {
             throw e
@@ -130,9 +136,9 @@ class HDFS2(
 
   def isRunning = {
     val pidDir = config.getString(s"system.$configKey.config.env.HADOOP_PID_DIR")
-    (shell ! s""" ps -p `cat ${pidDir}/hadoop-*-namenode.pid` """) == 0 ||
-      (shell ! s""" ps -p `cat ${pidDir}/hadoop-*-secondarynamenode.pid` """) == 0 ||
-      (shell ! s""" ps -p `cat ${pidDir}/hadoop-*-datanode.pid` """) == 0
+    (shell ! s""" ps -p `cat $pidDir/hadoop-*-namenode.pid` """) == 0 ||
+      (shell ! s""" ps -p `cat $pidDir/hadoop-*-secondarynamenode.pid` """) == 0 ||
+      (shell ! s""" ps -p `cat $pidDir/hadoop-*-datanode.pid` """) == 0
   }
 
   // ---------------------------------------------------
@@ -141,19 +147,25 @@ class HDFS2(
 
   private def format() = {
     val user = config.getString(s"system.$configKey.user")
+    val home = config.getString(s"system.$configKey.path.home")
 
     logger.info(s"Formatting namenode")
-    shell ! (s"${config.getString(s"system.$configKey.path.home")}/bin/hdfs namenode -format -nonInteractive -force",
-      "Unable to format namenode.")
+    shell ! (s"$home/bin/hdfs namenode -format -nonInteractive -force", "Unable to format namenode.")
 
-    logger.info(s"Fixing data directories")
-    for (dataNode <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-      for (dirURI <- config.getString(s"system.$configKey.config.hdfs.dfs.datanode.data.dir").split(',')) {
-        val dataDir = new java.net.URI(dirURI).getPath
-        logger.info(s"Initializing data directory $dataDir at datanode $dataNode")
-        shell ! (s""" ssh $user@$dataNode "rm -Rf $dataDir" """, "Unable to remove hdfs data directories.")
-        shell ! (s""" ssh $user@$dataNode "mkdir -p $dataDir/current" """, "Unable to create hdfs data directories.")
-      }
-    }
+    val init = (host: String, path: String) =>
+      s""" ssh $user@$host "rm -Rf $path && mkdir -p $path/current" """
+
+    val list = for {
+      host <- config.getStringList(s"system.$configKey.config.slaves").asScala
+      path <- config.getString(s"system.$configKey.config.hdfs.dfs.datanode.data.dir").split(',')
+    } yield (host, new URI(path).getPath)
+
+    val futureInitOps = Future.traverse(list)(((host: String, path: String) => Future {
+      logger.info(s"Initializing HDFS data directory '$path' at $host")
+      shell ! (init(host, path), s"Unable to initialize HDFS data directory '$path' at $host.")
+    }).tupled)
+
+    // await for all futureInitOps to finish
+    Await.result(futureInitOps, (5 * list.size).seconds)
   }
 }
