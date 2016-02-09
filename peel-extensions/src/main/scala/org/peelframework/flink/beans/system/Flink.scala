@@ -15,6 +15,8 @@
  */
 package org.peelframework.flink.beans.system
 
+import java.net.URI
+
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
 import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
@@ -22,6 +24,9 @@ import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, Future}
 import scala.util.matching.Regex
 
 /** Wrapper class for Flink.
@@ -68,21 +73,21 @@ class Flink(
     val user = config.getString(s"system.$configKey.user")
     val logDir = config.getString(s"system.$configKey.path.log")
 
-    // check if tmp dir exists and create if not
-    val tmpDirs = config.getString(s"system.$configKey.config.yaml.taskmanager.tmp.dirs")
-    val jmHost = config.getString(s"system.$configKey.config.yaml.jobmanager.rpc.address")
-
-    for (tmpDir <- tmpDirs.split(':')) {
-      logger.info(s"Initializing tmp directory $tmpDir at jobmanager host $jmHost")
-      shell ! (s""" ssh $user@$jmHost "rm -Rf $tmpDir" """, "Unable to remove Flink tmp directory.")
-      shell ! (s""" ssh $user@$jmHost "mkdir -p $tmpDir" ""","Unable to create Flink tmp directory.")
-
-      for (tmHost <- config.getStringList(s"system.$configKey.config.slaves").asScala) {
-        logger.info(s"Initializing Flink tmp directory $tmpDir at host $tmHost")
-        shell ! (s""" ssh $user@$tmHost "rm -Rf $tmpDir" """, "Unable to remove Flink tmp directory.")
-        shell ! (s""" ssh $user@$tmHost "mkdir -p $tmpDir" ""","Unable to create Flink tmp directory.")
-      }
+    val init = (host: String, paths: Seq[String]) => {
+      val cmd = paths.map(path => s"rm -Rf $path && mkdir -p $path").mkString(" && ")
+      s""" ssh $user@$host "$cmd" """
     }
+
+    val hosts = config.getStringList(s"system.$configKey.config.slaves").asScala
+    val paths = config.getString(s"system.$configKey.config.yaml.taskmanager.tmp.dirs").split(':')
+
+    val futureInitOps = Future.traverse(hosts)(host => Future {
+      logger.info(s"Initializing Flink tmp directories '${paths.mkString(":")}' at $host")
+      shell ! (init(host, paths), s"Unable to initialize Flink tmp directories '${paths.mkString(":")}' at $host.")
+    })
+
+    // await for all futureInitOps to finish
+    Await.result(futureInitOps, (5 * hosts.size).seconds)
 
     var failedStartUpAttempts = 0
     while (!isUp) {
