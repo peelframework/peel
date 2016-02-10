@@ -15,6 +15,7 @@
  */
 package org.peelframework.dstat.beans.system
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{StandardOpenOption, Files, Paths}
 
 import com.samskivert.mustache.Mustache
@@ -71,7 +72,7 @@ class Dstat(
   override protected def stop(): Unit = {
     val pidFile = Paths.get(s"${config.getString(s"system.$configKey.config.pid.dir")}/dstat.pid")
     if (Files.exists(pidFile)) {
-      Closeable.guard(Files.newBufferedReader(pidFile)) on { reader =>
+      Closeable.guard(Files.newBufferedReader(pidFile, StandardCharsets.UTF_8)) on { reader =>
         while(reader.ready()) {
           val entry = reader.readLine().split(',')
           if (entry.length == 2) {
@@ -87,7 +88,7 @@ class Dstat(
   override def isRunning: Boolean = {
     val pidDir = Paths.get(s"${config.getString(s"system.$configKey.config.pid.dir")}/dstat.pid")
     Files.exists(pidDir) && (
-      Closeable.guard(Files.newBufferedReader(pidDir)) on { reader =>
+      Closeable.guard(Files.newBufferedReader(pidDir, StandardCharsets.UTF_8)) on { reader =>
         var ret = true
         while(reader.ready()) {
           val entry = reader.readLine().split(',')
@@ -190,7 +191,7 @@ class Dstat(
       logger.warn("Dstat pid file exists: Try to shut down already running Dstat.")
       stop()
     }
-    Closeable.guard { Files.newBufferedWriter(pidFile) } on { writer =>
+    Closeable.guard { Files.newBufferedWriter(pidFile, StandardCharsets.UTF_8) } on { writer =>
       for ((slave, pid) <- pids) {
         writer.write(s"$slave,$pid")
         writer.newLine()
