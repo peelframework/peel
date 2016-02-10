@@ -53,7 +53,7 @@ private[system] trait HDFSFileSystem extends FileSystem {
     val HDFS = """^hdfs://.*""".r
     src match {
       case HDFS(_*) =>
-        shell !(s"""$hadoopHome/bin/hadoop distcp $src $dst """, "Unable to copy file between HDFS instances.")
+        shell !(s"""$hadoopHome/bin/hadoop distcp -update -skipcrccheck $src $dst """, "Unable to copy file between HDFS instances.")
 
       case _ =>
         if (src.endsWith(".gz"))
