@@ -103,6 +103,16 @@
         <constructor-arg name="configKey" value="spark" />
         <constructor-arg name="lifespan" value="EXPERIMENT"/>
     </bean>
+    <bean id="spark-1.5.2" class="org.peelframework.spark.beans.system.Spark" parent="system">
+        <constructor-arg name="version" value="1.5.2"/>
+        <constructor-arg name="configKey" value="spark" />
+        <constructor-arg name="lifespan" value="EXPERIMENT"/>
+    </bean>
+    <bean id="spark-1.6.0" class="org.peelframework.spark.beans.system.Spark" parent="system">
+        <constructor-arg name="version" value="1.6.0"/>
+        <constructor-arg name="configKey" value="spark" />
+        <constructor-arg name="lifespan" value="EXPERIMENT"/>
+    </bean>
 
     <!-- Dstat -->
     <bean id="dstat-0.7.2" class="org.peelframework.dstat.beans.system.Dstat" parent="system">
