@@ -30,8 +30,9 @@ import org.springframework.context.{ApplicationContext, ApplicationContextAware}
   "classpath:peel-extensions.xml"
 ))
 @Import(value = Array(
-  classOf[config.fixtures.systems],  // custom system beans
-  classOf[config.fixtures.wordcount] // wordcount experiment beans
+  classOf[org.peelframework.extensions], // custom system beans
+  classOf[config.fixtures.systems],      // custom system beans
+  classOf[config.fixtures.wordcount]     // wordcount experiment beans
 ))
 class experiments extends ApplicationContextAware {
 
