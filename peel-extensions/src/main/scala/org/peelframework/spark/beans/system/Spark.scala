@@ -17,6 +17,7 @@ package org.peelframework.spark.beans.system
 
 import java.lang.{System => Sys}
 import java.nio.file.Paths
+import java.util.regex.Pattern
 
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.experiment.Experiment.Run
@@ -63,7 +64,10 @@ class Spark(
 
   /** The patterns of the log files to watch. */
   override protected def logFilePatterns(): Seq[Regex] = {
-    List("spark-.+\\.log".r, "spark-.+\\.out".r)
+    val user = Pattern.quote(config.getString(s"system.$configKey.user"))
+    config.getStringList(s"system.$configKey.config.slaves").asScala.map(Pattern.quote).flatMap(slave => Seq(
+      s"spark-$user-.+-$slave\\.log".r,
+      s"spark-$user-.+-$slave\\.out".r))
   }
 
   override def beforeRun(run: Run[System]): Unit = {

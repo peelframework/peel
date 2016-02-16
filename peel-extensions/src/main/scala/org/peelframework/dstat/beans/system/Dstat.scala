@@ -16,17 +16,17 @@
 package org.peelframework.dstat.beans.system
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{StandardOpenOption, Files, Paths}
+import java.nio.file.{Files, Paths}
+import java.util.regex.Pattern
 
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.experiment.Experiment.Run
 import org.peelframework.core.beans.system.Lifespan.Lifespan
-import org.peelframework.core.beans.system.{DistributedLogCollection, LogCollection, System}
+import org.peelframework.core.beans.system.{DistributedLogCollection, System}
 import org.peelframework.core.config.SystemConfig
 import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
-import scala.io.Source
 import scala.util.matching.Regex
 
 /**
@@ -56,12 +56,11 @@ class Dstat(
   mc           : Mustache.Compiler) extends System("dstat", version, configKey, lifespan, dependencies, mc)
                                        with DistributedLogCollection {
 
-//  var pids: Map[String, String] = Map.empty
-
   override def slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
 
   override protected def logFilePatterns(): Seq[Regex] = {
-    List("dstat-.+\\.csv".r)
+    val user = config.getString(s"system.$configKey.user")
+    slaves.map(slave => Pattern.quote(s"dstat-$user-$slave.csv").r)
   }
 
 

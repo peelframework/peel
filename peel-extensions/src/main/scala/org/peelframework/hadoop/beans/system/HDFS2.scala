@@ -16,6 +16,7 @@
 package org.peelframework.hadoop.beans.system
 
 import java.net.URI
+import java.util.regex.Pattern
 
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
@@ -55,11 +56,12 @@ class HDFS2(
 
   /** The patterns of the log files to watch. */
   override protected def logFilePatterns(): Seq[Regex]  = {
-    List(
-      "hadoop-.+-namenode-.+\\.log".r,
-      "hadoop-.+-namenode-.+\\.out".r,
-      "hadoop-.+-datanode-.+\\.log".r,
-      "hadoop-.+-datanode-.+\\.out".r)
+    val user = Pattern.quote(config.getString(s"system.$configKey.user"))
+    config.getStringList(s"system.$configKey.config.slaves").asScala.map(Pattern.quote).flatMap(slave => Seq(
+      s"hadoop-$user-namenode-$slave\\.log".r,
+      s"hadoop-$user-namenode-$slave\\.out".r,
+      s"hadoop-$user-datanode-$slave\\.log".r,
+      s"hadoop-$user-datanode-$slave\\.out".r))
   }
 
   // ---------------------------------------------------

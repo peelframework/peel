@@ -15,12 +15,15 @@
  */
 package org.peelframework.hadoop.beans.system
 
+import java.util.regex.Pattern
+
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
 import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
 
+import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 
 /** Wrapper class for Yarn.
@@ -48,7 +51,9 @@ class Yarn(
   /** The patterns of the log files to watch. */
   override protected def logFilePatterns(): Seq[Regex] = {
     // TODO: rework based on http://hortonworks.com/blog/simplifying-user-logs-management-and-access-in-yarn/
-    List("yarn-.+-resourcemanager-.+\\.log".r)
+    val user = Pattern.quote(config.getString(s"system.$configKey.user"))
+    config.getStringList(s"system.$configKey.config.slaves").asScala.map(Pattern.quote).map(slave =>
+      s"yarn-$user-resourcemanager-$slave\\.log".r)
   }
 
   // ---------------------------------------------------

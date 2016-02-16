@@ -64,7 +64,7 @@ trait DistributedLogCollection {
       val logPath = config.getString(s"system.$configKey.path.log")
       for {
         files <- Future {
-          (shell !! findIn(slave, logPath)).split('\n').filter(f => canProcess(new File(f))).toSeq
+          (shell !! findIn(slave, logPath)).split('\n').filter(f => canProcess(new File(f)) && f.contains(slave)).toSeq
         }
         count <- Future.traverse(files)(logFile => Future {
           FileEntry(slave, logFile) -> (shell !! countFiles(slave, logFile)).trim.toLong
