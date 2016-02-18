@@ -31,7 +31,21 @@ import scala.collection.JavaConversions._
 
 object Peel {
 
+  val JAVA_VERSION = """(\d+)\.(\d+).*""".r
+
   def main(_args: Array[String]): Unit = {
+
+    // ensure sufficient Java version
+    val javaVersion = System.getProperty("java.version", "0.0") match {
+      case JAVA_VERSION(major, minor) => major.toInt * 1000 + minor.toInt
+      case _ => 0
+    }
+
+    if (javaVersion < 1008) {
+      System.err.println(s"Peel requires Java 1.8+, but you are running ${System.getProperty("java.version")}.")
+      System.err.println(s"Please point to a supported Java version in $$JAVA_HOME or directly in peel.sh.")
+      System.exit(+1)
+    }
 
     // empty args calls help
     val args = if (_args.length == 0) Array[String]("--help") else _args
