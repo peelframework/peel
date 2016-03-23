@@ -1,0 +1,249 @@
+################################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+#==============================================================================
+# Common Options
+#==============================================================================
+
+# The default degree of parallelism to use for programs that have no degree of
+# parallelism specified.
+#
+{{#parallelism.default}}parallelism.default: {{parallelism.default}}{{/parallelism.default}}{{^parallelism.default}}parallelism.default: 1{{/parallelism.default}}
+
+#==============================================================================
+# JAVA Options
+#==============================================================================
+
+# The path to the Java installation to use.
+#
+{{#env.java.home}}env.java.home: {{env.java.home}}{{/env.java.home}}{{^env.java.home}}env.java.home: $JAVA_HOME{{/env.java.home}}
+
+# The path to the Java installation to use.
+#
+{{#env.java.opts}}env.java.opts: {{env.java.opts}}{{/env.java.opts}}{{^env.java.opts}}# env.java.opts: {{/env.java.opts}}
+
+#==============================================================================
+# Environment Options
+#==============================================================================
+
+# The directory where the PID files are stored
+{{#env.pid.dir}}env.pid.dir: {{env.pid.dir}}{{/env.pid.dir}}{{^env.pid.dir}}env.pid.dir: /tmp{{/env.pid.dir}}
+
+#==============================================================================
+# JobManager & TaskManager
+#==============================================================================
+
+# The IP address of the JobManager, which is the master/coordinator of the
+# distributed system.
+#
+{{#jobmanager.rpc.address}}jobmanager.rpc.address: {{jobmanager.rpc.address}}{{/jobmanager.rpc.address}}{{^jobmanager.rpc.address}}jobmanager.rpc.address: localhost{{/jobmanager.rpc.address}}
+
+# The port number of the JobManager.
+#
+{{#jobmanager.rpc.port}}jobmanager.rpc.port: {{jobmanager.rpc.port}}{{/jobmanager.rpc.port}}{{^jobmanager.rpc.port}}jobmanager.rpc.port: 6123{{/jobmanager.rpc.port}}
+
+# The task manager’s RPC port.
+#
+{{#taskmanager.rpc.port}}taskmanager.rpc.port: {{taskmanager.rpc.port}}{{/taskmanager.rpc.port}}{{^taskmanager.rpc.port}}taskmanager.rpc.port: 6122{{/taskmanager.rpc.port}}
+
+# The task manager’s port used for data exchange operations.
+#
+{{#taskmanager.data.port}}taskmanager.data.port: {{taskmanager.data.port}}{{/taskmanager.data.port}}{{^taskmanager.data.port}}taskmanager.data.port: 6121{{/taskmanager.data.port}}
+
+# The task manager’s RPC port.
+#
+{{#jobmanager.heap.mb}}jobmanager.heap.mb: {{jobmanager.heap.mb}}{{/jobmanager.heap.mb}}{{^jobmanager.heap.mb}}jobmanager.heap.mb: 256{{/jobmanager.heap.mb}}
+
+# The task manager’s port used for data exchange operations.
+#
+{{#taskmanager.heap.mb}}taskmanager.heap.mb: {{taskmanager.heap.mb}}{{/taskmanager.heap.mb}}{{^taskmanager.heap.mb}}taskmanager.heap.mb: 512{{/taskmanager.heap.mb}}
+
+#  The number of parallel operator or user function instances that a single
+# TaskManager can run.
+#
+{{#taskmanager.numberOfTaskSlots}}taskmanager.numberOfTaskSlots: {{taskmanager.numberOfTaskSlots}}{{/taskmanager.numberOfTaskSlots}}{{^taskmanager.numberOfTaskSlots}}taskmanager.numberOfTaskSlots: -1{{/taskmanager.numberOfTaskSlots}}
+
+# Directories for temporary files.
+#
+# Add a delimited list for multiple directories, using the system directory
+# delimiter (colon ':' on unix) or a comma, e.g.:
+#     /data1/tmp:/data2/tmp:/data3/tmp
+#
+# Note: Each directory entry is read from and written to by a different I/O
+# thread. You can include the same directory multiple times in order to create
+# multiple I/O threads against that directory. This is for example relevant for
+# high-throughput RAIDs.
+#
+# If not specified, the system-specific Java temporary directory (java.io.tmpdir
+# property) is taken.
+#
+{{#taskmanager.tmp.dirs}}taskmanager.tmp.dirs: {{taskmanager.tmp.dirs}}{{/taskmanager.tmp.dirs}}{{^taskmanager.tmp.dirs}}# taskmanager.tmp.dirs: /tmp{{/taskmanager.tmp.dirs}}
+
+# The number of buffers for the network stack.
+#
+{{#taskmanager.network.numberOfBuffers}}taskmanager.network.numberOfBuffers: {{taskmanager.network.numberOfBuffers}}{{/taskmanager.network.numberOfBuffers}}{{^taskmanager.network.numberOfBuffers}}# taskmanager.network.numberOfBuffers: 2048{{/taskmanager.network.numberOfBuffers}}
+
+# The size of the network buffers, in bytes.
+#
+{{#taskmanager.network.bufferSizeInBytes}}taskmanager.network.bufferSizeInBytes: {{taskmanager.network.bufferSizeInBytes}}{{/taskmanager.network.bufferSizeInBytes}}{{^taskmanager.network.bufferSizeInBytes}}# taskmanager.network.bufferSizeInBytes: 32768{{/taskmanager.network.bufferSizeInBytes}}
+
+# The amount of memory (in megabytes) that the task manager reserves on the
+# JVM’s heap space for sorting, hash tables, and caching of intermediate
+# results. If unspecified (-1), the memory manager will take a fixed ratio of
+# the heap memory available to the JVM, as specified by
+# taskmanager.memory.fraction.
+#
+{{#taskmanager.memory.size}}taskmanager.memory.size: {{taskmanager.memory.size}}{{/taskmanager.memory.size}}{{^taskmanager.memory.size}}# taskmanager.memory.size: -1{{/taskmanager.memory.size}}
+
+# The relative amount of memory that the task manager reserves for sorting,
+# hash tables, and caching of intermediate results.
+#
+{{#taskmanager.memory.fraction}}taskmanager.memory.fraction: {{taskmanager.memory.fraction}}{{/taskmanager.memory.fraction}}{{^taskmanager.memory.fraction}}# taskmanager.memory.fraction: 0.7{{/taskmanager.memory.fraction}}
+
+# The interval (in seconds) in which the client polls the JobManager for the
+# status of its job (DEFAULT: 2).
+#
+{{#jobclient.polling.interval}}jobclient.polling.interval: {{jobclient.polling.interval}}{{/jobclient.polling.interval}}{{^jobclient.polling.interval}}# jobclient.polling.interval: 2{{/jobclient.polling.interval}}
+
+# The maximal fan-in for external merge joins and fan-out for spilling hash
+# tables. Limits the number of file handles per operator, but may cause
+# intermediate merging/partitioning, if set too small.
+#
+{{#taskmanager.runtime.max-fan}}taskmanager.runtime.max-fan: {{taskmanager.runtime.max-fan}}{{/taskmanager.runtime.max-fan}}{{^taskmanager.runtime.max-fan}}# taskmanager.runtime.max-fan: 128{{/taskmanager.runtime.max-fan}}
+
+# A sort operation starts spilling when this fraction of its memory budget is
+# full.
+#
+{{#taskmanager.runtime.sort-spilling-threshold}}taskmanager.runtime.sort-spilling-threshold: {{taskmanager.runtime.sort-spilling-threshold}}{{/taskmanager.runtime.sort-spilling-threshold}}{{^taskmanager.runtime.sort-spilling-threshold}}# taskmanager.runtime.sort-spilling-threshold: 0.8{{/taskmanager.runtime.sort-spilling-threshold}}
+
+# The interval in which the TaskManager sends heartbeats to the JobManager.
+#
+{{#taskmanager.heartbeat-interval}}taskmanager.heartbeat-interval: {{taskmanager.heartbeat-interval}}{{/taskmanager.heartbeat-interval}}{{^taskmanager.heartbeat-interval}}# taskmanager.heartbeat-interval: 5000{{/taskmanager.heartbeat-interval}}
+
+# The maximum time that a TaskManager hearbeat may be missing before the
+# TaskManager is considered failed.
+#
+{{#jobmanager.max-heartbeat-delay-before-failure.msecs}}jobmanager.max-heartbeat-delay-before-failure.msecs: {{jobmanager.max-heartbeat-delay-before-failure.msecs}}{{/jobmanager.max-heartbeat-delay-before-failure.msecs}}{{^jobmanager.max-heartbeat-delay-before-failure.msecs}}# jobmanager.max-heartbeat-delay-before-failure.msecs: 30000{{/jobmanager.max-heartbeat-delay-before-failure.msecs}}
+
+# Start a thread that periodically logs the memory usage in the TaskManager.
+#
+{{#taskmanager.debug.memory.startLogThread}}taskmanager.debug.memory.startLogThread: {{taskmanager.debug.memory.startLogThread}}{{/taskmanager.debug.memory.startLogThread}}{{^taskmanager.debug.memory.startLogThread}}# taskmanager.debug.memory.startLogThread: false{{/taskmanager.debug.memory.startLogThread}}
+
+# The reporting interval for logging memory usage in the TaskManager.
+#
+{{#taskmanager.debug.memory.logIntervalMs}}taskmanager.debug.memory.logIntervalMs: {{taskmanager.debug.memory.logIntervalMs}}{{/taskmanager.debug.memory.logIntervalMs}}{{^taskmanager.debug.memory.logIntervalMs}}# taskmanager.debug.memory.logIntervalMs: 5000L{{/taskmanager.debug.memory.logIntervalMs}}
+
+#==============================================================================
+# BLOB / Cache
+#==============================================================================
+
+# The storage directory to be used by the BLOB server.
+#
+{{#blob.storage.directory}}blob.storage.directory: {{blob.storage.directory}}{{/blob.storage.directory}}{{^blob.storage.directory}}# blob.storage.directory: /tmp{{/blob.storage.directory}}
+
+# The number of retires for failed BLOB fetches.
+#
+{{#blob.fetch.retries}}blob.fetch.retries: {{blob.fetch.retries}}{{/blob.fetch.retries}}{{^blob.fetch.retries}}# blob.fetch.retries: 5{{/blob.fetch.retries}}
+
+# The maximum number of concurrent BLOB fetches that the JobManager serves.
+#
+{{#blob.fetch.num-concurrent}}blob.fetch.num-concurrent: {{blob.fetch.num-concurrent}}{{/blob.fetch.num-concurrent}}{{^blob.fetch.num-concurrent}}# blob.fetch.num-concurrent: 50{{/blob.fetch.num-concurrent}}
+
+# The backlog of BLOB fetches on the JobManager.
+#
+{{#blob.fetch.backlog}}blob.fetch.backlog: {{blob.fetch.backlog}}{{/blob.fetch.backlog}}{{^blob.fetch.backlog}}# blob.fetch.backlog: 1000{{/blob.fetch.backlog}}
+
+# The cleanup interval of the library cache manager.
+#
+{{#library-cache-manager.cleanup.interval}}library-cache-manager.cleanup.interval: {{library-cache-manager.cleanup.interval}}{{/library-cache-manager.cleanup.interval}}{{^library-cache-manager.cleanup.interval}}# library-cache-manager.cleanup.interval: 3600{{/library-cache-manager.cleanup.interval}}
+
+#==============================================================================
+# JobManager Web Frontend
+#==============================================================================
+
+# Port of the JobManager’s web interface that displays status of running jobs
+# and execution time breakdowns of finished jobs.
+#
+{{#jobmanager.web.port}}jobmanager.web.port: {{jobmanager.web.port}}{{/jobmanager.web.port}}{{^jobmanager.web.port}}# jobmanager.web.port: 8081{{/jobmanager.web.port}}
+
+# The number of latest jobs that the JobManager’s web front-end in its history.
+#
+{{#jobmanager.web.history}}jobmanager.web.history: {{jobmanager.web.history}}{{/jobmanager.web.history}}{{^jobmanager.web.history}}# jobmanager.web.history: 5{{/jobmanager.web.history}}
+
+#==============================================================================
+# Webclient
+#==============================================================================
+
+# The port of the webclient server.
+#
+{{#webclient.port}}webclient.port: {{webclient.port}}{{/webclient.port}}{{^webclient.port}}# webclient.port: 8080{{/webclient.port}}
+
+# The temp directory for the web server. Used for example for caching file
+# fragments during file-uploads.
+#
+{{#webclient.tempdir}}webclient.tempdir: {{webclient.tempdir}}{{/webclient.tempdir}}{{^webclient.tempdir}}# webclient.tempdir: ${java.io.tmpdir}{{/webclient.tempdir}}
+
+# The directory into which the web server will store uploaded programs.
+#
+{{#webclient.uploaddir}}webclient.uploaddir: {{webclient.uploaddir}}{{/webclient.uploaddir}}{{^webclient.uploaddir}}# webclient.uploaddir: ${webclient.tempdir}/webclient-jobs/{{/webclient.uploaddir}}
+
+# The directory into which the web server will dump temporary JSON files
+# describing the execution plans.
+#
+{{#webclient.plandump}}webclient.plandump: {{webclient.plandump}}{{/webclient.plandump}}{{^webclient.plandump}}# webclient.plandump: ${webclient.tempdir}/webclient-plans/{{/webclient.plandump}}
+
+#==============================================================================
+# HDFS
+#==============================================================================
+
+# Path to the Hadoop configuration directory.
+#
+# This configuration is used when writing into HDFS. Unless specified otherwise,
+# HDFS file creation will use HDFS default settings with respect to block-size,
+# replication factor, etc.
+#
+# You can also directly specify the paths to hdfs-default.xml and hdfs-site.xml
+# via keys 'fs.hdfs.hdfsdefault' and 'fs.hdfs.hdfssite'.
+#
+{{#fs.hdfs.hadoopconf}}fs.hdfs.hadoopconf: {{fs.hdfs.hadoopconf}}{{/fs.hdfs.hadoopconf}}{{^fs.hdfs.hadoopconf}}# fs.hdfs.hadoopconf: /path/to/hadoop/conf/{{/fs.hdfs.hadoopconf}}
+
+
+# The absolute path of Hadoop’s own configuration file “hdfs-default.xml”.
+#
+{{#fs.hdfs.hdfsdefault}}fs.hdfs.hdfsdefault: {{fs.hdfs.hdfsdefault}}{{/fs.hdfs.hdfsdefault}}{{^fs.hdfs.hdfsdefault}}# fs.hdfs.hdfsdefault: null{{/fs.hdfs.hdfsdefault}}
+
+# The absolute path of Hadoop’s own configuration file “hdfs-site.xml”.
+#
+{{#fs.hdfs.hdfssite}}fs.hdfs.hdfssite: {{fs.hdfs.hdfssite}}{{/fs.hdfs.hdfssite}}{{^fs.hdfs.hdfssite}}# fs.hdfs.hdfssite: null{{/fs.hdfs.hdfssite}}
+
+#==============================================================================
+# File Systems
+#==============================================================================
+
+# Specifies whether file output writers should overwrite existing files by
+# default.
+#
+{{#fs.overwrite-files}}fs.overwrite-files: {{fs.overwrite-files}}{{/fs.overwrite-files}}{{^fs.overwrite-files}}# fs.overwrite-files: false{{/fs.overwrite-files}}
+
+# File writers running with a parallelism larger than one create a directory
+# for the output file path and put the different result files (one per parallel
+# writer task) into that directory. If this option is set to true, writers with
+# a parallelism of 1 will also create a directory and place a single result
+# file into it.
+#
+{{#fs.output.always-create-directory}}fs.output.always-create-directory: {{fs.output.always-create-directory}}{{/fs.output.always-create-directory}}{{^fs.output.always-create-directory}}# fs.output.always-create-directory: false{{/fs.output.always-create-directory}}
