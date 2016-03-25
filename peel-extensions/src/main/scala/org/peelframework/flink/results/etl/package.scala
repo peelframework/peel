@@ -22,12 +22,18 @@ import java.time.format.DateTimeFormatter
 package object etl {
 
   /** Pattern for job output log entries. */
-  val LogEntry = """([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3})\t(.+)""".r
+  val LogEntryV1 = """([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3})\t(.+)""".r
+
+  /** Pattern for job output log entries. */
+  val LogEntryV2 = """([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}).* - (.+)""".r
 
   /** Pattern for task state transitions. */
-  val TaskState = """(.+)\((\d+)/(\d+)\) switched to (SCHEDULED|DEPLOYING|RUNNING|FINISHED)\W*""".r
+  val TaskStateV1 = """(.+)\((\d+)/(\d+)\) switched to (SCHEDULED|DEPLOYING|RUNNING|FINISHED)\W*""".r
 
-  private val TimestampFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,S")
+  /** Pattern for task state transitions. */
+  val TaskStateV2 = """(.+) \((\d+)/(\d+)\) .*switched .*to (SCHEDULED|DEPLOYING|RUNNING|FINISHED)\W*""".r
+
+  private val TimestampFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS")
 
   def toInstant(v: String): Instant = {
     LocalDateTime.parse(v, TimestampFmt).toInstant(ZoneOffset.UTC)

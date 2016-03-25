@@ -35,7 +35,14 @@ class FlinkTaskEventExtractor(
 
   /** Extracts events from an incoming message */
   final def receive: Receive = {
-    case msg@Line(LogEntry(time, TaskState(name, number, total, state))) =>
+    case msg@Line(LogEntryV1(time, TaskStateV1(name, number, total, state))) =>
+      writer ! ExperimentEvent(
+        run.id,
+        Symbol(s"state_change_${state.toLowerCase}"),
+        Some(name),
+        Some(number.toInt),
+        vTimestamp = Some(toInstant(time)))
+    case msg@Line(LogEntryV2(time, TaskStateV2(name, number, total, state))) =>
       writer ! ExperimentEvent(
         run.id,
         Symbol(s"state_change_${state.toLowerCase}"),
