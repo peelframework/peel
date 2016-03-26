@@ -15,7 +15,7 @@
  */
 package org.peelframework.core.results.etl
 
-import java.sql.Connection
+import java.sql.{Connection, SQLException}
 
 import akka.actor._
 import org.peelframework.core.results.model.ExperimentEvent
@@ -58,7 +58,18 @@ class Writer(appContext: ApplicationContext, conn: Connection) extends Actor wit
     try {
       ExperimentEvent.insert(batch.result())(conn)
     } catch {
-      case e: Throwable => log.warning(s"SQL Exception on batch insert of ExperimentEvent objects: $e")
+      case e: SQLException =>
+        var x = e
+        do {
+          log.warning(
+            s"""SQL Exception on batch insert of ExperimentEvent objects:
+               | - SQL state is  ${x.getSQLState},
+               | - error code is ${x.getErrorCode},
+               | - error is      $x""".stripMargin)
+          x = x.getNextException
+        } while (x != null)
+      case e: Throwable =>
+        log.warning(s"SQL Exception on batch insert of ExperimentEvent objects: $e")
     } finally {
       batch.clear()
     }
