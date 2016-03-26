@@ -165,7 +165,17 @@ class Run extends Command {
         }
 
         for (n <- exp.outputs) n.clean()
-        r.execute() // run experiment
+
+        // run experiment
+        r.execute()
+
+        // stop for a brief intermission between runs
+        try {
+          Thread.sleep(r.exp.config.getLong("experiment.run.intermission"))
+        } catch {
+          case e: InterruptedException => // ignore interrupt
+        }
+
       } catch {
         case e: Throwable =>
           logger.error(s"Exception for experiment ${exp.name} in suite ${suite.name}: ${e.getMessage}".red)

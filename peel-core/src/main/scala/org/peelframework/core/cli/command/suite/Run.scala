@@ -146,7 +146,15 @@ class Run extends Command {
             }
 
             try {
-              r.execute() // run experiment
+              // run experiment
+              r.execute()
+
+              // stop for a brief intermission between runs
+              try {
+                Thread.sleep(r.exp.config.getInt("experiment.run.intermission"))
+              } catch {
+                case e: InterruptedException => // ignore interrupt
+              }
             }
             finally {
               logger.info("Tearing down systems with RUN lifespan")
