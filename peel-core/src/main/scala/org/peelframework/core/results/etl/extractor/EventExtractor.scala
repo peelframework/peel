@@ -48,7 +48,7 @@ trait EventExtractorCompanion {
   def reader(file: File): FileReader[Any]
 
   /** Create the extractor props. */
-  def props(run: ExperimentRun, context: ApplicationContext, writer: ActorRef): Props
+  def props(run: ExperimentRun, context: ApplicationContext, file: File, writer: ActorRef): Props
 }
 
 /** A trait implementing pattern-based `canProcess` behavior for [[EventExtractorCompanion]] objects. */

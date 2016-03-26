@@ -60,7 +60,7 @@ class EventExtractorManager(appContext: ApplicationContext, config: Config, conn
     case process@ProcessFile(basePath, file, run) =>
       // find extractors for this file
       val extractors = for (companion <- companions; if companion.canProcess(process.relativeFile)) yield {
-        val p = companion.props(run, appContext, writer) // construct extractor props
+        val p = companion.props(run, appContext, file, writer) // construct extractor props
         val r = companion.reader(file) // construct reader required for this actor
         r -> p // return (reader, extractor props) pair
       }

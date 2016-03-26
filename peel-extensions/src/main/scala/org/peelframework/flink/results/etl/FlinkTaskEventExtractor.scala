@@ -72,7 +72,7 @@ object FlinkTaskEventExtractor extends EventExtractorCompanion with PatternBased
   }
 
   /** Create the extractor props. */
-  override def props(run: ExperimentRun, context: ApplicationContext, writer: ActorRef): Props = {
+  override def props(run: ExperimentRun, context: ApplicationContext, file: File, writer: ActorRef): Props = {
     Props(new FlinkTaskEventExtractor(run, context, writer))
   }
 }
