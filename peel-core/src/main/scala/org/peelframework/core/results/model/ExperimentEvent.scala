@@ -21,6 +21,7 @@ import java.time.Instant
   *
   * @param experimentRunID The ID of the associated run.
   * @param name The name of the event.
+  * @param host Optionally, the host where the event occurs.
   * @param task Optionally, the name of the associated task instance.
   * @param taskInstance Optionally, the number of the associated task instance.
   * @param vLong Optionally, an integer value for this event.
@@ -31,6 +32,7 @@ import java.time.Instant
 case class ExperimentEvent(
   experimentRunID: Int,
   name:            Symbol,
+  host:            Option[String]  = Option.empty[String],
   task:            Option[String]  = Option.empty[String],
   taskInstance:    Option[Int]     = Option.empty[Int],
   vLong:           Option[Long]    = Option.empty[Long],
@@ -55,15 +57,17 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
     get[Int]             ("id")                 ~
     get[Int]             ("experiment_run_id")  ~
     get[String]          ("name")               ~
+    get[Option[String]]  ("host")               ~
     get[Option[String]]  ("task")               ~
     get[Option[Int]]     ("task_instance")      ~
     get[Option[Long]]    ("v_long")             ~
     get[Option[Double]]  ("v_double")           ~
     get[Option[Instant]] ("v_timestamp")        ~
     get[Option[String]]  ("v_string")           map {
-      case id ~ expRunID ~ name ~ task ~ inst ~ vLong ~ vDouble ~ vTimestamp ~ vString => ExperimentEvent(
+      case id ~ expRunID ~ name ~ host ~ task ~ inst ~ vLong ~ vDouble ~ vTimestamp ~ vString => ExperimentEvent(
         expRunID,
         Symbol(name),
+        host,
         task,
         inst,
         vLong,
@@ -79,6 +83,7 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
         id                 INTEGER        NOT NULL,
         experiment_run_id  INTEGER        NOT NULL,
         name               VARCHAR(63)    NOT NULL,
+        host               VARCHAR(127)           ,
         task               VARCHAR(1024)          ,
         task_instance      INTEGER                ,
         v_long             BIGINT                 ,
@@ -92,10 +97,11 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
 
   override def insert(x: ExperimentEvent)(implicit conn: Connection): Unit = {
     SQL"""
-    INSERT INTO experiment_event(id, experiment_run_id, name, task, task_instance, v_long, v_double, v_timestamp, v_string) VALUES(
+    INSERT INTO experiment_event(id, experiment_run_id, name, host, task, task_instance, v_long, v_double, v_timestamp, v_string) VALUES(
       ${x.id},
       ${x.experimentRunID},
       ${x.name.name},
+      ${x.host map (v => if (v.length < 127) v else v.substring(0, 127))},
       ${x.task map (v => if (v.length < 1024) v else v.substring(0, 1024))},
       ${x.taskInstance},
       ${x.vLong},
@@ -109,10 +115,11 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
   override def insert(xs: Seq[ExperimentEvent])(implicit conn: Connection): Unit = if (xs.nonEmpty) singleCommit {
     BatchSql(
       s"""
-      INSERT INTO experiment_event(id, experiment_run_id, name, task, task_instance, v_long, v_double, v_timestamp, v_string) VALUES(
+      INSERT INTO experiment_event(id, experiment_run_id, name, host, task, task_instance, v_long, v_double, v_timestamp, v_string) VALUES(
         {id},
         {experimentRunID},
         {name},
+        {host},
         {task},
         {taskInstance},
         {vLong},
@@ -140,6 +147,7 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
     'id                -> x.id,
     'experimentRunID   -> x.experimentRunID,
     'name              -> x.name.name,
+    'host              -> x.host,
     'task              -> x.task,
     'taskInstance      -> x.taskInstance,
     'vLong             -> x.vLong,
