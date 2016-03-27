@@ -48,7 +48,7 @@ class EventExtractorManager(appContext: ApplicationContext, config: Config, conn
   val companions = appContext.getBeansOfType(classOf[EventExtractorCompanion]).asScala.values.toSeq
 
   override def preStart() = {
-    log.info(s"Staring EventExtractorManager")
+    log.info(s"Starting EventExtractorManager")
   }
 
   override def postStop() = {

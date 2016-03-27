@@ -69,7 +69,7 @@ object shell {
     val exit = this ! cmd.trim
 
     if (exit != 0) {
-      if (fatal) throw new RuntimeException(errorMsg)
+      if (fatal) throw new RuntimeException(errorMsg + "\nThe command that failed:\n" + cmd + "\n")
       else logger.error(errorMsg.red)
     }
     exit

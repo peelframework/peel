@@ -157,6 +157,9 @@ class Dstat(
     if (cpuList == "") {
       val cpuListCmd = s"$dstat --cpu --full --nocolor 1 0 | head -n 1 | tr -d '-' | tr ' ' '\\n' | wc -l"
       val nCpu = Integer.parseInt((shell !! s""" ssh $slave "$cpuListCmd" """).trim)
+      if(nCpu == 0) {
+        throw new RuntimeException(s"Running dstat failed on $slave. Command was\n$cpuListCmd")
+      }
       cpuList = "total," + (1 to nCpu).map(x => x.toString).reduce((s1, s2) => s"$s1,$s2")
     }
 
