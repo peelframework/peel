@@ -26,6 +26,7 @@ import org.peelframework.core.config.Configurable
 import org.peelframework.core.graph.Node
 import org.peelframework.core.util.console._
 import org.peelframework.core.util.shell
+import org.peelframework.core.util.error
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -173,7 +174,7 @@ object Experiment {
               logger.warn(s"Experiment run was interrupted")
               cancelJob()
             case e: Throwable =>
-              logger.warn(s"Experiment run threw an unexpected exception: ${e.getMessage}")
+              logger.warn(s"Experiment run threw an unexpected exception: ${e}")
               cancelJob()
           }
 
@@ -187,7 +188,7 @@ object Experiment {
             logger.warn(s"Experiment run did not finish successfully".yellow)
         } catch {
           case e: Exception =>
-            logger.error("Exception in experiment run %s: %s".format(name, e.getMessage).red)
+            logger.error("Exception in experiment run %s:\n%s".format(name, error.getStackTraceAsString(e)).red)
         } finally {
           writeState()
         }

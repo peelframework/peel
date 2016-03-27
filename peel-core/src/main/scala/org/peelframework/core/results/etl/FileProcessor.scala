@@ -31,7 +31,7 @@ class FileProcessor(appContext: ApplicationContext) extends Actor with ActorLogg
   val watched = ArrayBuffer.empty[ActorRef]
 
   override def preStart() = {
-    log.info(s"Staring FileProcessor")
+    log.info(s"Starting FileProcessor")
   }
 
   override def postStop() = {
