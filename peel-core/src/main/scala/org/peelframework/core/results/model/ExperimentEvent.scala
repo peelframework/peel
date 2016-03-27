@@ -113,6 +113,7 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
   }
 
   override def insert(xs: Seq[ExperimentEvent])(implicit conn: Connection): Unit = if (xs.nonEmpty) singleCommit {
+    val duplicates = xs.groupBy(_.id).filter { case (k, v) => v.size > 1}
     BatchSql(
       s"""
       INSERT INTO experiment_event(id, experiment_run_id, name, host, task, task_instance, v_long, v_double, v_timestamp, v_string) VALUES(

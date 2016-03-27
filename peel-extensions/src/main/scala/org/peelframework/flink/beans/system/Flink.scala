@@ -19,11 +19,12 @@ import java.util.regex.Pattern
 
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
-import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
+import org.peelframework.core.beans.system.{DistributedLogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
 
 import scala.collection.JavaConverters._
+import scala.collection.Seq
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
@@ -45,18 +46,22 @@ class Flink(
   lifespan     : Lifespan,
   dependencies : Set[System] = Set(),
   mc           : Mustache.Compiler) extends System("flink", version, configKey, lifespan, dependencies, mc)
-                                       with LogCollection {
+                                       with DistributedLogCollection {
 
   // ---------------------------------------------------
   // LogCollection.
   // ---------------------------------------------------
 
+  override def slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+
   /** The patterns of the log files to watch. */
   override protected def logFilePatterns(): Seq[Regex] = {
     val user = Pattern.quote(config.getString(s"system.$configKey.user"))
-    config.getStringList(s"system.$configKey.config.slaves").asScala.map(Pattern.quote).flatMap(slave => Seq(
-      s"flink-$user-.+-$slave\\.log".r,
-      s"flink-$user-.+-$slave\\.out".r))
+    slaves.map(Pattern.quote).flatMap(slave => Seq(
+      s"flink-$user-jobmanager-\\d+-$slave\\.log".r,
+      s"flink-$user-jobmanager-\\d+-$slave\\.log".r,
+      s"flink-$user-taskmanager-\\d+-$slave\\.log".r,
+      s"flink-$user-taskmanager-\\d+-$slave\\.out".r))
   }
 
   // ---------------------------------------------------
