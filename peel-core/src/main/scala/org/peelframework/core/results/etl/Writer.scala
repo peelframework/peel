@@ -37,7 +37,7 @@ class Writer(appContext: ApplicationContext, conn: Connection) extends Actor wit
   var count = 0
 
   override def preStart() = {
-    log.info(s"Staring Writer")
+    log.info(s"Starting Writer")
   }
 
   override def postStop() = {
