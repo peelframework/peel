@@ -120,7 +120,7 @@ class Push extends Command {
       val includes = entry.inc.flatMap(x => Seq("--include", s"'$x'")).mkString(" ")
       val excludes = entry.exc.flatMap(x => Seq("--exclude", s"'$x'")).mkString(" ")
       shell !(
-        s"""rsync -L -a -v -r -e "$rsh" $includes $excludes ${entry.src}/. $url:${entry.dst}""",
+        s"""rsync -K --copy-unsafe-links -a -v -r -e "$rsh" $includes $excludes ${entry.src}/. $url:${entry.dst}""",
         s"""Error while syncing '${entry.src}' with '${entry.dst}""",
         fatal = false)
     }
