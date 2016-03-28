@@ -29,8 +29,6 @@ import org.springframework.stereotype.Service
 @Service("sys:setup")
 class SetUp extends Command {
 
-  override val name = "sys:setup"
-
   override val help = "set up a system"
 
   override def register(parser: Subparser) = {

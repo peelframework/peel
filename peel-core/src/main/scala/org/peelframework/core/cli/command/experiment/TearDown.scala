@@ -30,8 +30,6 @@ import org.springframework.stereotype.Service
 @Service("exp:teardown")
 class TearDown extends Command {
 
-  override val name = "exp:teardown"
-
   override val help = "tear down systems for a specific experiment"
 
   override def register(parser: Subparser) = {

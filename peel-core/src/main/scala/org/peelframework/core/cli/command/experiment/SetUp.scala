@@ -31,8 +31,6 @@ import org.springframework.stereotype.Service
 @Service("exp:setup")
 class SetUp extends Command {
 
-  override val name = "exp:setup"
-
   override val help = "set up systems for a specific experiment"
 
   override def register(parser: Subparser) = {

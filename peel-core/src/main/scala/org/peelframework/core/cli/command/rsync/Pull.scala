@@ -29,8 +29,6 @@ import org.springframework.stereotype.Service
 @Service("rsync:pull")
 class Pull extends Command {
 
-  override val name = "rsync:pull"
-
   override val help = "pull bundle from a remote location"
 
   override def register(parser: Subparser) = {

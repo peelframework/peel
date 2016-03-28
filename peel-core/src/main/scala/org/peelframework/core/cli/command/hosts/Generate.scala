@@ -32,8 +32,6 @@ import scala.collection.mutable.ListBuffer
 @Service("hosts:generate")
 class Generate extends Command {
 
-  override val name = "hosts:generate"
-
   override val help = "generate a hosts.conf file"
 
   var ns: Namespace = null

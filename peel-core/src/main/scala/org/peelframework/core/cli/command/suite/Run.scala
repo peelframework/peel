@@ -32,8 +32,6 @@ import org.springframework.stereotype.Service
 @Service("suite:run")
 class Run extends Command {
 
-  override val name = "suite:run"
-
   override val help = "execute all experiments in a suite"
 
   override def register(parser: Subparser) = {

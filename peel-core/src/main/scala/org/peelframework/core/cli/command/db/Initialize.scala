@@ -30,8 +30,6 @@ import org.springframework.stereotype.Service
 @Service("db:initialize")
 class Initialize extends Command {
 
-  override val name = "db:initialize"
-
   override val help = "initialize results database"
 
   override def register(parser: Subparser) = {

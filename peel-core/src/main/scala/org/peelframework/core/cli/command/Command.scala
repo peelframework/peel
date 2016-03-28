@@ -18,13 +18,14 @@ package org.peelframework.core.cli.command
 import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Service
 
 abstract class Command {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
   /** The unique name for this command. */
-  val name: String
+  val name: String = this.getClass.getAnnotation(classOf[Service]).value()
 
   /** A one-sentence help for this command. */
   val help: String

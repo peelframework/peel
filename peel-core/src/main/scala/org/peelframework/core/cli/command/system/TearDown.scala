@@ -29,8 +29,6 @@ import org.springframework.stereotype.Service
 @Service("sys:teardown")
 class TearDown extends Command {
 
-  override val name = "sys:teardown"
-
   override val help = "tear down a system"
 
   override def register(parser: Subparser) = {

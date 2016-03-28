@@ -34,8 +34,6 @@ import org.springframework.stereotype.Service
 @Service("db:import")
 class Import extends Command {
 
-  override val name = "db:import"
-
   override val help = "import suite results into an initialized database"
 
   override def register(parser: Subparser) = {

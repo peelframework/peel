@@ -31,8 +31,6 @@ import org.springframework.stereotype.Service
 @Service("res:archive")
 class Archive extends Command {
 
-  override val name = "res:archive"
-
   override val help = "archive suite results to a tar.gz"
 
   override def register(parser: Subparser) = {

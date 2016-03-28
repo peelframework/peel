@@ -31,8 +31,6 @@ import org.springframework.stereotype.Service
 @Service("res:extract")
 class Extract extends Command {
 
-  override val name = "res:extract"
-
   override val help = "extract suite results from a tar.gz"
 
   override def register(parser: Subparser) = {

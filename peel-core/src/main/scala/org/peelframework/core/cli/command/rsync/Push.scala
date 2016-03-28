@@ -29,8 +29,6 @@ import org.springframework.stereotype.Service
 @Service("rsync:push")
 class Push extends Command {
 
-  override val name = "rsync:push"
-
   override val help = "push bundle to a remote location"
 
   override def register(parser: Subparser) = {

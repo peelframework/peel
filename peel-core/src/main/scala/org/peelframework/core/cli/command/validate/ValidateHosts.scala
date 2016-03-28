@@ -34,8 +34,6 @@ import scala.collection.JavaConversions._
 @Service("val:hosts")
 class ValidateHosts extends Command {
 
-  override val name = "val:hosts"
-
   override val help = "validates correct hosts setup"
 
   override def register(parser: Subparser) = {
