@@ -17,10 +17,10 @@ Check the [Getting Started guide](http://peel-framework.org/getting-started.html
 
 Peel offers the following features for your experiments.
 
-- **Unified Design** Specify and maintain collections of experiments using a simple, DI-based configuration.
-- **Automated Execution** Automate the experiment execution lifecycle.
-- **Automated Analysis** Extracts, transforms, and loads results into an RDBMS.
-- **Result Sharing** Share your bundles and migrating to other evaluation environments without additional effort.
+- **Unified Design**. Specify and maintain collections of experiments using a simple, DI-based configuration.
+- **Automated Execution**. Automate the experiment execution lifecycle.
+- **Automated Analysis**. Extracts, transforms, and loads results into an RDBMS.
+- **Result Sharing**. Share your bundles and migrating to other evaluation environments without additional effort.
 
 ## Supported Systems
 
@@ -34,6 +34,7 @@ Peel offers the following features for your experiments.
 | Flink            | 0.9.0          | `flink-0.9.0`     |
 | Flink            | 0.10.0         | `flink-0.10.0`    |
 | Flink            | 0.10.1         | `flink-0.10.1`    |
+| Flink            | 0.10.2         | `flink-0.10.2`    |
 | Flink            | 1.0.0          | `flink-1.0.0`     |
 | MapReduce        | 1.2.1          | `mapred-1.2.1`    |
 | MapReduce        | 2.4.1          | `mapred-2.4.1`    |
