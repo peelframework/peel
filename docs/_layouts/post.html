@@ -7,9 +7,12 @@ layout: default
 <div class="row">
     <div class="large-12 columns">
         <header class="post-header">
-            <p class="post-meta">{{ page.date | date: "%b %-d, %Y" }}{% if page.author %}<br>{{ page.author }}{% endif %}{% if page.meta %}<br>{{ page.meta }}{% endif %}</p>
             <h1 class="post-title">{{ page.title }}</h1>
         </header>
+
+        <div class="post-meta clearfix">
+            <span class="left">{{ page.date | date: "%b %-d, %Y" }} by {{ page.author | join: ', ' }}</span>
+        </div>
 
         <article class="post-content">
             {{ content }}

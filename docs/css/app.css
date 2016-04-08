@@ -123,13 +123,6 @@ code {
     padding: 0;
 }
 
-.post-meta {
-    font-size: smaller;
-    color: gray;
-    float: right;
-    text-align: right;
-}
-
 button.copy {
     font-size: 2rem;
     padding: 10px 0px 0px 5px;
@@ -144,4 +137,13 @@ button.copy {
 .tabs dd.active a, .tabs .tab-title.active a {
     background-color: #E4F5E3;
     color: #167411;
+}
+
+/* blog */
+
+.post-meta {
+    margin: 0 0 2ex 0;
+    font-size: medium;
+    color: gray;
+    text-align: left;
 }
