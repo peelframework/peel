@@ -1,15 +1,15 @@
 ---
 layout: simple
-title: Tutorials
+title: Blog
 ---
 
-<h1>{{site.title}} Blog</h1>
+<h1>Blog</h1>
 
 {% assign posts = site.posts | sort: 'date desc' %}
 {% for post in posts %}
 <article>
     <h2> <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></h2>
-    <h6>{% if post.author %} Written by {{post.author}} on {% endif %}{{ post.date | date: "%b %-d, %Y" }}</h6>
+    <h6>{% if post.author %} Written by {{post.author | join: ' and ' }} on {% endif %}{{ post.date | date: "%b %-d, %Y" }}</h6>
     <p>{{post.excerpt}}</p>
 </article>
 <hr>
