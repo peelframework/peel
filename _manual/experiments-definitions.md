@@ -109,6 +109,8 @@ The `peel-extensions` module ships with several *System* implementations. The fo
 | Flink            | 0.9.0          | flink-0.9.0     |
 | Flink            | 0.10.0         | flink-0.10.0    |
 | Flink            | 0.10.1         | flink-0.10.1    |
+| Flink            | 0.10.2         | flink-0.10.2    |
+| Flink            | 1.0.0          | flink-1.0.0     |
 | MapReduce        | 1.2.1          | mapred-1.2.1    |
 | MapReduce        | 2.4.1          | mapred-2.4.1    |
 | Spark            | 1.3.1          | spark-1.3.1     |
