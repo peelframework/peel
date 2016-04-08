@@ -2,7 +2,7 @@ highlighter:        rouge
 
 title:              Peel Framework<sup>beta</sup>
 
-current_version:    1.0.0-rc1
+current_version:    1.0.0-rc2
 
 collections:
   manual:
