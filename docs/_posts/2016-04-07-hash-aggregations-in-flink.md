@@ -6,6 +6,7 @@ author:
  - Gábor Gévay
  - Andreas Kunft
 date:   2016-04-07 14:28:46
+nav: blog
 ---
 
 Hash-based aggregations have been a long-standing item on the feature list for Flink (see [FLINK-2237](https://issues.apache.org/jira/browse/FLINK-2237)).

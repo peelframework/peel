@@ -7,17 +7,16 @@
         </ul>
 
         <section class="top-bar-section">
-            {% include navigation.top.items.html top=true%}
+            {% include navigation.top.items.html nav=page.nav top=true%}
 
             <!-- Right Nav Section -->
             <ul class="right">
-                <li class="{% if include.nav == 'blog' %}active{% endif %}"><a href="{{ site.baseurl }}/blog.html">Blog</a></li>
                 <li class="divider"></li>
                 <li><a href="https://github.com/stratosphere/peel"><i class="fi-social-github medium"></i></a></li>
+                <!--li class="divider"></li-->
+                <!--li><a href="#"><i class="fi-social-twitter medium"></i></a></li-->
                 <li class="divider"></li>
-                <li><a href="#"><i class="fi-social-twitter medium"></i></a></li>
-                <li class="divider"></li>
-                <li><a href="#"><i class="fi-social-google-plus medium"></i></a></li>
+                <li><a href="https://plus.google.com/b/108753884703330550243/108753884703330550243"><i class="fi-social-google-plus medium"></i></a></li>
             </ul>
         </section>
     </nav>
@@ -40,7 +39,7 @@
 </nav>
 
 <aside class="left-off-canvas-menu">
-    {% include navigation.top.items.html top=false%}
+    {% include navigation.top.items.html nav=page.nav top=false %}
 </aside>
 
 {% if include.nav contains 'manual'%}
