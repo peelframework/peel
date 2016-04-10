@@ -7,32 +7,18 @@ nav: repository
 
 # {{ page.title }}
 
-One of the main advantages of Peel is the ability to share hand-crafted configurations for a set of systems on a particular host environment.
+A key concept advocated by Peel is the ability to share hand-crafted configurations for a set of systems on a particular host environment.
 The suggested way to do so is through a dedicated Git repository. 
 
-If you are using a versioned bundle, must clone the repository under your `*-bundle` project.
+Please refer [to the "Sharing Configurations" section of the Manual]({{ site.baseurl }}/manual/environment-configurations.html#sharing-configurations) for concrete instructions regarding the use of shared environment configurations.
 
-For example, we offer an example ACME cluster has a shared configuration available [at GitHub](https://github.com/stratosphere/peelconfig.acme), you can use the following command to add it to your `peel-wordcount` bundle:
+Below you can find a list of environment configurations available online. 
+Please contact us if you wish to add your environment configuration to the list.
 
-{% highlight bash %}
-git clone \
-    git@github.com:stratosphere/peelconfig.acme.git \
-    $(pwd)-bundle/src/main/resources/config/hosts/acme-master
-{% endhighlight %}
+### [**acme-master**](https://github.com/stratosphere/peelconfig.acme)
 
-We also encourage beginners to use the [devhost config](https://github.com/stratosphere/peelconfig.devhost) which contains best practice configurations for your developer machine.
+A template for shared-nothing clusters.
 
-{% highlight bash %}
-git clone \
-    git@github.com:stratosphere/peelconfig.devhost.git \
-    $(pwd)-bundle/src/main/resources/config/hosts/$HOSTNAME
-{% endhighlight %}
+### [**devhost**](https://github.com/stratosphere/peelconfig.devhost)
 
-*__Tip__: You can also fork `peelconfig.devhost.git` and share it and instead include the fork.*
-
-The table below lists some shared configurations available at GitHub (to access some of them you need special rights).
-
-| Hostname        | URL                                                       | Owner                                        |
-| --------------- | --------------------------------------------------------- | -------------------------------------------- |
-| acme-master     | https://github.com/stratosphere/peelconfig.acme           | [DIMA, TU Berlin](http://dima.tu-berlin.de/) |
-| [your-host]     | https://github.com/stratosphere/peelconfig.devhost        | [DIMA, TU Berlin](http://dima.tu-berlin.de/) |
+A template for developer machines.
