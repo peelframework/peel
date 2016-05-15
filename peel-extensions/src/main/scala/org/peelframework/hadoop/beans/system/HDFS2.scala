@@ -20,7 +20,7 @@ import java.util.regex.Pattern
 
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
-import org.peelframework.core.beans.system.{LogCollection, SetUpTimeoutException, System}
+import org.peelframework.core.beans.system.{DistributedLogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
 import org.peelframework.core.util.shell
 
@@ -48,20 +48,26 @@ class HDFS2(
   dependencies : Set[System] = Set(),
   mc           : Mustache.Compiler) extends System("hdfs-2", version, configKey, lifespan, dependencies, mc)
                                        with HDFSFileSystem
-                                       with LogCollection {
+                                       with DistributedLogCollection {
 
   // ---------------------------------------------------
   // LogCollection.
   // ---------------------------------------------------
 
+  override def hosts = {
+    val master = config.getString("runtime.hostname")
+    val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+    master +: slaves
+  }
+
   /** The patterns of the log files to watch. */
   override protected def logFilePatterns(): Seq[Regex]  = {
     val user = Pattern.quote(config.getString(s"system.$configKey.user"))
-    config.getStringList(s"system.$configKey.config.slaves").asScala.map(Pattern.quote).flatMap(slave => Seq(
-      s"hadoop-$user-namenode-$slave\\.log".r,
-      s"hadoop-$user-namenode-$slave\\.out".r,
-      s"hadoop-$user-datanode-$slave\\.log".r,
-      s"hadoop-$user-datanode-$slave\\.out".r))
+    hosts.map(Pattern.quote).flatMap(host => Seq(
+      s"hadoop-$user-namenode-$host\\.log".r,
+      s"hadoop-$user-namenode-$host\\.out".r,
+      s"hadoop-$user-datanode-$host\\.log".r,
+      s"hadoop-$user-datanode-$host\\.out".r))
   }
 
   // ---------------------------------------------------
