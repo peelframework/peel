@@ -52,16 +52,20 @@ class Flink(
   // LogCollection.
   // ---------------------------------------------------
 
-  override def slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+  override def hosts = {
+    val master = config.getString(s"system.$configKey.config.yaml.jobmanager.rpc.address")
+    val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+    master +: slaves
+  }
 
   /** The patterns of the log files to watch. */
   override protected def logFilePatterns(): Seq[Regex] = {
     val user = Pattern.quote(config.getString(s"system.$configKey.user"))
-    slaves.map(Pattern.quote).flatMap(slave => Seq(
-      s"flink-$user-jobmanager-\\d+-$slave\\.log".r,
-      s"flink-$user-jobmanager-\\d+-$slave\\.log".r,
-      s"flink-$user-taskmanager-\\d+-$slave\\.log".r,
-      s"flink-$user-taskmanager-\\d+-$slave\\.out".r))
+    hosts.map(Pattern.quote).flatMap(host => Seq(
+      s"flink-$user-jobmanager-\\d+-$host\\.log".r,
+      s"flink-$user-jobmanager-\\d+-$host\\.out".r,
+      s"flink-$user-taskmanager-\\d+-$host\\.log".r,
+      s"flink-$user-taskmanager-\\d+-$host\\.out".r))
   }
 
   // ---------------------------------------------------

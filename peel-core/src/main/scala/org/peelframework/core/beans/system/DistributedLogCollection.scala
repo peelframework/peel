@@ -32,14 +32,14 @@ import scala.util.matching.Regex
   * In difference to [[LogCollection]] the logs are copied via ssh, thus it does not require a
   * shared folder.
   *
-  * Subclasses of this trait must provide a list of `slaves` which are used to gather the logs via ssh.
+  * Subclasses of this trait must provide a list of `hosts` which are used to gather the logs via ssh.
   */
 trait DistributedLogCollection {
   self: System =>
 
-  def slaves: Seq[String]
+  def hosts: Seq[String]
 
-  case class FileEntry(slave: String, file: String)
+  case class FileEntry(host: String, file: String)
 
   /** Log file line counts at the beginning of the last run. */
   private var logFileCounts: Map[FileEntry, Long] = null
@@ -53,27 +53,27 @@ trait DistributedLogCollection {
     // get the log path of this system
     implicit val patterns = logFilePatterns()
 
-    val findIn = (slave: String, logFolder: String) =>
-      s"""ssh $slave "find $logFolder -type f -exec ls {} \\; 2> /dev/null"""".trim
+    val findIn = (host: String, logFolder: String) =>
+      s"""ssh $host "find $logFolder -type f -exec ls {} \\; 2> /dev/null"""".trim
 
-    val countFiles = (slave: String, logFile: String) =>
-      s"""ssh $slave "wc -l $logFile | xargs | cut -d' ' -f1""""
+    val countFiles = (host: String, logFile: String) =>
+      s"""ssh $host "wc -l $logFile| xargs | cut -d' ' -f1""""
 
     // collect relevant log files asynchronously
-    val futureLogFileCounts = Future.traverse(slaves)(slave => {
+    val futureLogFileCounts = Future.traverse(hosts)(host => {
       val logPath = config.getString(s"system.$configKey.path.log")
       for {
         files <- Future {
-          (shell !! findIn(slave, logPath)).split('\n').filter(f => canProcess(new File(f)) && f.contains(slave)).toSeq
+          (shell !! findIn(host, logPath)).split('\n').filter(f => f.contains(host) && canProcess(new File(f))).toSeq
         }
         count <- Future.traverse(files)(logFile => Future {
-          FileEntry(slave, logFile) -> (shell !! countFiles(slave, logFile)).trim.toLong
+          FileEntry(host, logFile) -> (shell !! countFiles(host, logFile)).trim.toLong
         })
       } yield count
     })
 
     // await for all future log file counts and convert the result to a map
-    logFileCounts = Await.result(futureLogFileCounts, (5 * slaves.size).seconds).flatten.toMap
+    logFileCounts = Await.result(futureLogFileCounts, (5 * hosts.size).seconds).flatten.toMap
   }
 
   /** Executed after each experiment run that depends on this system. */
@@ -85,13 +85,13 @@ trait DistributedLogCollection {
       shell.ensureFolderIsWritable(folder)
     }
 
-    val copyFile = (slave: String, logFile: String, count: Long) =>
-      s"""ssh $slave "tail -n +${count + 1} $logFile" > ${run.home}/logs/$name/$beanName/${Paths.get(logFile).getFileName}"""
+    val copyFile = (host: String, logFile: String, count: Long) =>
+      s"""ssh $host "tail -n +${count + 1} $logFile" > ${run.home}/logs/$name/$beanName/${Paths.get(logFile).getFileName}"""
 
     // dump the new files in the log folder asynchronously
     val futureCopyOps = Future.traverse(logFileCounts)(logFileCount => {
-      val (FileEntry(slave, logFile), count) = logFileCount
-      Future(shell ! copyFile(slave, logFile, count))
+      val (FileEntry(host, logFile), count) = logFileCount
+      Future(shell ! copyFile(host, logFile, count))
     })
 
     // await for all copy operations to finish

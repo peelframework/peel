@@ -56,11 +56,15 @@ class Dstat(
   mc           : Mustache.Compiler) extends System("dstat", version, configKey, lifespan, dependencies, mc)
                                        with DistributedLogCollection {
 
-  override def slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+  override def hosts = {
+    val master = config.getString("runtime.hostname")
+    val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+    master +: slaves
+  }
 
   override protected def logFilePatterns(): Seq[Regex] = {
     val user = config.getString(s"system.$configKey.user")
-    slaves.map(slave => Pattern.quote(s"dstat-$user-$slave.csv").r)
+    hosts.map(host => Pattern.quote(s"dstat-$user-$host.csv").r)
   }
 
 
@@ -111,15 +115,15 @@ class Dstat(
     val logDir = config.getString(s"system.$configKey.path.log")
     val dstat = config.getString(s"system.$configKey.path.home") + "/dstat"
 
-    val pids = (for (slave <- slaves) yield {
-      val options = buildOptions(slave)
-      val cmd = s"$dstat $options --output $logDir/dstat-$user-$slave.csv 1"
+    val pids = (for (host <- hosts) yield {
+      val options = buildOptions(host)
+      val cmd = s"$dstat $options --output $logDir/dstat-$user-$host.csv 1"
 
-      logger.debug(s"""Executing "$cmd" on host "$slave"""")
-      val dstatPid = shell !! s""" ssh $slave "nohup $cmd >/dev/null 2>/dev/null & echo \\$$!" """
-      logger.debug(s"Dstat started on $slave with PID $dstatPid")
+      logger.debug(s"""Executing "$cmd" on host "$host"""")
+      val dstatPid = shell !! s""" ssh $host "nohup $cmd >/dev/null 2>/dev/null & echo \\$$!" """
+      logger.debug(s"Dstat started on $host with PID $dstatPid")
 
-      (slave, dstatPid)
+      (host, dstatPid)
     }).toMap
 
     savePids(pids)
@@ -140,10 +144,10 @@ class Dstat(
    * Generates the options for dstat if not set.
    * Heavily inspired by <a href="https://github.com/mvneves/dstat-monitor">https://github.com/mvneves/dstat-monitor</a>.
    *
-   * @param slave the machine for which the options should be generated.
+   * @param host the machine for which the options should be generated.
    * @return the options string.
    */
-  def buildOptions(slave: String): String = {
+  def buildOptions(host: String): String = {
     val dstat = config.getString(s"system.$configKey.path.home") + "/dstat"
 
     // if options is set, then use it
@@ -156,9 +160,9 @@ class Dstat(
     var cpuList = config.getString(s"system.$configKey.cli.cpu.list")
     if (cpuList == "") {
       val cpuListCmd = s"$dstat --cpu --full --nocolor 1 0 | head -n 1 | tr -d '-' | tr ' ' '\\n' | wc -l"
-      val nCpu = Integer.parseInt((shell !! s""" ssh $slave "$cpuListCmd" """).trim)
+      val nCpu = Integer.parseInt((shell !! s""" ssh $host "$cpuListCmd" """).trim)
 
-      if(nCpu == 0) throw new RuntimeException(s"Running dstat failed on $slave. Command was\n$cpuListCmd")
+      if(nCpu == 0) throw new RuntimeException(s"Running dstat failed on $host. Command was\n$cpuListCmd")
 
       cpuList = "total," + (1 to nCpu).map(x => x.toString).reduce((s1, s2) => s"$s1,$s2")
     }
@@ -167,7 +171,7 @@ class Dstat(
     if (netList == "") {
 
       val netListCmd = s"$dstat --net --full --nocolor 1 0 | head -n 1 | tr -d '-' | sed 's/net\\///g'"
-      val netListRes = shell !! s""" ssh $slave "$netListCmd" """
+      val netListRes = shell !! s""" ssh $host "$netListCmd" """
 
       val pattern = """.*eth([0-9]*).*""".r
       netList = "total," + netListRes.split("\\s+").map { case pattern(num) => s"eth$num"; case s => s }.reduce((s1, s2) => s"$s1,$s2")
@@ -176,7 +180,7 @@ class Dstat(
     var diskList = config.getString(s"system.$configKey.cli.disk.list")
     if (diskList == "") {
       val diskListCmd = s"$dstat --disk --full --nocolor --noupdate 1 0 | head -n 1 | sed 's/ /\\n/g' | sed -r 's/.*dsk\\/([^-]*).*/\\1/g' | tr '\\n' ' '"
-      val diskListRes = shell !! s""" ssh $slave "$diskListCmd" """
+      val diskListRes = shell !! s""" ssh $host "$diskListCmd" """
       diskList = "total," + diskListRes.split("\\s+").reduce((s1, s2) => s"$s1,$s2")
     }
 
@@ -194,8 +198,8 @@ class Dstat(
       stop()
     }
     Closeable.guard { Files.newBufferedWriter(pidFile, StandardCharsets.UTF_8) } on { writer =>
-      for ((slave, pid) <- pids) {
-        writer.write(s"$slave,$pid")
+      for ((host, pid) <- pids) {
+        writer.write(s"$host,$pid")
         writer.newLine()
       }
     }
@@ -204,9 +208,9 @@ class Dstat(
   private def touch(): Unit = {
     val user = config.getString(s"system.$configKey.user")
     val logDir = config.getString(s"system.$configKey.path.log")
-    for (slave <- slaves) yield {
-      val cmd = s"touch $logDir/dstat-$user-$slave.csv"
-      shell ! s""" ssh $slave "$cmd" """
+    for (host <- hosts) yield {
+      val cmd = s"touch $logDir/dstat-$user-$host.csv"
+      shell ! s""" ssh $host "$cmd" """
     }
   }
 
