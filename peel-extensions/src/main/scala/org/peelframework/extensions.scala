@@ -151,6 +151,30 @@ class extensions extends ApplicationContextAware {
     mc           = ctx.getBean(classOf[Mustache.Compiler])
   )
 
+  @Bean(name = Array("flink-1.0.1"))
+  def `flink-1.0.1`: Flink = new Flink(
+    version      = "1.0.1",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("flink-1.0.2"))
+  def `flink-1.0.2`: Flink = new Flink(
+    version      = "1.0.2",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("flink-1.0.3"))
+  def `flink-1.0.3`: Flink = new Flink(
+    version      = "1.0.3",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
   // Spark
 
   @Bean(name = Array("spark-1.3.1"))

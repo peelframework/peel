@@ -36,6 +36,9 @@ Peel offers the following features for your experiments.
 | Flink            | 0.10.1         | `flink-0.10.1`    |
 | Flink            | 0.10.2         | `flink-0.10.2`    |
 | Flink            | 1.0.0          | `flink-1.0.0`     |
+| Flink            | 1.0.1          | `flink-1.0.1`     |
+| Flink            | 1.0.2          | `flink-1.0.2`     |
+| Flink            | 1.0.3          | `flink-1.0.3`     |
 | MapReduce        | 1.2.1          | `mapred-1.2.1`    |
 | MapReduce        | 2.4.1          | `mapred-2.4.1`    |
 | Spark            | 1.3.1          | `spark-1.3.1`     |
