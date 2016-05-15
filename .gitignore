@@ -13,3 +13,4 @@ target
 *.mv.db
 *.trace.db
 *.db.old
+*.versionsBackup
