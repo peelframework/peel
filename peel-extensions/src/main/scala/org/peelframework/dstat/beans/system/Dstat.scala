@@ -164,7 +164,7 @@ class Dstat(
 
       if(nCpu == 0) throw new RuntimeException(s"Running dstat failed on $host. Command was\n$cpuListCmd")
 
-      cpuList = "total," + (1 to nCpu).map(x => x.toString).reduce((s1, s2) => s"$s1,$s2")
+      cpuList = s"total,${(0 until nCpu).mkString(",")}"
     }
 
     var netList = config.getString(s"system.$configKey.cli.net.list")
