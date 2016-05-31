@@ -31,7 +31,7 @@ package object etl {
   val TaskStateV1 = """(.+)\((\d+)/(\d+)\) switched to (SCHEDULED|DEPLOYING|RUNNING|FINISHED)\W*""".r
 
   /** Pattern for task state transitions. */
-  val TaskStateV2 = """(.+) \((\d+)/(\d+)\) .*switched .*to (SCHEDULED|DEPLOYING|RUNNING|FINISHED)\W*""".r
+  val TaskStateV2 = """(.+) \((\d+)/(\d+)\) \((.+)\) switched from \w+ to (SCHEDULED|DEPLOYING|RUNNING|FINISHED)""".r
 
   private val TimestampFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS")
 

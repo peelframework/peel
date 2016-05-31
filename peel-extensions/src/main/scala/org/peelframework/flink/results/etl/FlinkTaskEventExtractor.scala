@@ -42,14 +42,14 @@ class FlinkTaskEventExtractor(
         task            = Some(name),
         taskInstance    = Some(number.toInt),
         vTimestamp      = Some(toInstant(time)))
-    case msg@Line(LogEntryV2(time, TaskStateV2(name, number, total, state))) =>
+    case msg@Line(LogEntryV2(time, TaskStateV2(name, number, total, id, state))) =>
       writer ! ExperimentEvent(
         experimentRunID = run.id,
         name            = Symbol(s"state_change_${state.toLowerCase}"),
-        task            = Some(name),
+        task            = Some(s"$id ($name)"),
         taskInstance    = Some(number.toInt),
         vTimestamp      = Some(toInstant(time)))
-  }
+      }
 }
 
 /** Companion object. */

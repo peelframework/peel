@@ -93,35 +93,39 @@ class FlinkEventsTest extends FlatSpec with Matchers {
     }
     // task 03
     task03Events(0) match {
-      case LogEntryV2(time, TaskStateV2(name, number, total, state)) =>
+      case LogEntryV2(time, TaskStateV2(name, number, total, id, state)) =>
         time   should be ("2016-03-25 15:08:04,996")
         name   should be ("CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33))")
-        number should be ("2")
-        total  should be ("8")
+        number should be ("1")
+        total  should be ("4")
+        id     should be ("3a950210daeffb04ddb2667821fcb0ae")
         state  should be ("SCHEDULED")
     }
     task03Events(1) match {
-      case LogEntryV2(time, TaskStateV2(name, number, total, state)) =>
+      case LogEntryV2(time, TaskStateV2(name, number, total, id, state)) =>
         time   should be ("2016-03-25 15:08:04,996")
         name   should be ("CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33))")
         number should be ("2")
-        total  should be ("8")
+        total  should be ("4")
+        id     should be ("3a950210daeffb04ddb2667821fcb0ae")
         state  should be ("DEPLOYING")
     }
     task03Events(2) match {
-      case LogEntryV2(time, TaskStateV2(name, number, total, state)) =>
+      case LogEntryV2(time, TaskStateV2(name, number, total, id, state)) =>
         time   should be ("2016-03-25 15:08:05,014")
         name   should be ("CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33))")
-        number should be ("2")
-        total  should be ("8")
+        number should be ("3")
+        total  should be ("4")
+        id     should be ("3a950210daeffb04ddb2667821fcb0ae")
         state  should be ("RUNNING")
     }
     task03Events(3) match {
-      case LogEntryV2(time, TaskStateV2(name, number, total, state)) =>
+      case LogEntryV2(time, TaskStateV2(name, number, total, id, state)) =>
         time   should be ("2016-03-25 15:08:34,442")
         name   should be ("CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33))")
-        number should be ("2")
-        total  should be ("8")
+        number should be ("4")
+        total  should be ("4")
+        id     should be ("3a950210daeffb04ddb2667821fcb0ae")
         state  should be ("FINISHED")
     }
   }
@@ -144,9 +148,9 @@ object FlinkEventsTest {
   )
 
   val task03Events = Seq(
-    "2016-03-25 15:08:04,996 INFO  org.apache.flink.runtime.executiongraph.ExecutionGraph        - CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33)) (2/8) (3a950210daeffb04ddb2667821fcb0ae) switched from CREATED to SCHEDULED",
-    "2016-03-25 15:08:04,996 INFO  org.apache.flink.runtime.executiongraph.ExecutionGraph        - CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33)) (2/8) (3a950210daeffb04ddb2667821fcb0ae) switched from SCHEDULED to DEPLOYING",
-    "2016-03-25 15:08:05,014 INFO  org.apache.flink.runtime.executiongraph.ExecutionGraph        - CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33)) (2/8) (3a950210daeffb04ddb2667821fcb0ae) switched from DEPLOYING to RUNNING",
-    "2016-03-25 15:08:34,442 INFO  org.apache.flink.runtime.executiongraph.ExecutionGraph        - CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33)) (2/8) (3a950210daeffb04ddb2667821fcb0ae) switched from RUNNING to FINISHED"
+    "2016-03-25 15:08:04,996 INFO  org.apache.flink.runtime.executiongraph.ExecutionGraph        - CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33)) (1/4) (3a950210daeffb04ddb2667821fcb0ae) switched from CREATED to SCHEDULED",
+    "2016-03-25 15:08:04,996 INFO  org.apache.flink.runtime.executiongraph.ExecutionGraph        - CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33)) (2/4) (3a950210daeffb04ddb2667821fcb0ae) switched from SCHEDULED to DEPLOYING",
+    "2016-03-25 15:08:05,014 INFO  org.apache.flink.runtime.executiongraph.ExecutionGraph        - CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33)) (3/4) (3a950210daeffb04ddb2667821fcb0ae) switched from DEPLOYING to RUNNING",
+    "2016-03-25 15:08:34,442 INFO  org.apache.flink.runtime.executiongraph.ExecutionGraph        - CHAIN DataSource (at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:30) (org.apache.flink.api.java.io.TupleCsvInputFormat)) -> Map (Map at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:31)) -> Combine (Reduce at de.tu_berlin.dima.experiments.flink.hashagg.flink.WorkloadA$.main(WorkloadA.scala:33)) (4/4) (3a950210daeffb04ddb2667821fcb0ae) switched from RUNNING to FINISHED"
   )
 }
