@@ -155,8 +155,7 @@ object Experiment {
         logger.info("Skipping successfully finished experiment run %s".format(name).yellow)
       } else {
         logger.info("Running experiment %s".format(name))
-        logger.info("Experiment data will be written to %s".format(home))
-        logger.info("Experiment command is %s".format(command))
+        logger.info("Experiment results will be written to %s".format(home))
 
         try {
 
@@ -165,6 +164,7 @@ object Experiment {
           }
 
           try {
+            logger.info("Running experiment command %s".format(command))
             Await.ready(future(runJob()), exp.config.getLong("experiment.timeout") seconds)
           } catch {
             case e: TimeoutException =>
