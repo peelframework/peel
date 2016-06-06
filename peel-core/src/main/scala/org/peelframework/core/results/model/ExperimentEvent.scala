@@ -19,6 +19,7 @@ import java.time.Instant
 
 /** Model class for experiment events extracted from the experiment run logs.
   *
+  * @param id The unique ID for this event instance.
   * @param experimentRunID The ID of the associated run.
   * @param name The name of the event.
   * @param host Optionally, the host where the event occurs.
@@ -30,6 +31,7 @@ import java.time.Instant
   * @param vString Optionally, a string value for this event.
   */
 case class ExperimentEvent(
+  id:              Long,
   experimentRunID: Int,
   name:            Symbol,
   host:            Option[String]  = Option.empty[String],
@@ -39,9 +41,7 @@ case class ExperimentEvent(
   vDouble:         Option[Double]  = Option.empty[Double],
   vTimestamp:      Option[Instant] = Option.empty[Instant],
   vString:         Option[String]  = Option.empty[String]
-) {
-  val id = this.##
-}
+)
 
 /** [[ExperimentEvent]] companion and storage manager. */
 object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
@@ -54,7 +54,7 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
   override val tableName: String = "experiment_event"
 
   override val rowParser = {
-    get[Int]             ("id")                 ~
+    get[Long]            ("id")                 ~
     get[Int]             ("experiment_run_id")  ~
     get[String]          ("name")               ~
     get[Option[String]]  ("host")               ~
@@ -65,6 +65,7 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
     get[Option[Instant]] ("v_timestamp")        ~
     get[Option[String]]  ("v_string")           map {
       case id ~ expRunID ~ name ~ host ~ task ~ inst ~ vLong ~ vDouble ~ vTimestamp ~ vString => ExperimentEvent(
+        id,
         expRunID,
         Symbol(name),
         host,
@@ -80,7 +81,7 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
   override def createTable()(implicit conn: Connection): Unit = if (!tableExists) {
     SQL( s"""
       CREATE TABLE experiment_event (
-        id                 INTEGER        NOT NULL,
+        id                 BIGINT         NOT NULL,
         experiment_run_id  INTEGER        NOT NULL,
         name               VARCHAR(63)    NOT NULL,
         host               VARCHAR(127)           ,
@@ -113,7 +114,6 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
   }
 
   override def insert(xs: Seq[ExperimentEvent])(implicit conn: Connection): Unit = if (xs.nonEmpty) singleCommit {
-    val duplicates = xs.groupBy(_.id).filter { case (k, v) => v.size > 1}
     BatchSql(
       s"""
       INSERT INTO experiment_event(id, experiment_run_id, name, host, task, task_instance, v_long, v_double, v_timestamp, v_string) VALUES(

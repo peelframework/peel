@@ -29,14 +29,18 @@ import scala.util.matching.Regex
 
 /** An extractor for Flink task transition events. */
 class FlinkTaskEventExtractor(
-  override val run: ExperimentRun,
-  override val appContext: ApplicationContext,
-  override val writer: ActorRef) extends EventExtractor[Line] {
+  override final val run: ExperimentRun,
+  override final val appContext: ApplicationContext,
+  override final val file: File,
+  override final val writer: ActorRef) extends EventExtractor[Line] {
+
+  override final val companionHash = FlinkTaskEventExtractor.hashCode()
 
   /** Extracts events from an incoming message */
   final def receive: Receive = {
     case msg@Line(LogEntryV1(time, TaskStateV1(name, number, total, state))) =>
       writer ! ExperimentEvent(
+        id              = nextID(),
         experimentRunID = run.id,
         name            = Symbol(s"state_change_${state.toLowerCase}"),
         task            = Some(name),
@@ -44,6 +48,7 @@ class FlinkTaskEventExtractor(
         vTimestamp      = Some(toInstant(time)))
     case msg@Line(LogEntryV2(time, TaskStateV2(name, number, total, id, state))) =>
       writer ! ExperimentEvent(
+        id              = nextID(),
         experimentRunID = run.id,
         name            = Symbol(s"state_change_${state.toLowerCase}"),
         task            = Some(s"$id ($name)"),
@@ -73,6 +78,6 @@ object FlinkTaskEventExtractor extends EventExtractorCompanion with PatternBased
 
   /** Create the extractor props. */
   override def props(run: ExperimentRun, context: ApplicationContext, file: File, writer: ActorRef): Props = {
-    Props(new FlinkTaskEventExtractor(run, context, writer))
+    Props(new FlinkTaskEventExtractor(run, context, file, writer))
   }
 }

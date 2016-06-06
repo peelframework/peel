@@ -50,7 +50,7 @@ class ExperimentEventTest extends FunSuite with BeforeAndAfter with PropertyChec
   }
 
   test("one experiment event is persisted properly") {
-    val x = ExperimentEvent(experimentRunID = run.id, name = 'MEMORY_USED, vDouble = Some(5.0))
+    val x = ExperimentEvent(id = 0, experimentRunID = run.id, name = 'MEMORY_USED, vDouble = Some(5.0))
     ExperimentEvent.insert(x)
     ExperimentEvent.selectAll() shouldBe Seq(x)
   }
@@ -63,7 +63,7 @@ class ExperimentEventTest extends FunSuite with BeforeAndAfter with PropertyChec
 
 
     test("one experiment event is updated properly") {
-      val x = ExperimentEvent(experimentRunID = run.id, name = 'MEMORY_USED, vDouble = Some(5.0))
+      val x = ExperimentEvent(id = 0, experimentRunID = run.id, name = 'MEMORY_USED, vDouble = Some(5.0))
       ExperimentEvent.insert(x)
       val y = x.copy(vDouble = Some(6.0))
       intercept[NotImplementedError] {
@@ -81,7 +81,7 @@ class ExperimentEventTest extends FunSuite with BeforeAndAfter with PropertyChec
     }
 
     test("one experiment event is deleted properly") {
-      val x = ExperimentEvent(experimentRunID = run.id, name = 'MEMORY_USED, vDouble = Some(5.0))
+      val x = ExperimentEvent(id = 0, experimentRunID = run.id, name = 'MEMORY_USED, vDouble = Some(5.0))
       ExperimentEvent.insert(x)
       ExperimentEvent.selectAll().size shouldBe 1
       ExperimentEvent.delete(x)
@@ -99,22 +99,26 @@ class ExperimentEventTest extends FunSuite with BeforeAndAfter with PropertyChec
   private def eventSequence(size: Int) = {
     for (i <- 0 until size; j = i % 4) yield j match {
       case 0 => ExperimentEvent(
+        id = i,
         experimentRunID = run.id,
         name = 'MEMORY_USED,
         vDouble = Some(i + 5.0))
       case 1 => ExperimentEvent(
+        id = i,
         experimentRunID = run.id,
         name = 'TASK_CREATED,
         task = Some("CHAIN DataSource (at org.peelframework.flink.Wordcount$.main(Wordcount.scala:18) (org.apache.flink.api.java.io.TextInputFormat)) -> FlatMap (FlatMap at org.peelframework.flink.Wordcount$.main(Wordcount.scala:19)) -> Map (Map at org.peelframework.flink.Wordcount$.main(Wordcount.scala:20)) -> Combine(SUM(1))"),
         taskInstance = Some(i),
         vTimestamp = Some(Instant.now()))
       case 2 => ExperimentEvent(
+        id = i,
         experimentRunID = run.id,
         name = 'TASK_STATUS_CHANGE,
         task = Some("task1"),
         taskInstance = Some(i),
         vString = Some("RUNNING"))
       case 3 => ExperimentEvent(
+        id = i,
         experimentRunID = run.id,
         name = 'TASK_EXIT,
         task = Some("task1"),

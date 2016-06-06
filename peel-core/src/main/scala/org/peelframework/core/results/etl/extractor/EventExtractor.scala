@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext
 
 import scala.collection._
 import scala.util.matching.Regex
+import scala.util.hashing.MurmurHash3.{stringHash,productHash}
 
 /** Base trait for all event extractors. */
 trait EventExtractor[A] extends Actor with ActorLogging {
@@ -34,8 +35,25 @@ trait EventExtractor[A] extends Actor with ActorLogging {
   /** The enclosing application context. */
   val appContext: ApplicationContext
 
+  /** The file processed by this extractor. */
+  val file: File
+
   /** The writer actor that loads the extracted events into the database. */
   val writer: ActorRef
+
+  /** The hash of the companion object for this extractor. */
+  protected val companionHash: Int
+
+  private val fileHash = stringHash(file.getAbsolutePath)
+
+  private val baseID = productHash((companionHash,fileHash)).toLong
+
+  private var seqID = 0
+
+  protected def nextID(): Long = {
+    seqID += 1
+    baseID << 32 | seqID & 0xFFFFFFFFL
+  }
 }
 
 /** Factory trait for [[EventExtractor]] implementations. */

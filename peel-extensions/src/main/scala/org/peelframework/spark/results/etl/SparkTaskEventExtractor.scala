@@ -32,11 +32,14 @@ import scala.util.matching.Regex
 
 /** An extractor for Spark task transition events. */
 class SparkTaskEventExtractor(
-  override val run: ExperimentRun,
-  override val appContext: ApplicationContext,
-  override val writer: ActorRef) extends EventExtractor[Line] {
+  override final val run: ExperimentRun,
+  override final val appContext: ApplicationContext,
+  override final val file: File,
+  override final val writer: ActorRef) extends EventExtractor[Line] {
 
   import TaskEventProtocol.format
+
+  override final val companionHash = SparkTaskEventExtractor.hashCode()
 
   /** Extracts events from an incoming message */
   final def receive: Receive = {
@@ -49,6 +52,7 @@ class SparkTaskEventExtractor(
       } {
         // create event prototype
         val eventPrototype = ExperimentEvent(
+          id              = nextID(),
           experimentRunID = run.id,
           name            = 'prototype,
           task            = Some(s"stage-$stageID#$stageAttID"),
@@ -87,6 +91,6 @@ object SparkTaskEventExtractor extends EventExtractorCompanion with PatternBased
 
   /** Create the extractor props. */
   override def props(run: ExperimentRun, context: ApplicationContext, file: File, writer: ActorRef): Props = {
-    Props(new SparkTaskEventExtractor(run, context, writer))
+    Props(new SparkTaskEventExtractor(run, context, file, writer))
   }
 }

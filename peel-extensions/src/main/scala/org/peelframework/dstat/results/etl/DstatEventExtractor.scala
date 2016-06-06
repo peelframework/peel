@@ -30,16 +30,19 @@ import org.springframework.stereotype.Component
 import scala.util.matching.Regex
 
 /** An extractor for Flink task transition events. */
-class DstatEventExtractor(override val run: ExperimentRun,
-                          override val appContext: ApplicationContext,
-                          override val writer: ActorRef,
-                          val hostname: String) extends EventExtractor[Line] with FSM[State, Data] {
-
-  final val logger = LoggerFactory.getLogger(this.getClass)
+class DstatEventExtractor(
+  override final val run: ExperimentRun,
+  override final val appContext: ApplicationContext,
+  override final val file: File,
+  override final val writer: ActorRef) extends EventExtractor[Line] with FSM[State, Data] {
 
   import DstatEventExtractor.Format._
 
-  final val events = collection.mutable.HashMap.empty[Int, ExperimentEvent]
+  override final val companionHash = DstatEventExtractor.hashCode()
+
+  final val logger = LoggerFactory.getLogger(this.getClass)
+
+  final val hostname = DstatEventExtractor.hostname(file)
 
   startWith(ParseColumnGroups, Uninitialized)
 
@@ -98,21 +101,13 @@ class DstatEventExtractor(override val run: ExperimentRun,
       for {
         (c, v) <- pairs if c != "epoch"
         epoch <- epochOpt
-      } {
-        val event = ExperimentEvent(
+      } writer ! ExperimentEvent.apply(
+          id = nextID(),
           experimentRunID = run.id,
           name = Symbol(s"dstat_$c"),
           host = Some(hostname),
           vDouble = Some(v.toDouble),
           vTimestamp = Some(epoch))
-
-        events.put(event.id, event) match {
-          case Some(old) =>
-            logger.info(s"Matching events:\nnew: $event\nold: $old")
-          case None =>
-            writer ! event
-        }
-      }
 
       stay
   }
@@ -149,7 +144,7 @@ object DstatEventExtractor extends EventExtractorCompanion with PatternBasedProc
 
   /** Create the extractor props. */
   override def props(run: ExperimentRun, context: ApplicationContext, file: File, writer: ActorRef): Props = {
-    Props(new DstatEventExtractor(run, context, writer, hostname(file)))
+    Props(new DstatEventExtractor(run, context, file, writer))
   }
 
   private[etl] def hostname(file: File) = file.getName match {
