@@ -15,6 +15,7 @@
  */
 package org.peelframework.core.results.model
 
+import java.nio.file.Path
 import java.time.Instant
 
 /** Model class for experiment events extracted from the experiment run logs.
@@ -144,6 +145,48 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
     """.execute()
   }
 
+  def importCSV(path: Path, fsep: Char, lsep: Char, quote: Char, nil: String)(implicit conn: Connection): Unit = {
+    val stmts = conn.getClass.getCanonicalName match {
+      case "nl.cwi.monetdb.jdbc.MonetConnection" => Seq(
+        s"""
+           |COPY INTO experiment_event FROM '$path'
+           |USING DELIMITERS '$fsep', '$lsep', '$quote' NULL AS '$nil';
+         """
+      )
+
+      case "org.h2.jdbc.JdbcConnection" => Seq(
+        s"""
+           |SET LOG 0
+         """,
+        s"""
+           |SET LOCK_MODE 0
+         """,
+        s"""
+           |SET UNDO_LOG 0
+         """,
+        s"""
+           |INSERT INTO experiment_event
+           |DIRECT SELECT * FROM CSVREAD('$path', '${cols(fsep)}', 'charset=UTF-8 fieldSeparator=$fsep')
+         """,
+        s"""
+           |SET UNDO_LOG 1
+         """,
+        s"""
+           |SET LOCK_MODE 1
+         """,
+        s"""
+           |SET LOG 1
+         """
+      )
+
+      case fqName =>
+        throw new IllegalStateException(s"Cannot import CSV data into unsupported backend '$fqName'")
+    }
+
+    for (stmt <- stmts)
+      SQL(stmt.stripMargin.trim).execute()
+  }
+
   def namedParametersFor(x: ExperimentEvent): Seq[NamedParameter] = Seq[NamedParameter](
     'id                -> x.id,
     'experimentRunID   -> x.experimentRunID,
@@ -156,4 +199,16 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
     'vTimestamp        -> x.vTimestamp,
     'vString           -> x.vString
   )
+
+  private def cols(fsep: Char) = Seq(
+    "id",
+    "experiment_run_id",
+    "name",
+    "host",
+    "task",
+    "task_instance",
+    "v_long",
+    "v_double",
+    "v_timestamp",
+    "v_string").mkString(fsep.toString)
 }

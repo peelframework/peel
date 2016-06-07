@@ -110,10 +110,9 @@ class Import extends Command {
         // construct auxiliary "name -> experiment" map
         val em = Map((for (e <- experiments) yield e.name -> e): _*)
         // extract objects
-        val xs = for {
+        for {
           s <- states; (expName, runNo) <- RunName.unapply(s.name); exp <- em.get(Symbol(expName))
         } yield db.ExperimentRun(exp.id, runNo, s.runExitCode.getOrElse(-1), s.runTime)
-        xs.toSeq
       }
 
       // delete old experiments and associated data
