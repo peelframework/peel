@@ -39,50 +39,52 @@ class DstatEventExtractor(override val run: ExperimentRun,
 
   import DstatEventExtractor.Format._
 
+  final val events = collection.mutable.HashMap.empty[Int, ExperimentEvent]
+
   startWith(ParseColumnGroups, Uninitialized)
 
   when(ParseColumnGroups) {
 
     case Event(Line(""), _) =>
-      logger.info(s"Ignoring empty line at $stateName")
+      logger.debug(s"Ignoring empty line at $stateName")
       stay
 
     case Event(Line(Title(_)), _) =>
-      logger.info(s"Ignoring Title line at $stateName")
+      logger.debug(s"Ignoring Title line at $stateName")
       stay
 
     case Event(Line(AuthorInfo(_, _)), _) =>
-      logger.info(s"Ignoring AuthorInfo line at $stateName")
+      logger.debug(s"Ignoring AuthorInfo line at $stateName")
       stay
 
     case Event(Line(MachineInfo(_, _)), _) =>
-      logger.info(s"Ignoring MachineInfo line at $stateName")
+      logger.debug(s"Ignoring MachineInfo line at $stateName")
       stay
 
     case Event(Line(CommandInfo(_, _)), _) =>
-      logger.info(s"Ignoring CommandInfo line at $stateName")
+      logger.debug(s"Ignoring CommandInfo line at $stateName")
       stay
 
     case Event(Line(ColumnSeq(groups@_*)), _) =>
-      logger.info("Transitioning to ParseColumns")
+      logger.debug("Transitioning to ParseColumns")
       goto(ParseColumns) using ColumnGroups(groups)
   }
 
   when(ParseColumns) {
 
     case Event(Line(""), _) =>
-      logger.info(s"Ignoring empty line at $stateName")
+      logger.debug(s"Ignoring empty line at $stateName")
       stay
 
     case Event(Line(ColumnSeq(cols@_*)), ColumnGroups(groups)) =>
-      logger.info("Transitioning to ParseData")
+      logger.debug("Transitioning to ParseData")
       goto(ParseData) using Columns(for ((g, c) <- groups zip cols) yield if (g != c) s"$g:$c" else g)
   }
 
   when(ParseData) {
 
     case Event(Line(""), _) =>
-      logger.info(s"Ignoring empty line at $stateName")
+      logger.debug(s"Ignoring empty line at $stateName")
       stay
 
     case Event(Line(DataSeq(vals@_*)), Columns(cols)) =>
@@ -96,12 +98,21 @@ class DstatEventExtractor(override val run: ExperimentRun,
       for {
         (c, v) <- pairs if c != "epoch"
         epoch <- epochOpt
-      } writer ! ExperimentEvent(
-        experimentRunID = run.id,
-        name = Symbol(s"dstat_$c"),
-        host = Some(hostname),
-        vDouble = Some(v.toDouble),
-        vTimestamp = Some(epoch))
+      } {
+        val event = ExperimentEvent(
+          experimentRunID = run.id,
+          name = Symbol(s"dstat_$c"),
+          host = Some(hostname),
+          vDouble = Some(v.toDouble),
+          vTimestamp = Some(epoch))
+
+        events.put(event.id, event) match {
+          case Some(old) =>
+            logger.info(s"Matching events:\nnew: $event\nold: $old")
+          case None =>
+            writer ! event
+        }
+      }
 
       stay
   }

@@ -109,6 +109,12 @@ object shell {
     }
   }
 
+  /** Touches a file.
+    *
+    * @param path the file to touch
+    */
+  def touch(path: String) = FileUtils.touch(new File(path))
+
   /** Removes a file.
     *
     * @param path the file to remove
