@@ -73,7 +73,7 @@ trait DistributedLogCollection {
     })
 
     // await for all future log file counts and convert the result to a map
-    logFileCounts = Await.result(futureLogFileCounts, (5 * hosts.size).seconds).flatten.toMap
+    logFileCounts = Await.result(futureLogFileCounts, Math.max(30, 5 * hosts.size).seconds).flatten.toMap
   }
 
   /** Executed after each experiment run that depends on this system. */
@@ -95,7 +95,7 @@ trait DistributedLogCollection {
     })
 
     // await for all copy operations to finish
-    Await.result(futureCopyOps, (5 * logFileCounts.size).seconds)
+    Await.result(futureCopyOps, Math.max(30, 5 * logFileCounts.size).seconds)
 
     // handle dependencies
     for (s <- dependencies) {

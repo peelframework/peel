@@ -100,7 +100,7 @@ class Dstat(
         errorMsg = s"Cannot ensure that output dir '$outDir' exists on host '$host'")
       logger.info(s"Ensured that output dir '$outDir' exists on host '$host'")
     })
-    Await.result(futureEnsureOutDirs, (5 * hosts.size).seconds)
+    Await.result(futureEnsureOutDirs, Math.max(30, 5 * hosts.size).seconds)
   }
 
   override protected def stop(): Unit =
@@ -151,7 +151,7 @@ class Dstat(
 
       ProcessDescriptor(host, pid.toInt)
     })
-    setProcesses(Await.result(futureProcessDescriptors, (5 * hosts.size).seconds))
+    setProcesses(Await.result(futureProcessDescriptors, Math.max(30, 5 * hosts.size).seconds))
   }
 
   private def stopProcesses(runOpt: Option[Run[System]]): Unit = {
@@ -200,7 +200,7 @@ class Dstat(
         }
       } yield copyContents
     })
-    setProcesses(processes diff Await.result(futureCopyContents, (5 * hosts.size).seconds))
+    setProcesses(processes diff Await.result(futureCopyContents, Math.max(30, 5 * hosts.size).seconds))
   }
 
   private def setProcesses(processes: Set[ProcessDescriptor]) = {

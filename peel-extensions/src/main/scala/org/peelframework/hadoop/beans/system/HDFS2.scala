@@ -174,6 +174,6 @@ class HDFS2(
     }).tupled)
 
     // await for all futureInitOps to finish
-    Await.result(futureInitOps, (5 * list.size).seconds)
+    Await.result(futureInitOps, Math.max(30, 5 * list.size).seconds)
   }
 }

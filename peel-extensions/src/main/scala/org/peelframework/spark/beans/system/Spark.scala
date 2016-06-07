@@ -149,7 +149,7 @@ class Spark(
     })
 
     // await for all futureInitOps to finish
-    Await.result(futureInitOps, (5 * hosts.size).seconds)
+    Await.result(futureInitOps, Math.max(30, 5 * hosts.size).seconds)
 
     var failedStartUpAttempts = 0
     while (!isUp) {
