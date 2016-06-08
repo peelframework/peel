@@ -52,7 +52,7 @@ class SparkTaskEventExtractor(
       } {
         // create event prototype
         val eventPrototype = ExperimentEvent(
-          id              = nextID(),
+          id              = 0,
           experimentRunID = run.id,
           name            = 'prototype,
           task            = Some(s"stage-$stageID#$stageAttID"),
@@ -60,10 +60,12 @@ class SparkTaskEventExtractor(
           vLong           = Some(taskInfo.index))
         // send state_change_running event
         writer ! eventPrototype.copy(
+          id              = nextID(),
           name            = 'state_change_running,
           vTimestamp      = Some(Instant.ofEpochSecond(taskInfo.launchTime)))
         // send state_change_finished event
         writer ! eventPrototype.copy(
+          id              = nextID(),
           name            = 'state_change_finished,
           vTimestamp      = Some(Instant.ofEpochSecond(taskInfo.finishTime)))
       }
