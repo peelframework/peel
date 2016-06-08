@@ -32,7 +32,9 @@ trait PersistedAPI[A] {
   val rowParser: RowParser[A]
 
   def tableExists(implicit conn: Connection) = {
-    conn.getMetaData.getTables(conn.getCatalog, null, tableName.toUpperCase, null).next()
+    val lcExists = conn.getMetaData.getTables(conn.getCatalog, null, tableName.toLowerCase, null).next()
+    val ucExists = conn.getMetaData.getTables(conn.getCatalog, null, tableName.toUpperCase, null).next()
+    ucExists || lcExists
   }
 
   def dropTable()(implicit conn: Connection): Unit = if (tableExists) {
