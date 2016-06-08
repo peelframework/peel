@@ -18,7 +18,6 @@
           <includes>
             <include>**/*.scala</include>
             <include>**/*.xml</include>
-            <include>**/*.conf</include>
           </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">

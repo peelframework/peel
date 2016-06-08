@@ -12,11 +12,11 @@
 
     <properties>
         <!-- Scala -->
-        <scala.version>2.10.4</scala.version>
+        <scala.version>2.10.5</scala.version>
         <scala.tools.version>2.10</scala.tools.version>
 
         <!-- Flink -->
-        <flink.version>0.9.0</flink.version>
+        <flink.version>1.0.3</flink.version>
     </properties>
 
     <dependencies>
@@ -43,13 +43,13 @@
         <!-- Flink -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-clients</artifactId>
+            <artifactId>flink-clients_${scala.tools.version}</artifactId>
             <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-scala</artifactId>
+            <artifactId>flink-scala_${scala.tools.version}</artifactId>
             <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -103,6 +103,26 @@
             <activation>
             </activation>
             <dependencies>
+                <!-- Scala -->
+                <dependency>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                    <version>${scala.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-compiler</artifactId>
+                    <version>${scala.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-reflect</artifactId>
+                    <version>${scala.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+
                 <!-- Flink -->
                 <dependency>
                     <groupId>org.apache.flink</groupId>

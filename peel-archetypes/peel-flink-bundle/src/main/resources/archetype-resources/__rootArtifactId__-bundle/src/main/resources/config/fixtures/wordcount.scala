@@ -31,7 +31,7 @@ class wordcount extends ApplicationContextAware {
 
   @Bean(name = Array("datagen.words"))
   def `datagen.words`: FlinkJob = new FlinkJob(
-    runner  = ctx.getBean("flink-0.9.0", classOf[Flink]),
+    runner  = ctx.getBean("flink-1.0.3", classOf[Flink]),
     command =
       """
         |-v -c ${package}.datagen.flink.WordGenerator        ${symbol_escape}
@@ -85,7 +85,7 @@ class wordcount extends ApplicationContextAware {
         """.stripMargin.trim,
       config  = ConfigFactory.parseString(""),
       runs    = 3,
-      runner  = ctx.getBean("flink-0.9.0", classOf[Flink]),
+      runner  = ctx.getBean("flink-1.0.3", classOf[Flink]),
       inputs  = Set(ctx.getBean("dataset.words.static", classOf[DataSet])),
       outputs = Set(ctx.getBean("wordcount.output", classOf[ExperimentOutput]))
     )
@@ -114,7 +114,7 @@ class wordcount extends ApplicationContextAware {
           |datagen.data-distribution               = Uniform
         """.stripMargin.trim),
       runs    = 3,
-      runner  = ctx.getBean("flink-0.9.0", classOf[Flink]),
+      runner  = ctx.getBean("flink-1.0.3", classOf[Flink]),
       inputs  = Set(ctx.getBean("dataset.words.generated", classOf[DataSet])),
       outputs = Set(ctx.getBean("wordcount.output", classOf[ExperimentOutput]))
     )

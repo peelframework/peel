@@ -2,7 +2,7 @@ This folder contains the archived versions of the systems in your bundle.
 
 To download the archives for the list of systems pre-configured in
 
-    https://github.com/stratosphere/peel/blob/master/peel-extensions/src/main/resources/peel-extensions.xml
+    https://github.com/peelframework/peel/blob/master/peel-extensions/src/main/resources/peel-extensions.xml
 
 open a shell in this folder and execute the following command
 

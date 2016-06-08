@@ -21,7 +21,9 @@
 
     <properties>
         <!-- MonetDB JDBC driver -->
-        <monetdb.version>11.19.15</monetdb.version>
+        <monetdb.version>2.19</monetdb.version>
+        <!-- PostgreSQL driver -->
+        <postgresql.version>9.4.1208</postgresql.version>
         <!-- bundle binaries parent folder -->
         <bundle.bin>${env.BUNDLE_BIN}</bundle.bin>
         <!-- Assembly file path -->
@@ -62,6 +64,14 @@
             <groupId>monetdb</groupId>
             <artifactId>monetdb-jdbc</artifactId>
             <version>${monetdb.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- PostgreSQL JDBC driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
             <scope>runtime</scope>
         </dependency>
     </dependencies>

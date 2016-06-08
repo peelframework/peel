@@ -38,8 +38,7 @@ manglePathList() {
 }
 
 ########################################################################################################################
-# DEFAULT CONFIG VALUES: These values will be used when nothing has been specified in conf/stratosphere-conf.yaml
-# -or- the respective environment variables are not set.
+# DEFAULT CONFIG VALUES
 ########################################################################################################################
 
 DEFAULT_JAVA_HOME="/usr/lib/jvm/java-8-oracle"      # Java home
