@@ -18,6 +18,8 @@ package org.peelframework.core.results.etl
 import java.io.{BufferedWriter, FileWriter}
 import java.nio.file.Files
 import java.sql.Connection
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 import akka.actor._
 import org.apache.commons.lang3.StringEscapeUtils._
@@ -104,8 +106,8 @@ class Writer(appContext: ApplicationContext, conn: Connection) extends Actor wit
     }
     out.write(Writer.Fsep)
     // vTimestamp
-    event.vLong match {
-      case Some(v) => out.write(escapeCsv(v.toString))
+    event.vTimestamp match {
+      case Some(v) => out.write(escapeCsv(TimestampFmt.format(v)))
       case None => out.write(Writer.Null)
     }
     out.write(Writer.Fsep)
@@ -127,6 +129,9 @@ class Writer(appContext: ApplicationContext, conn: Connection) extends Actor wit
 object Writer {
 
   val BufferSize = 1024 * 1024 * 32
+  private val TimestampFmt = DateTimeFormatter
+    .ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+    .withZone(ZoneId.systemDefault())
 
   val Quote = '"'
   val Fsep = ','
