@@ -2,7 +2,7 @@ highlighter:        rouge
 
 title:              Peel Framework
 
-current_version:    1.0.0-rc5
+current_version:    1.0.0-rc6
 
 collections:
   manual:
