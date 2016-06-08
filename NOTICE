@@ -54,6 +54,7 @@ This project includes:
   peel-flinkspark-bundle under The Apache License, Version 2.0
   peel-spark-bundle under The Apache License, Version 2.0
   pegdown under Apache 2
+  PostgreSQL JDBC Driver - JDBC 4.2 under The PostgreSQL License
   quasiquotes under BSD-like
   Scala Compiler under BSD-like
   Scala Library under BSD-like

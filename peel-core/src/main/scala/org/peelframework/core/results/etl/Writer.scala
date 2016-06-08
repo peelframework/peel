@@ -17,6 +17,7 @@ package org.peelframework.core.results.etl
 
 import java.io.{BufferedWriter, FileWriter}
 import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermissions
 import java.sql.Connection
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -39,7 +40,7 @@ class Writer(appContext: ApplicationContext, conn: Connection) extends Actor wit
   /** Keep track of what we're watching. */
   private var count = 0
 
-  private val file = Files.createTempFile("peel-experiment-events-", ".csv")
+  private val file = Files.createTempFile("peel-experiment-events-", ".csv", Permissions)
   private val out = new BufferedWriter(new FileWriter(file.toString, true), BufferSize)
 
   override def preStart(): Unit = {
@@ -127,6 +128,8 @@ class Writer(appContext: ApplicationContext, conn: Connection) extends Actor wit
 
 /** Companion object. */
 object Writer {
+
+  val Permissions = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr--r--"))
 
   val BufferSize = 1024 * 1024 * 32
   private val TimestampFmt = DateTimeFormatter

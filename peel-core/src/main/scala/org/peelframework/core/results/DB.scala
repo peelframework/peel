@@ -51,7 +51,13 @@ object DB {
     val url = config.getString(s"app.db.$name.url")
     val user = config.getOptionalString(s"app.db.$name.user")
     val pass = config.getOptionalString(s"app.db.$name.password")
-    DriverManager.getConnection(url, user.getOrElse(null.asInstanceOf[String]), pass.getOrElse(null.asInstanceOf[String]))
+    val conn = DriverManager.getConnection(url, user.orNull, pass.orNull)
+
+    // optionally, set the schema
+    for (schema <- config.getOptionalString(s"app.db.$name.schema"))
+      conn.setSchema(schema)
+
+    conn
   }
 
   /** Drop the database schema.

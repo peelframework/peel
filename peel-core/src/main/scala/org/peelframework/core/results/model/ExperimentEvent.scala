@@ -80,6 +80,10 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
   }
 
   override def createTable()(implicit conn: Connection): Unit = if (!tableExists) {
+    val DOUBLE = conn.getClass.getCanonicalName match {
+      case "org.postgresql.jdbc.PgConnection" => "DOUBLE PRECISION"
+      case _ => "DOUBLE"
+    }
     SQL( s"""
       CREATE TABLE experiment_event (
         id                 BIGINT         NOT NULL,
@@ -89,7 +93,7 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
         task               VARCHAR(1024)          ,
         task_instance      INTEGER                ,
         v_long             BIGINT                 ,
-        v_double           DOUBLE                 ,
+        v_double           $DOUBLE                ,
         v_timestamp        TIMESTAMP              ,
         v_string           VARCHAR(1024)          ,
         PRIMARY KEY (id),
@@ -176,6 +180,13 @@ object ExperimentEvent extends PersistedAPI[ExperimentEvent] {
          """,
         s"""
            |SET LOG 1
+         """
+      )
+
+      case "org.postgresql.jdbc.PgConnection" => Seq(
+        s"""
+           |COPY experiment_event FROM '$path'
+           |WITH CSV DELIMITER '$fsep'  NULL '$nil' QUOTE '$quote';
          """
       )
 
