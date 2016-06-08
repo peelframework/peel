@@ -65,7 +65,7 @@ object System extends PersistedAPI[System] {
       ${x.name.name},
       ${x.version.name}
     )
-    """.executeInsert()
+    """.executeInsert(SqlParser.scalar[String].singleOpt)
   }
 
   override def update(x: System)(implicit conn: Connection): Unit = {
