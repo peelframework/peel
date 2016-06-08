@@ -21,7 +21,7 @@ import net.sourceforge.argparse4j.ArgumentParsers
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.ArgumentParserException
 import net.sourceforge.argparse4j.internal.HelpScreenException
-import org.apache.log4j.{PatternLayout, RollingFileAppender}
+import org.apache.log4j.{Level, PatternLayout, RollingFileAppender}
 import org.peelframework.core.PeelApplicationContext
 import org.peelframework.core.cli.command.Command
 import org.peelframework.core.util.shell
@@ -59,6 +59,7 @@ object Peel {
       val ns = parser.parseArgs(args.takeWhile(arg => arg.startsWith("-") || arg.startsWith("--")))
 
       System.setProperty("app.hostname", ns.getString("app.hostname"))
+      System.setProperty("app.log.level", ns.getString("app.log.level"))
       System.setProperty("app.path.config", Paths.get("config").normalize().toAbsolutePath.toString)
       System.setProperty("app.path.log", Paths.get("log").normalize().toAbsolutePath.toString)
 
@@ -75,6 +76,7 @@ object Peel {
     appender.setMaxFileSize("100KB")
     appender.setMaxBackupIndex(1)
     org.apache.log4j.Logger.getRootLogger.addAppender(appender)
+    org.apache.log4j.Logger.getRootLogger.setLevel(Level.toLevel(System.getProperty("app.log.level")))
 
     // construct application context
     val context = PeelApplicationContext(Option(System.getProperty("app.path.config")))
@@ -134,6 +136,12 @@ object Peel {
       .dest("app.hostname")
       .metavar("NAME")
       .help(s"environment hostname (default: $hostname)")
+    parser.addArgument("--loglevel")
+      .`type`(classOf[String])
+      .dest("app.log.level")
+      .choices("OFF", "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "ALL")
+      .metavar("LEVEL")
+      .help(s"log4j log level (default: INFO)")
 
     if (!basicOnly) {
       parser.addSubparsers()
@@ -150,6 +158,7 @@ object Peel {
 
     // general option defaults
     parser.setDefault("app.hostname", hostname)
+    parser.setDefault("app.log.level", "INFO")
 
     parser
   }
