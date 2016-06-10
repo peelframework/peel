@@ -38,7 +38,7 @@ class Initialize extends Command {
       .`type`(classOf[String])
       .dest("app.db.connection")
       .metavar("ID")
-      .help("database config name (default: h2)")
+      .help("database config name (default: `default`)")
     parser.addArgument("--force", "-f")
       .`type`(classOf[Boolean])
       .dest("app.db.force")
@@ -46,7 +46,7 @@ class Initialize extends Command {
       .help("force creation (drops existing tables)")
 
     // option defaults
-    parser.setDefault("app.db.connection", "h2")
+    parser.setDefault("app.db.connection", "default")
   }
 
   override def configure(ns: Namespace) = {

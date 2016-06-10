@@ -143,6 +143,6 @@ object Writer {
 
   /** Props constructor. */
   def props(context: ApplicationContext, conn: Connection): Props = {
-    Props(new Writer(context, conn: Connection))
+    Props(new Writer(context, conn))
   }
 }

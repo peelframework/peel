@@ -42,7 +42,7 @@ class Import extends Command {
       .`type`(classOf[String])
       .dest("app.db.connection")
       .metavar("ID")
-      .help("database config name (default: h2)")
+      .help("database config name (default: `default`)")
     // arguments
     parser.addArgument("suite")
       .`type`(classOf[String])
@@ -51,7 +51,7 @@ class Import extends Command {
       .help("experiments suite to run")
 
     // option defaults
-    parser.setDefault("app.db.connection", "h2")
+    parser.setDefault("app.db.connection", "default")
   }
 
   override def configure(ns: Namespace) = {
