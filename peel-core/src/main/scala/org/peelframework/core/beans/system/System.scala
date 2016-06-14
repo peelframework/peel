@@ -77,18 +77,22 @@ abstract class System(
 
       configuration().update()
       if (config.hasPath("system.default.config.noSharedDisk") && config.getString(s"system.default.config.noSharedDisk") == "true") {
-        val homePath = config.getString(s"system.$configKey.path.home")
-        val parentHomePath = new File(homePath).getParent
-        val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
-        val currentUser = config.getString(s"system.$configKey.user")
-        for(host <- slaves){
-          createRemoteDirectory(parentHomePath, currentUser, host)
-          copyDirectorytoRemote(homePath, parentHomePath, currentUser, host)
-        }
+        copyHomeToSlaves
       }
       start()
 
       logger.info(s"System '$toString' is now up and running")
+    }
+  }
+
+  def copyHomeToSlaves: Unit = {
+    val homePath = config.getString(s"system.$configKey.path.home")
+    val parentHomePath = new File(homePath).getParent
+    val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+    val currentUser = config.getString(s"system.$configKey.user")
+    for (host <- slaves) {
+      createRemoteDirectory(parentHomePath, currentUser, host)
+      copyDirectorytoRemote(homePath, parentHomePath, currentUser, host)
     }
   }
 
