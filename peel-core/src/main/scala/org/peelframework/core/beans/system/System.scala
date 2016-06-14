@@ -27,7 +27,9 @@ import org.peelframework.core.graph.Node
 import org.peelframework.core.util.{Version, shell}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
+
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 
 /** This class represents a System in the Peel framework.
@@ -89,7 +91,7 @@ abstract class System(
     if(!config.hasPath("system.default.config.noSharedDisk"))
       return false
 
-    config.getString("system.default.config.noSharedDisk") == "true"
+    Try(config.getString("system.default.config.noSharedDisk").toBoolean).getOrElse(false)
   }
 
   def copyHomeToSlaves: Unit = {
