@@ -107,20 +107,12 @@ abstract class System(
 
   def copyDirectorytoRemote(localSource: String, remoteDestination: String, user: String, host: String): Int = {
     logger.info(s"rsync -a $localSource $user@$host:$remoteDestination")
-    shell ! "rsync -a %s %s@%s:%s".format(
-      localSource,
-      user,
-      host,
-      remoteDestination)
+    shell ! s"rsync -a $localSource $user@$host:$remoteDestination"
   }
 
   def createRemoteDirectory(path: String, user: String, host: String): Int = {
     logger.info(s"creating directory $path on remote host $host")
-    shell ! "ssh %s@%s mkdir -p %s".format(
-      user,
-      host,
-      path
-    )
+    shell ! s"ssh $user@$host mkdir -p $path"
   }
 
   /** Cleans up and shuts down the system. */
