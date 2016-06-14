@@ -82,12 +82,7 @@ abstract class System(
         val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
         val currentUser = config.getString(s"system.$configKey.user")
         for(host <- slaves){
-          logger.info(s"creating directory $parentHomePath on remote host $host")
-          shell ! "ssh %s@%s mkdir -p %s".format(
-            currentUser,
-            host,
-            parentHomePath
-          )
+          createRemoteDirectory(parentHomePath, currentUser, host)
           logger.info(s"rsync -a $homePath $currentUser@$host:$parentHomePath")
           shell ! "rsync -a %s %s@%s:%s".format(
             homePath,
@@ -100,6 +95,15 @@ abstract class System(
 
       logger.info(s"System '$toString' is now up and running")
     }
+  }
+
+  def createRemoteDirectory(path: String, user: String, host: String): Int = {
+    logger.info(s"creating directory $path on remote host $host")
+    shell ! "ssh %s@%s mkdir -p %s".format(
+      user,
+      host,
+      path
+    )
   }
 
   /** Cleans up and shuts down the system. */
