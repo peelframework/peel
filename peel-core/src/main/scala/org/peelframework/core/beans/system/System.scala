@@ -16,6 +16,7 @@
 package org.peelframework.core.beans.system
 
 import java.nio.file.{Files, Paths}
+import java.io.File
 
 import com.samskivert.mustache.Mustache
 import com.typesafe.config.ConfigFactory
@@ -26,6 +27,8 @@ import org.peelframework.core.graph.Node
 import org.peelframework.core.util.{Version, shell}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
+import scala.collection.JavaConverters._
+
 
 /** This class represents a System in the Peel framework.
   *
@@ -73,6 +76,26 @@ abstract class System(
       }
 
       configuration().update()
+      if (config.hasPath("system.default.config.noSharedDisk") && config.getString(s"system.default.config.noSharedDisk") == "true") {
+        val homePath = config.getString(s"system.$configKey.path.home")
+        val parentHomePath = new File(homePath).getParent
+        val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+        val currentUser = config.getString(s"system.$configKey.user")
+        for(host <- slaves){
+          logger.info(s"creating directory $parentHomePath on remote host $host")
+          shell ! "ssh %s@%s mkdir -p %s".format(
+            currentUser,
+            host,
+            parentHomePath
+          )
+          logger.info(s"rsync -a $homePath $currentUser@$host:$parentHomePath")
+          shell ! "rsync -a %s %s@%s:%s".format(
+            homePath,
+            currentUser,
+            host,
+            parentHomePath)
+        }
+      }
       start()
 
       logger.info(s"System '$toString' is now up and running")
