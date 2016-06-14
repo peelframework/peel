@@ -76,13 +76,20 @@ abstract class System(
       }
 
       configuration().update()
-      if (config.hasPath("system.default.config.noSharedDisk") && config.getString(s"system.default.config.noSharedDisk") == "true") {
+      if (noSharedDisk) {
         copyHomeToSlaves
       }
       start()
 
       logger.info(s"System '$toString' is now up and running")
     }
+  }
+
+  def noSharedDisk: Boolean = {
+    if(!config.hasPath("system.default.config.noSharedDisk"))
+      return false
+
+    config.getString("system.default.config.noSharedDisk") == "true"
   }
 
   def copyHomeToSlaves: Unit = {
