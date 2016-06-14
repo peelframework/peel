@@ -96,12 +96,12 @@ abstract class System(
 
   def copyHomeToSlaves: Unit = {
     val homePath = config.getString(s"system.$configKey.path.home")
-    val parentHomePath = new File(homePath).getParent
+    val destinationPath = new File(homePath).getParent
     val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
     val currentUser = config.getString(s"system.$configKey.user")
     for (host <- slaves) {
-      createRemoteDirectory(parentHomePath, currentUser, host)
-      copyDirectorytoRemote(homePath, parentHomePath, currentUser, host)
+      createRemoteDirectory(destinationPath, currentUser, host)
+      copyDirectorytoRemote(homePath, destinationPath, currentUser, host)
     }
   }
 
