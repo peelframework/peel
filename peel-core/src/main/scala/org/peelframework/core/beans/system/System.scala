@@ -174,7 +174,7 @@ abstract class System(
     * * `system.$configKey.path.archive.src` - The path where the system binary archive should be stored locally.
     * * `system.$configKey.path.archive.dst` - The path where the system binary archive should be extracted.
     */
-  private def materializeHome() = {
+  protected def materializeHome() = {
     val archiveMD5 = BigInt(config.getString(s"system.$configKey.path.archive.md5"), 16)
     val archiveSrc = config.getString(s"system.$configKey.path.archive.src")
     val archiveDst = config.getString(s"system.$configKey.path.archive.dst")
