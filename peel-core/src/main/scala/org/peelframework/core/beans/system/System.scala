@@ -98,21 +98,23 @@ abstract class System(
     val destinationPath = new File(homePath).getParent
     val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
     val currentUser = config.getString(s"system.$configKey.user")
-
+    val logPath = Paths.get(config.getString(s"system.$configKey.path.log"))
+    val relativeLogPath = Paths.get(destinationPath).relativize(logPath).normalize
     val futureSyncedDirs = Future.traverse(slaves)(host =>
         Future {
           createRemoteDirectory(destinationPath, currentUser, host)
-          copyDirectorytoRemote(homePath, destinationPath, currentUser, host)
+          copyDirectorytoRemote(homePath, destinationPath, currentUser, host, relativeLogPath.toString)
         })
 
       // await for all future log file counts and convert the result to a map
       Await.result(futureSyncedDirs, Duration(Math.max(30, 5 * slaves.size), TimeUnit.SECONDS))
   }
 
-  def copyDirectorytoRemote(localSource: String, remoteDestination: String, user: String, host: String): Int = {
+  def copyDirectorytoRemote(localSource: String, remoteDestination: String, user: String, host: String, exclude: String): Int = {
     val fullDestination: String = s"$user@$host:$remoteDestination"
-    logger.info(s"rsync -a $localSource $fullDestination")
-    shell ! (s"rsync -a $localSource $fullDestination", s"failed to copy $localSource to $fullDestination", fatal = true)
+    val command = s"rsync -a $localSource $fullDestination --exclude $exclude"
+    logger.info(command)
+    shell ! (command, s"failed to copy $localSource to $fullDestination", fatal = true)
   }
 
   def createRemoteDirectory(path: String, user: String, host: String): Int = {
