@@ -91,7 +91,7 @@ abstract class System(
   }
 
   def noSharedDisk: Boolean =
-    Try(config.getString("system.default.config.noSharedDisk").toBoolean).getOrElse(false)
+    Try(config.getString("system.default.path.isShared").toBoolean).getOrElse(false)
 
   def copyHomeToSlaves: Unit = {
     val homePath = config.getString(s"system.$configKey.path.home")
