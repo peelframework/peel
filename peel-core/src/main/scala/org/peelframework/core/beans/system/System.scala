@@ -17,6 +17,7 @@ package org.peelframework.core.beans.system
 
 import java.nio.file.{Files, Paths}
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 import com.samskivert.mustache.Mustache
 import com.typesafe.config.ConfigFactory
@@ -29,8 +30,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
 
 import scala.collection.JavaConverters._
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.util.Try
-
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /** This class represents a System in the Peel framework.
   *
@@ -95,10 +98,15 @@ abstract class System(
     val destinationPath = new File(homePath).getParent
     val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
     val currentUser = config.getString(s"system.$configKey.user")
-    for (host <- slaves) {
-      createRemoteDirectory(destinationPath, currentUser, host)
-      copyDirectorytoRemote(homePath, destinationPath, currentUser, host)
-    }
+
+    val futureSyncedDirs = Future.traverse(slaves)(host =>
+        Future {
+          createRemoteDirectory(destinationPath, currentUser, host)
+          copyDirectorytoRemote(homePath, destinationPath, currentUser, host)
+        })
+
+      // await for all future log file counts and convert the result to a map
+      Await.result(futureSyncedDirs, Duration(Math.max(30, 5 * slaves.size), TimeUnit.SECONDS))
   }
 
   def copyDirectorytoRemote(localSource: String, remoteDestination: String, user: String, host: String): Int = {
