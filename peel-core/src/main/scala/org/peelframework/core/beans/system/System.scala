@@ -110,13 +110,14 @@ abstract class System(
   }
 
   def copyDirectorytoRemote(localSource: String, remoteDestination: String, user: String, host: String): Int = {
-    logger.info(s"rsync -a $localSource $user@$host:$remoteDestination")
-    shell ! s"rsync -a $localSource $user@$host:$remoteDestination"
+    val fullDestination: String = s"$user@$host:$remoteDestination"
+    logger.info(s"rsync -a $localSource $fullDestination")
+    shell ! (s"rsync -a $localSource $fullDestination", s"failed to copy $localSource to $fullDestination", fatal = true)
   }
 
   def createRemoteDirectory(path: String, user: String, host: String): Int = {
     logger.info(s"creating directory $path on remote host $host")
-    shell ! s"ssh $user@$host mkdir -p $path"
+    shell ! (s"ssh $user@$host mkdir -p $path", s"failed to create directory $path on remote host $host", fatal = true)
   }
 
   /** Cleans up and shuts down the system. */
