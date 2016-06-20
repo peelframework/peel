@@ -94,13 +94,13 @@ abstract class System(
     val homePath = config.getString(s"system.$configKey.path.home")
     val destinationPath = new File(homePath).getParent
     val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
-    val currentUser = config.getString(s"system.$configKey.user")
+    val user = config.getString(s"system.$configKey.user")
     val logPath = Paths.get(config.getString(s"system.$configKey.path.log"))
     val relativeLogPath = Paths.get(destinationPath).relativize(logPath).normalize
     val futureSyncedDirs = Future.traverse(slaves)(host =>
         Future {
-          createRemoteDirectory(destinationPath, currentUser, host)
-          copyDirectorytoRemote(homePath, destinationPath, currentUser, host, relativeLogPath.toString)
+          createRemoteDirectory(destinationPath, user, host)
+          copyDirectorytoRemote(homePath, destinationPath, user, host, relativeLogPath.toString)
         })
 
       // await for all future log file counts and convert the result to a map
