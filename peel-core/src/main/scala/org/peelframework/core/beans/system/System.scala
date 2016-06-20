@@ -81,7 +81,7 @@ abstract class System(
       }
 
       configuration().update()
-      if (noSharedDisk) {
+      if (config.getBoolean("system.default.path.isShared")) {
         copyHomeToSlaves
       }
       start()
@@ -89,8 +89,6 @@ abstract class System(
       logger.info(s"System '$toString' is now up and running")
     }
   }
-
-  def noSharedDisk: Boolean = config.getBoolean("system.default.path.isShared")
 
   def copyHomeToSlaves: Unit = {
     val homePath = config.getString(s"system.$configKey.path.home")
