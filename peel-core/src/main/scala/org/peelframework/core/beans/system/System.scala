@@ -100,7 +100,7 @@ abstract class System(
     val futureSyncedDirs = Future.traverse(slaves)(host =>
         Future {
           createRemoteDirectory(destinationPath, user, host)
-          copyDirectorytoRemote(homePath, destinationPath, user, host, relativeLogPath.toString)
+          copyDirectorytoRemote(homePath, destinationPath, user, host, relativeLogPath.toString + "/*")
         })
 
       // await for all future log file counts and convert the result to a map
