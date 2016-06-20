@@ -81,9 +81,8 @@ abstract class System(
       }
 
       configuration().update()
-      if (config.getBoolean("system.default.path.isShared")) {
+      if (config.getBoolean("system.default.path.isShared"))
         copyHomeToSlaves()
-      }
       start()
 
       logger.info(s"System '$toString' is now up and running")
