@@ -191,7 +191,12 @@ private[etl] final case class Columns(cols: Seq[String]) extends Data
 
 private[etl] object ColumnSeq {
   def unapplySeq(str: String): Option[Seq[String]] = Some {
-    val names = for (s <- str.split(',')) yield s
+    // append an "" at the end, if the last column name is empty
+    val _str =
+      if (str.trim.endsWith(",")) str + "\"\""
+      else str
+
+    val names = for (s <- _str.split(',')) yield s
       .stripPrefix("\"") // trim the opening quote
       .stripSuffix("\"") // trim the closing quote
       .replaceAll("\\W", "_") // remove non-word characters
