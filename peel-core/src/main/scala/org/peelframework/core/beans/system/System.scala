@@ -82,7 +82,7 @@ abstract class System(
 
       configuration().update()
       if (config.getBoolean("system.default.path.isShared")) {
-        copyHomeToSlaves
+        copyHomeToSlaves()
       }
       start()
 
@@ -90,7 +90,7 @@ abstract class System(
     }
   }
 
-  def copyHomeToSlaves: Unit = {
+  def copyHomeToSlaves(): Unit = {
     val homePath = config.getString(s"system.$configKey.path.home")
     val destinationPath = new File(homePath).getParent
     val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
