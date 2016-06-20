@@ -16,6 +16,8 @@
 package org.peelframework.core.beans.system
 
 import java.nio.file.{Files, Paths}
+import java.io.File
+import java.util.concurrent.TimeUnit
 
 import com.samskivert.mustache.Mustache
 import com.typesafe.config.ConfigFactory
@@ -26,6 +28,12 @@ import org.peelframework.core.graph.Node
 import org.peelframework.core.util.{Version, shell}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanNameAware
+
+import scala.collection.JavaConverters._
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.util.Try
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /** This class represents a System in the Peel framework.
   *
@@ -73,10 +81,41 @@ abstract class System(
       }
 
       configuration().update()
+      if (config.getBoolean("system.default.path.isShared"))
+        copyHomeToSlaves()
       start()
 
       logger.info(s"System '$toString' is now up and running")
     }
+  }
+
+  def copyHomeToSlaves(): Unit = {
+    val homePath = config.getString(s"system.$configKey.path.home")
+    val destinationPath = new File(homePath).getParent
+    val slaves = config.getStringList(s"system.$configKey.config.slaves").asScala
+    val user = config.getString(s"system.$configKey.user")
+    val logPath = Paths.get(config.getString(s"system.$configKey.path.log"))
+    val relativeLogPath = Paths.get(destinationPath).relativize(logPath).normalize
+    val futureSyncedDirs = Future.traverse(slaves)(host =>
+        Future {
+          createRemoteDirectory(destinationPath, user, host)
+          copyDirectorytoRemote(homePath, destinationPath, user, host, relativeLogPath.toString + "/*")
+        })
+
+      // await for all future log file counts and convert the result to a map
+      Await.result(futureSyncedDirs, Duration(Math.max(30, 5 * slaves.size), TimeUnit.SECONDS))
+  }
+
+  def copyDirectorytoRemote(localSource: String, remoteDestination: String, user: String, host: String, exclude: String): Int = {
+    val fullDestination: String = s"$user@$host:$remoteDestination"
+    val command = s"rsync -a $localSource $fullDestination --exclude $exclude"
+    logger.info(command)
+    shell ! (command, s"failed to copy $localSource to $fullDestination", fatal = true)
+  }
+
+  def createRemoteDirectory(path: String, user: String, host: String): Int = {
+    logger.info(s"creating directory $path on remote host $host")
+    shell ! (s"ssh $user@$host mkdir -p $path", s"failed to create directory $path on remote host $host", fatal = true)
   }
 
   /** Cleans up and shuts down the system. */
