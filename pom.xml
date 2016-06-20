@@ -466,6 +466,7 @@
                         <exclude>**/LICENSE</exclude>
                         <exclude>**/NOTICE</exclude>
                         <exclude>**/README.md</exclude>
+                        <exclude>**/CONTRIBUTORS.md</exclude>
                         <exclude>**/settings.xml.dist</exclude>
                         <exclude>src/test/resources/**</exclude>
                         <exclude>src/main/resources/**</exclude>
