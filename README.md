@@ -43,6 +43,7 @@ Peel offers the following features for your experiments.
 | MapReduce        | 2.4.1          | `mapred-2.4.1`    |
 | Spark            | 1.3.1          | `spark-1.3.1`     |
 | Spark            | 1.4.0          | `spark-1.4.0`     |
+| Spark            | 1.4.1          | `spark-1.4.1`     |
 | Spark            | 1.5.1          | `spark-1.5.1`     |
 | Spark            | 1.5.2          | `spark-1.5.2`     |
 | Spark            | 1.6.0          | `spark-1.6.0`     |
