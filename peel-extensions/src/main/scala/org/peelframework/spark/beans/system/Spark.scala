@@ -140,13 +140,27 @@ class Spark(
       s""" ssh $user@$host "$cmd" """
     }
 
+    val rmWorkDir = (host: String, workDir: String) => {
+      val cmd = s""" rm -Rf $workDir/* """
+      s""" ssh $user@$host "$cmd" """
+    }
+
     val hosts = config.getStringList(s"system.$configKey.config.slaves").asScala
     val paths = config.getString(s"system.$configKey.config.defaults.spark.local.dir").split(',')
+    val workDir = config.getString(s"system.$configKey.path.work")
 
-    val futureInitOps = Future.traverse(hosts)(host => Future {
-      logger.info(s"Initializing Spark tmp directories '${paths.mkString(",")}' at $host")
-      shell ! (init(host, paths), s"Unable to initialize Spark tmp directories '${paths.mkString(",")}' at $host.")
-    })
+    val futureInitOps = Future.traverse(hosts){ host =>
+      for {
+        _ <- Future {
+          logger.info(s"Initializing Spark tmp directories '${paths.mkString(",")}' at $host")
+          shell ! (init(host, paths), s"Unable to initialize Spark tmp directories '${paths.mkString(",")}' at $host.")
+        }
+        f <- Future {
+          logger.debug(s"Removing Spark work directory content '$workDir' at $host")
+          shell ! (rmWorkDir(host, workDir), s"Unable to remove Spark work directory content '$workDir' at $host.", fatal = false)
+        }
+      } yield f
+    }
 
     // await for all futureInitOps to finish
     Await.result(futureInitOps, Math.max(30, 5 * hosts.size).seconds)
