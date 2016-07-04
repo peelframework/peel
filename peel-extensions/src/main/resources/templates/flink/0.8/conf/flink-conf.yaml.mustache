@@ -215,3 +215,64 @@
 # file into it.
 #
 {{#fs.output.always-create-directory}}fs.output.always-create-directory: {{fs.output.always-create-directory}}{{/fs.output.always-create-directory}}{{^fs.output.always-create-directory}}# fs.output.always-create-directory: false{{/fs.output.always-create-directory}}
+
+#==============================================================================
+# Akka
+#==============================================================================
+
+# Timeout used for all futures and blocking Akka calls. If Flink fails due to timeouts then you should try to increase this value. Timeouts can be caused by slow machines or a congested network.
+# The timeout value requires a time-unit specifier (ms/s/min/h/d) (DEFAULT: 10 s).
+#
+{{#akka.ask.timeout}}akka.ask.timeout: {{akka.ask.timeout}}{{/akka.ask.timeout}}{{^akka.ask.timeout}}# akka.ask.timeout: 10s{{/akka.ask.timeout}}
+
+# Timeout used for the lookup of the JobManager.
+# The timeout value has to contain a time-unit specifier (ms/s/min/h/d) (DEFAULT: 10 s).
+#
+{{#akka.lookup.timeout}}akka.lookup.timeout: {{akka.lookup.timeout}}{{/akka.lookup.timeout}}{{^akka.lookup.timeout}}# akka.lookup.timeout: 10s{{/akka.lookup.timeout}}
+
+# Maximum size of messages which are sent between the JobManager and the TaskManagers. If Flink fails because messages exceed this limit, then you should increase it.
+# The message size requires a size-unit specifier (DEFAULT: 10485760b).
+#
+{{#akka.framesize}}akka.framesize: {{akka.framesize}}{{/akka.framesize}}{{^akka.framesize}}# akka.framesize: 10485760b{{/akka.framesize}}
+
+# Heartbeat interval for Akka’s DeathWatch mechanism to detect dead TaskManagers. If TaskManagers are wrongly marked dead because of lost or delayed heartbeat messages, then you should increase this value.
+#
+{{#akka.watch.heartbeat.interval}}akka.watch.heartbeat.interval: {{akka.watch.heartbeat.interval}}{{/akka.watch.heartbeat.interval}}{{^akka.watch.heartbeat.interval}}# akka.watch.heartbeat.interval: akka.ask.timeout/10{{/akka.watch.heartbeat.interval}}
+
+# Acceptable heartbeat pause for Akka’s DeathWatch mechanism. A low value does not allow a irregular heartbeat.
+#
+{{#akka.watch.heartbeat.pause}}akka.watch.heartbeat.pause: {{akka.watch.heartbeat.pause}}{{/akka.watch.heartbeat.pause}}{{^akka.watch.heartbeat.pause}}# akka.watch.heartbeat.pause: akka.ask.timeout{{/akka.watch.heartbeat.pause}}
+
+# Threshold for the DeathWatch failure detector. A low value is prone to false positives whereas a high value increases the time to detect a dead TaskManager.
+#
+{{#akka.watch.threshold}}akka.watch.threshold: {{akka.watch.threshold}}{{/akka.watch.threshold}}{{^akka.watch.threshold}}# akka.watch.threshold: 12{{/akka.watch.threshold}}
+
+# Heartbeat interval for Akka’s transport failure detector. Since Flink uses TCP, the detector is not necessary. Therefore, the detector is disabled by setting the interval to a very high value.
+# In case you should need the transport failure detector, set the interval to some reasonable value. The interval value requires a time-unit specifier (ms/s/min/h/d) (DEFAULT: 1000 s).
+#
+{{#akka.transport.heartbeat.interval}}akka.transport.heartbeat.interval: {{akka.transport.heartbeat.interval}}{{/akka.transport.heartbeat.interval}}{{^akka.transport.heartbeat.interval}}# akka.transport.heartbeat.interval: 1000s{{/akka.transport.heartbeat.interval}}
+
+# Acceptable heartbeat pause for Akka’s transport failure detector. Since Flink uses TCP, the detector is not necessary. Therefore, the detector is disabled by setting the pause to a very high value.
+# In case you should need the transport failure detector, set the pause to some reasonable value. The pause value requires a time-unit specifier (ms/s/min/h/d) (DEFAULT: 6000 s).
+#
+{{#akka.transport.heartbeat.pause}}akka.transport.heartbeat.pause: {{akka.transport.heartbeat.pause}}{{/akka.transport.heartbeat.pause}}{{^akka.transport.heartbeat.pause}}# akka.transport.heartbeat.pause: 6000s{{/akka.transport.heartbeat.pause}}
+
+# Threshold for the transport failure detector. Since Flink uses TCP, the detector is not necessary and, thus, the threshold is set to a high value (DEFAULT: 300).
+#
+{{#akka.transport.threshold}}akka.transport.threshold: {{akka.transport.threshold}}{{/akka.transport.threshold}}{{^akka.transport.threshold}}# akka.transport.threshold: 300s{{/akka.transport.threshold}}
+
+# Timeout for all outbound connections. If you should experience problems with connecting to a TaskManager due to a slow network, you should increase this value (DEFAULT: akka.ask.timeout).
+#
+{{#akka.tcp.timeout}}akka.tcp.timeout: {{akka.tcp.timeout}}{{/akka.tcp.timeout}}{{^akka.tcp.timeout}}# akka.tcp.timeout: akka.ask.timeout{{/akka.tcp.timeout}}
+
+# Number of messages that are processed in a batch before returning the thread to the pool. Low values denote a fair scheduling whereas high values can increase the performance at the cost of unfairness (DEFAULT: 15).
+#
+{{#akka.throughput}}akka.throughput: {{akka.throughput}}{{/akka.throughput}}{{^akka.throughput}}# akka.throughput: 15{{/akka.throughput}}
+
+# Turns on the Akka’s remote logging of events. Set this value to ‘on’ in case of debugging (DEFAULT: off).
+#
+{{#akka.log.lifecycle.events}}akka.log.lifecycle.events: {{akka.log.lifecycle.events}}{{/akka.log.lifecycle.events}}{{^akka.log.lifecycle.events}}# akka.log.lifecycle.events: off{{/akka.log.lifecycle.events}}
+
+# Timeout after which the startup of a remote component is considered being failed (DEFAULT: akka.ask.timeout).
+#
+{{#akka.startup-timeout}}akka.startup-timeout: {{akka.startup-timeout}}{{/akka.startup-timeout}}{{^akka.startup-timeout}}# akka.startup-timeout: akka.ask.timeout{{/akka.startup-timeout}}
