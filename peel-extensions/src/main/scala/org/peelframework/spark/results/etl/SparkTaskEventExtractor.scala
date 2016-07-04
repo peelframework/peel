@@ -62,12 +62,12 @@ class SparkTaskEventExtractor(
         writer ! eventPrototype.copy(
           id              = nextID(),
           name            = 'state_change_running,
-          vTimestamp      = Some(Instant.ofEpochSecond(taskInfo.launchTime)))
+          vTimestamp      = Some(Instant.ofEpochMilli(taskInfo.launchTime)))
         // send state_change_finished event
         writer ! eventPrototype.copy(
           id              = nextID(),
           name            = 'state_change_finished,
-          vTimestamp      = Some(Instant.ofEpochSecond(taskInfo.finishTime)))
+          vTimestamp      = Some(Instant.ofEpochMilli(taskInfo.finishTime)))
       }
   }
 }
