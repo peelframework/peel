@@ -37,6 +37,16 @@ class YarnExperiment(command: String,
                      outputs: Set[ExperimentOutput],
                      name: String,
                      config: Config) extends Experiment(command, systems, runner, runs, inputs, outputs, name, config) {
+
+  def this(
+    command: String,
+    runner : Yarn,
+    runs   : Int,
+    inputs : Set[DataSet],
+    outputs: Set[ExperimentOutput],
+    name   : String,
+    config : Config) = this(command, Set.empty[System], runner, runs, inputs, outputs, name, config)
+  
   /** Experiment run factory method.
     *
     * @param id The `id` for the constructed experiment run
