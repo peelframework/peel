@@ -65,10 +65,8 @@ After the DB schema is initialized, you can [extract, transform, and load (ETL)]
 For example, in order to load the data form the `wordcount.scale-out` suite into your (previously intialized) `h2` database , you need to run the following code.
 
 {% highlight bash %}
-./peel.sh db:import --connection=h2 wordcount.scale-out --force 
+./peel.sh db:import --connection=h2 wordcount.scale-out 
 {% endhighlight %}
-
-Use the optional `--force` flag if you want to delete old experiment results with the same key from the database prior to loading.
 
 ## Analysis
 
