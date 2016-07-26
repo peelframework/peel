@@ -140,11 +140,6 @@ class Spark(
       s""" ssh $user@$host "$cmd" """
     }
 
-    val rmWorkDir = (host: String, workDir: String) => {
-      val cmd = s""" rm -Rf $workDir/* """
-      s""" ssh $user@$host "$cmd" """
-    }
-
     val hosts = config.getStringList(s"system.$configKey.config.slaves").asScala
     val paths = config.getString(s"system.$configKey.config.defaults.spark.local.dir").split(',')
     val workDir = config.getString(s"system.$configKey.path.work")
@@ -157,7 +152,9 @@ class Spark(
         }
         f <- Future {
           logger.debug(s"Removing Spark work directory content '$workDir' at $host")
-          shell ! (rmWorkDir(host, workDir), s"Unable to remove Spark work directory content '$workDir' at $host.", fatal = false)
+          // we ignore the failure here cause they are (most likely) due to 'stale file handles' in shared folders
+          // aka. shared files are deleted concurrently
+          shell ! rmWorkDir(user, host, workDir)
         }
       } yield f
     }
@@ -203,6 +200,20 @@ class Spark(
   override def stop(): Unit = {
     shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/stop-all.sh"
     isUp = false
+
+    // remove work dir; as in start
+    val user = config.getString(s"system.$configKey.user")
+    val hosts = config.getStringList(s"system.$configKey.config.slaves").asScala
+    val workDir = config.getString(s"system.$configKey.path.work")
+
+    val futureOps = Future.traverse(hosts) { host =>
+      Future {
+        logger.debug(s"Removing Spark work directory content '$workDir' at $host")
+        shell ! rmWorkDir(user, host, workDir)
+      }
+    }
+
+    Await.result(futureOps, Math.max(30, 5 * hosts.size).seconds)
   }
 
   def isRunning = {
@@ -211,4 +222,8 @@ class Spark(
       (shell ! s""" ps -p `cat $pidDir/spark-*Worker*.pid` """) == 0
   }
 
+  private def rmWorkDir(user: String, host: String, workDir: String) = {
+    val cmd = s""" rm -Rf $workDir/* """
+    s""" ssh $user@$host "$cmd" """
+  }
 }
