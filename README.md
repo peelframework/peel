@@ -47,6 +47,8 @@ Peel offers the following features for your experiments.
 | Spark            | 1.5.1          | `spark-1.5.1`     |
 | Spark            | 1.5.2          | `spark-1.5.2`     |
 | Spark            | 1.6.0          | `spark-1.6.0`     |
+| Spark            | 1.6.2          | `spark-1.6.2`     |
+| Spark            | 2.0.0          | `spark-2.0.0`     |
 | Zookeeper        | 3.4.5          | `zookeeper-3.4.5` |
 | Dstat            | 0.7.2          | `dstat-0.7.2`     |
 
