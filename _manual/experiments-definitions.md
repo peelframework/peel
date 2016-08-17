@@ -111,6 +111,9 @@ The `peel-extensions` module ships with several *System* implementations. The fo
 | Flink            | 0.10.1         | flink-0.10.1    |
 | Flink            | 0.10.2         | flink-0.10.2    |
 | Flink            | 1.0.0          | flink-1.0.0     |
+| Flink            | 1.0.1          | flink-1.0.1     |
+| Flink            | 1.0.2          | flink-1.0.2     |
+| Flink            | 1.0.3          | flink-1.0.3     |
 | MapReduce        | 1.2.1          | mapred-1.2.1    |
 | MapReduce        | 2.4.1          | mapred-2.4.1    |
 | Spark            | 1.3.1          | spark-1.3.1     |
@@ -119,6 +122,8 @@ The `peel-extensions` module ships with several *System* implementations. The fo
 | Spark            | 1.5.1          | spark-1.5.1     |
 | Spark            | 1.5.2          | spark-1.5.2     |
 | Spark            | 1.6.0          | spark-1.6.0     |
+| Spark            | 1.6.2          | spark-1.6.2     |
+| Spark            | 2.0.0          | spark-2.0.0     |
 | Zookeeper        | 3.4.5          | zookeeper-3.4.5 |
 | Dstat            | 0.7.2          | dstat-0.7.2     |
 
