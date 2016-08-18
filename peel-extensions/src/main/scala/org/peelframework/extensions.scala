@@ -217,6 +217,22 @@ class extensions extends ApplicationContextAware {
     mc           = ctx.getBean(classOf[Mustache.Compiler])
   )
 
+  @Bean(name = Array("spark-1.6.2"))
+  def `spark-1.6.2`: Spark = new Spark(
+    version      = "1.6.2",
+    configKey    = "spark",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("spark-2.0.0"))
+  def `spark-2.0.0`: Spark = new Spark(
+    version      = "2.0.0",
+    configKey    = "spark",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
   // DStat
 
   @Bean(name = Array("dstat-0.7.2"))
