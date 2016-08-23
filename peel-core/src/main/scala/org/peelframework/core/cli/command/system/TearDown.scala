@@ -48,7 +48,7 @@ class TearDown extends Command {
   override def run(context: ApplicationContext) = {
     val systemID = Sys.getProperty("app.system.id")
 
-    logger.info(s"Tearing down system '$systemID' and dependencies with SUITE or EXPERIMENT lifespan")
+    logger.info(s"Tearing down system '$systemID' and dependencies managed by peel")
     val sys = context.getBean(systemID, classOf[System])
     val graph = createGraph(sys)
 
@@ -61,7 +61,7 @@ class TearDown extends Command {
 
     // tear down
     for (n <- graph.traverse(); if graph.descendants(sys).contains(n)) n match {
-      case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan => s.tearDown()
+      case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Lifespan.RUN :: Nil contains s.lifespan => s.tearDown()
       case _ => Unit
     }
   }

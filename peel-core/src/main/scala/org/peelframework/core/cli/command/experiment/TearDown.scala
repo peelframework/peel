@@ -66,7 +66,7 @@ class TearDown extends Command {
     // find experiment
     val expOption = suite.experiments.find(_.name == expName)
     // check if experiment exists (the list should contain exactly one element)
-    if (expOption.isEmpty) throw new RuntimeException(s"Experiment '$expName' either not found or ambigous in suite '$suiteName'")
+    if (expOption.isEmpty) throw new RuntimeException(s"Experiment '$expName' either not found or ambiguous in suite '$suiteName'")
 
     for (exp <- expOption) {
       // update config
@@ -78,7 +78,7 @@ class TearDown extends Command {
 
       logger.info("Tearing down systems for experiment '%s'".format(exp.name))
       for (n <- graph.traverse(); if graph.descendants(exp).contains(n)) n match {
-        case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan => s.tearDown()
+        case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Lifespan.RUN :: Nil contains s.lifespan => s.tearDown()
         case _ => Unit
       }
     }
