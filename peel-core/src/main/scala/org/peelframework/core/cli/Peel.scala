@@ -28,6 +28,7 @@ import org.peelframework.core.util.shell
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConversions._
+import scala.sys.process.Process
 
 object Peel {
 
@@ -164,7 +165,7 @@ object Peel {
   }
 
   lazy val hostname = {
-    val name = shell !! "echo $HOSTNAME"
+    val name = Process("/bin/bash", Seq("-c", "CLASSPATH=;echo $HOSTNAME")).!!
     if (name.nonEmpty) name.trim else "localhost"
   }
 
