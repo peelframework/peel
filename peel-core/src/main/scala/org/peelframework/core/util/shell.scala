@@ -365,9 +365,9 @@ object shell {
   */
 private class OutputStreamProcessLogger(fi: Path, fo: Path, fe: Path) extends ProcessLogger with Closeable with Flushable {
 
-  val i = new PrintWriter(Files.newBufferedWriter(fi, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
-  val o = new PrintWriter(Files.newBufferedWriter(fo, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
-  val e = new PrintWriter(Files.newBufferedWriter(fe, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND))
+  val i = new PrintWriter(Files.newBufferedWriter(fi, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND), true)
+  val o = new PrintWriter(Files.newBufferedWriter(fo, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND), true)
+  val e = new PrintWriter(Files.newBufferedWriter(fe, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND), true)
 
   /** write std in to fin */
   def in(s: => String) = i println s
