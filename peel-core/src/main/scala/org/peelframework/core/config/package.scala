@@ -85,36 +85,40 @@ package object config {
   def loadConfig(graph: DependencyGraph[Node], sys: System) = {
     logger.info(s"Loading configuration for system '${sys.beanName}'")
 
+    // base path for bundle- and host- specific configurations
+    val configPath = Sys.getProperty("app.path.config")
+    // current hostname
+    val hostname = Sys.getProperty("app.hostname")
+
+    // get dependent systems
+    val dependentSystems = for {
+      System(s) <- graph.reverse.traverse()
+      if graph.descendants(sys).contains(s)
+    } yield s
+
     // initial empty configuration
     val cb = new ConfigBuilder
 
     // load reference configuration
     cb.loadResource("reference.peel.conf")
 
-    // load systems configuration
-    for (n <- graph.reverse.traverse(); if graph.descendants(sys).contains(n)) n match {
-      case s: System =>
-        // load reference.{system.defaultName}.conf
-        cb.loadResource(s"reference.${s.beanName}.conf")
-        // load {app.path.config}/{system.name}.conf
-        for (configPath <- Option(Sys.getProperty("app.path.config"))) {
-          cb.loadFile(s"$configPath/${s.beanName}.conf")
-        }
-        // load {app.path.config}/{app.hostname}/{system.name}.conf
-        for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-          cb.loadFile(s"$configPath/hosts/$hostname/${s.beanName}.conf")
-        }
-      case _ => Unit
+    // load `reference.{system.defaultName}.conf` for each dependent system
+    for (s <- dependentSystems) {
+      cb.loadResource(s"reference.${s.beanName}.conf")
+    }
+    // load `{app.path.config}/{system.name}.conf` for each dependent system
+    for (s <- dependentSystems) {
+      cb.loadFile(s"$configPath/${s.beanName}.conf")
+    }
+    // load `{app.path.config}/{app.hostname}/{system.name}.conf` for each dependent system
+    for (s <- dependentSystems) {
+      cb.loadFile(s"$configPath/hosts/$hostname/${s.beanName}.conf")
     }
 
     // load {app.path.config}/application.conf
-    for (configPath <- Option(Sys.getProperty("app.path.config"))) {
-      cb.loadFile(s"$configPath/application.conf")
-    }
+    cb.loadFile(s"$configPath/application.conf")
     // load {app.path.config}/{app.hostname}/application.conf
-    for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-      cb.loadFile(s"$configPath/hosts/$hostname/application.conf")
-    }
+    cb.loadFile(s"$configPath/hosts/$hostname/application.conf")
 
     // load current runtime config
     logger.info(s"+-- Loading current runtime values as configuration")
@@ -130,7 +134,17 @@ package object config {
   }
 
   def loadConfig(graph: DependencyGraph[Node], exp: Experiment[System]) = {
-    logger.info(s"Loading configuration for experiment '${exp.name}'")
+
+    // base path for bundle- and host- specific configurations
+    val configPath = Sys.getProperty("app.path.config")
+    // current hostname
+    val hostname = Sys.getProperty("app.hostname")
+
+    // get dependent systems
+    val dependentSystems = for {
+      System(s) <- graph.reverse.traverse()
+      if graph.descendants(exp).contains(s)
+    } yield s
 
     // initial empty configuration
     val cb = new ConfigBuilder
@@ -138,30 +152,23 @@ package object config {
     // load reference configuration
     cb.loadResource("reference.peel.conf")
 
-    // load systems configuration
-    for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) n match {
-      case s: System =>
-        // load reference.{system.defaultName}.conf
-        cb.loadResource(s"reference.${s.beanName}.conf")
-        // load {app.path.config}/{system.name}.conf
-        for (configPath <- Option(Sys.getProperty("app.path.config"))) {
-          cb.loadFile(s"$configPath/${s.beanName}.conf")
-        }
-        // load {app.path.config}/{app.hostname}/{system.name}.conf
-        for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-          cb.loadFile(s"$configPath/hosts/$hostname/${s.beanName}.conf")
-        }
-      case _ => Unit
+    // load `reference.{system.defaultName}.conf` for each dependent system
+    for (s <- dependentSystems) {
+      cb.loadResource(s"reference.${s.beanName}.conf")
+    }
+    // load `{app.path.config}/{system.name}.conf` for each dependent system
+    for (s <- dependentSystems) {
+      cb.loadFile(s"$configPath/${s.beanName}.conf")
+    }
+    // load `{app.path.config}/{app.hostname}/{system.name}.conf` for each dependent system
+    for (s <- dependentSystems) {
+      cb.loadFile(s"$configPath/hosts/$hostname/${s.beanName}.conf")
     }
 
     // load {app.path.config}/application.conf
-    for (configPath <- Option(Sys.getProperty("app.path.config"))) {
-      cb.loadFile(s"$configPath/application.conf")
-    }
+    cb.loadFile(s"$configPath/application.conf")
     // load {app.path.config}/{app.hostname}/application.conf
-    for (configPath <- Option(Sys.getProperty("app.path.config")); hostname <- Option(Sys.getProperty("app.hostname"))) {
-      cb.loadFile(s"$configPath/hosts/$hostname/application.conf")
-    }
+    cb.loadFile(s"$configPath/hosts/$hostname/application.conf")
 
     // load the experiment config
     logger.info(s"+-- Loading experiment configuration")

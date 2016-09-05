@@ -20,6 +20,7 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 import com.samskivert.mustache.Mustache
+import com.samskivert.mustache.Mustache.Compiler
 import com.typesafe.config.ConfigFactory
 import org.peelframework.core.beans.system.Lifespan.Lifespan
 import org.peelframework.core.beans.experiment.Experiment.Run
@@ -253,5 +254,13 @@ abstract class System(
     prefix
       .map(p => s"/templates/$configKey/$p/$path.mustache") // template path for closest version prefix
       .getOrElse(s"/templates/$configKey/$path.mustache") // base template path
+  }
+}
+
+object System {
+
+  def unapply(x: Any): Option[System] = x match {
+    case s: System => Some(s)
+    case _ => None
   }
 }
