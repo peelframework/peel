@@ -81,8 +81,7 @@ class Yarn(
         // yarn does not reset the resourcemanagers log at startup
         val init = Integer.parseInt((shell !! s"""cat $logDir/yarn-$user-resourcemanager-*.log | grep 'registered with capability:' | wc -l""").trim())
 
-        shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/yarn-daemon.sh start resourcemanager"
-        shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/yarn-daemon.sh start nodemanager"
+        shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/start-yarn.sh"
         logger.info(s"Waiting for nodes to connect")
 
         var curr = init
@@ -113,9 +112,7 @@ class Yarn(
   }
 
   override def stop(): Unit = {
-    shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/yarn-daemon.sh stop resourcemanager"
-    shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/yarn-daemon.sh stop nodemanager"
-
+    shell ! s"${config.getString(s"system.$configKey.path.home")}/sbin/stop-yarn.sh"
     isUp = false
   }
 
