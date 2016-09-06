@@ -27,7 +27,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <!-- Peel -->
-        <peel.version>1.0-SNAPSHOT</peel.version>
+        <peel.version>1.1-SNAPSHOT</peel.version>
     </properties>
 
     <dependencyManagement>
