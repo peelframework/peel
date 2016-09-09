@@ -24,8 +24,9 @@ import org.peelframework.core.beans.experiment.Experiment
 import org.peelframework.core.beans.system.System
 import org.peelframework.core.graph.{DependencyGraph, Node}
 import org.peelframework.core.util.console.ConsoleColorise
-import org.peelframework.core.util.shell
 import org.slf4j.LoggerFactory
+
+import scala.sys.process.Process
 
 /** Package Object to handle the loading of configuration files
   *
@@ -71,7 +72,7 @@ package object config {
 
     // load current runtime config
     logger.info(s"+-- Loading current runtime values as configuration")
-    cb.append(currentRuntimeConfig())
+    cb.append(currentRuntimeConfig)
 
     // load system properties
     logger.info(s"+-- Loading system properties as configuration")
@@ -122,7 +123,7 @@ package object config {
 
     // load current runtime config
     logger.info(s"+-- Loading current runtime values as configuration")
-    cb.append(currentRuntimeConfig())
+    cb.append(currentRuntimeConfig)
 
     // load system properties
     logger.info(s"+-- Loading system properties as configuration")
@@ -176,7 +177,7 @@ package object config {
 
     // load current runtime config
     logger.info(s"+-- Loading current runtime values as configuration")
-    cb.append(currentRuntimeConfig())
+    cb.append(currentRuntimeConfig)
 
     // load system properties
     logger.info(s"+-- Loading system properties as configuration")
@@ -204,16 +205,21 @@ package object config {
     *
     * @return current Config Object
     */
-  private def currentRuntimeConfig() = {
+  lazy val currentRuntimeConfig = {
     // initial empty configuration
     val runtimeConfig = new java.util.HashMap[String, Object]()
     // add current runtime values to configuration
     runtimeConfig.put("runtime.cpu.cores", Runtime.getRuntime.availableProcessors().asInstanceOf[Object])
     runtimeConfig.put("runtime.memory.max", Runtime.getRuntime.maxMemory().asInstanceOf[Object])
-    runtimeConfig.put("runtime.hostname", (shell !! "echo $HOSTNAME").trim())
+    runtimeConfig.put("runtime.hostname", hostname)
     runtimeConfig.put("runtime.disk.size", new File("/").getTotalSpace.asInstanceOf[Object])
     // return a config object
     ConfigFactory.parseMap(runtimeConfig)
+  }
+
+  lazy val hostname = {
+    val name = Process("/bin/bash", Seq("-c", "CLASSPATH=;echo $HOSTNAME")).!!
+    if (name.nonEmpty) name.trim else "localhost"
   }
 
   private class ConfigBuilder {
