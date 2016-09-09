@@ -23,7 +23,7 @@
     <parent>
         <artifactId>peel-parent</artifactId>
         <groupId>org.peelframework</groupId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1.1</version>
     </parent>
 
     <artifactId>peel-empty-bundle</artifactId>
