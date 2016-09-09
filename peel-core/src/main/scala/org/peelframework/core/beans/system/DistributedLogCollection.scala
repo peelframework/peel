@@ -54,7 +54,7 @@ trait DistributedLogCollection {
     implicit val patterns = logFilePatterns()
 
     val findIn = (host: String, logFolder: String) =>
-      s"""ssh $host "find $logFolder -type f -exec ls {} \\; 2> /dev/null"""".trim
+      s"""ssh $host "ls -l $logFolder 2> /dev/null"""".trim
 
     val countFiles = (host: String, logFile: String) =>
       s"""ssh $host "wc -l $logFile| xargs | cut -d' ' -f1""""
