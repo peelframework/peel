@@ -30,3 +30,11 @@ trait Configurable {
     */
   def resolve(v: String) = substituteConfigParameters(v)(config)
 }
+
+object Configurable {
+
+  def unapply(x: Any): Option[Configurable] = x match {
+    case s: Configurable => Some(s)
+    case _ => None
+  }
+}

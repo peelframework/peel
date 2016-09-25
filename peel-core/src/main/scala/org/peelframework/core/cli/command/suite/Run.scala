@@ -58,28 +58,46 @@ class Run extends Command {
   override def run(context: ApplicationContext) = {
     logger.info(s"Running experiments in suite '${Sys.getProperty("app.suite.name")}'")
 
+    val force = Sys.getProperty("app.suite.experiment.force", "false") == "true"
     val suite = context.getBean(Sys.getProperty("app.suite.name"), classOf[ExperimentSuite])
     val graph = createGraph(suite)
 
     //TODO check for cycles in the graph
-    if (graph.isEmpty) throw new RuntimeException("Experiment suite is empty!")
+    if (graph.isEmpty)
+      throw new RuntimeException("Experiment suite is empty!")
 
     // resolve experiment configurations
-    for (e <- suite.experiments) e.config = loadConfig(graph, e)
+    for (e <- suite.experiments)
+      e.config = loadConfig(graph, e)
 
     // generate runs to be executed
-    val force = Sys.getProperty("app.suite.experiment.force", "false") == "true"
-    val runs = for (e <- suite.experiments; i <- 1 to e.runs; r <- Some(e.run(i, force)); if force || !r.isSuccessful) yield r
+    val runs = for {
+      e <- suite.experiments
+      i <- 1 to e.runs
+      r = e.run(i, force)
+      if force || !r.isSuccessful
+    } yield r
+
     // filter experiments in the relevant runs
-    val exps = runs.foldRight(List[Experiment[System]]())((r, es) => if (es.isEmpty || es.head != r.exp) r.exp :: es else es)
+    val exps = runs.foldRight(List[Experiment[System]]())((r, es) =>
+      if (es.isEmpty || es.head != r.exp) r.exp :: es
+      else es)
 
     // SUITE lifespan
     try {
       logger.info("Executing experiments in suite")
       for (exp <- exps) {
 
-        val allSystems = for (n <- graph.reverse.traverse(); if graph.descendants(exp).contains(n)) yield n
-        val inpSystems: Set[Node] = for (in <- exp.inputs; sys <- in.dependencies) yield sys
+        val allSystems = for {
+          n <- graph.reverse.traverse()
+          if graph.descendants(exp).contains(n)
+        } yield n
+
+        val inpSystems: Set[Node] = for {
+          inp <- exp.inputs
+          sys <- inp.dependencies
+        } yield sys
+
         val expSystems = (graph.descendants(exp, exp.inputs) diff Seq(exp)).toSet
 
         // EXPERIMENT lifespan
@@ -88,78 +106,81 @@ class Run extends Command {
           logger.info("Current experiment is '%s'".format(exp.name))
 
           // update config
-          for (n <- graph.descendants(exp)) n match {
-            case s: Configurable => s.config = exp.config
-            case _ => Unit
-          }
+          for (Configurable(c) <- graph.descendants(exp))
+            c.config = exp.config
 
           logger.info("Setting up / updating systems required for input data sets")
-          for (n <- inpSystems) n match {
-            case s: System => if (s.isUp) s.update() else s.setUp()
-            case _ => Unit
-          }
+          for (System(s) <- inpSystems)
+            if (s.isUp) s.update()
+            else s.setUp()
 
           logger.info("Materializing experiment input data sets")
-          for (n <- exp.inputs; path = n.resolve(n.path)) if (!n.fs.exists(path)) {
-            try {
-              n.materialize()
-            } catch {
-              case e: Throwable => n.fs.rmr(path); throw e // make sure the path is cleaned for the next try
+          for {
+            n <- exp.inputs
+            p = n.resolve(n.path)
+          } {
+            if (!n.fs.exists(p)) {
+              try {
+                n.materialize()
+              } catch {
+                case e: Throwable =>
+                  n.fs.rmr(p) // make sure the path is cleaned for the next try
+                  throw e
+              }
+            } else {
+              logger.info(s"Skipping already materialized path '$p'".yellow)
             }
-          } else {
-            logger.info(s"Skipping already materialized path '$path'".yellow)
           }
 
           logger.info("Tearing down redundant systems before conducting experiment runs")
-          for (n <- inpSystems diff expSystems) n match {
-            case s: System if !(Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) => s.tearDown()
-            case _ => Unit
-          }
+          for {
+            System(s) <- inpSystems diff expSystems
+            if !(Seq(Lifespan.PROVIDED, Lifespan.SUITE) contains s.lifespan)
+          } s.tearDown()
 
           logger.info("Setting up systems with SUITE lifespan")
-          for (n <- allSystems) n match {
-            case s: System if (Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan) && !s.isUp => s.setUp()
-            case _ => Unit
-          }
+          for {
+            System(s) <- allSystems
+            if (Seq(Lifespan.PROVIDED, Lifespan.SUITE) contains s.lifespan) && !s.isUp
+          } s.setUp()
 
           logger.info("Updating systems with PROVIDED or SUITE lifespan")
-          for (n <- allSystems) n match {
-            case s: System if Lifespan.PROVIDED :: Lifespan.SUITE :: Nil contains s.lifespan => s.update()
-            case _ => Unit
-          }
+          for {
+            System(s) <- allSystems
+            if Seq(Lifespan.PROVIDED, Lifespan.SUITE) contains s.lifespan
+          } s.update()
 
           logger.info("Setting up systems with EXPERIMENT lifespan")
-          for (n <- expSystems) n match {
-            case s: System if s.lifespan == Lifespan.EXPERIMENT => s.setUp()
-            case _ => Unit
-          }
+          for {
+            System(s) <- expSystems
+            if Lifespan.EXPERIMENT == s.lifespan
+          } s.setUp()
 
-          for (r <- runs if r.exp == exp) {
-            for (n <- exp.outputs) n.clean()
+          for {
+            r <- runs
+            if r.exp == exp
+          } {
+            for (n <- exp.outputs)
+              n.clean()
 
             logger.info("Setting up systems with RUN lifespan")
-            for (n <- allSystems) n match {
-              case s: System if s.lifespan == Lifespan.RUN => s.setUp()
-              case _ => Unit
-            }
+            for {
+              System(s) <- allSystems
+              if Lifespan.RUN == s.lifespan
+            } s.setUp()
 
             try {
               // run experiment
               r.execute()
-
               // stop for a brief intermission between runs
-              try {
-                Thread.sleep(r.exp.config.getInt("experiment.run.intermission"))
-              } catch {
-                case e: InterruptedException => // ignore interrupt
-              }
+              Thread.sleep(r.exp.config.getInt("experiment.run.intermission"))
             }
             finally {
               logger.info("Tearing down systems with RUN lifespan")
-              for (n <- allSystems) n match {
-                case s: System if s.lifespan == Lifespan.RUN => s.tearDown()
-                case _ => Unit
-              }
+              for {
+                System(s) <- allSystems
+                if Lifespan.RUN == s.lifespan
+              } s.tearDown()
             }
 
             for (n <- exp.outputs) n.clean()
@@ -172,10 +193,10 @@ class Run extends Command {
 
         } finally {
           logger.info("Tearing down systems with EXPERIMENT lifespan")
-          for (n <- expSystems) n match {
-            case s: System if s.lifespan == Lifespan.EXPERIMENT => s.tearDown()
-            case _ => Unit
-          }
+          for {
+            System(s) <- expSystems
+            if Lifespan.EXPERIMENT == s.lifespan
+          } s.tearDown()
         }
       }
 
@@ -191,10 +212,10 @@ class Run extends Command {
       if (exps.nonEmpty) {
         logger.info("#" * 60)
         logger.info("Tearing down systems with SUITE lifespan")
-        for (n <- graph.traverse()) n match {
-          case s: System if s.lifespan == Lifespan.SUITE => s.tearDown()
-          case _ => Unit
-        }
+        for {
+          System(s) <- graph.traverse()
+          if Lifespan.SUITE == s.lifespan
+        } s.tearDown()
       }
     }
   }
