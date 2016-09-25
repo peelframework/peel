@@ -78,7 +78,7 @@
         <encoding>UTF-8</encoding>
         <!-- Maven Plugins -->
         <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
-        <scala-maven-plugin.version>3.1.6</scala-maven-plugin.version>
+        <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
         <build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
         <maven-surefire-plugin.version>2.7</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>1.0-RC2</scalatest-maven-plugin.version>
