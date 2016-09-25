@@ -17,12 +17,12 @@ package org.peelframework.core.cli.command.experiment
 
 import java.lang.{System => Sys}
 
+import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.peelframework.core.beans.experiment.ExperimentSuite
 import org.peelframework.core.beans.system.{Lifespan, System}
 import org.peelframework.core.cli.command.Command
 import org.peelframework.core.config.{Configurable, loadConfig}
 import org.peelframework.core.graph.createGraph
-import net.sourceforge.argparse4j.inf.{Namespace, Subparser}
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 
@@ -56,31 +56,43 @@ class TearDown extends Command {
     val suiteName = Sys.getProperty("app.suite.name")
     val expName = Sys.getProperty("app.suite.experiment.name")
 
-    logger.info(s"Running experiment '${Sys.getProperty("app.suite.experiment.name")}' from suite '${Sys.getProperty("app.suite.name")}'")
-    val suite = context.getBean(Sys.getProperty("app.suite.name"), classOf[ExperimentSuite])
+    logger.info(s"Running experiment '$expName' from suite '$suiteName'")
+
+    val suite = context.getBean(suiteName, classOf[ExperimentSuite])
     val graph = createGraph(suite)
 
     //TODO check for cycles in the graph
-    if (graph.isEmpty) throw new RuntimeException("Experiment suite is empty!")
+    if (graph.isEmpty)
+      throw new RuntimeException("Experiment suite is empty!")
 
     // find experiment
-    val expOption = suite.experiments.find(_.name == expName)
+    val exps = suite.experiments.filter(_.name == expName)
+
     // check if experiment exists (the list should contain exactly one element)
-    if (expOption.isEmpty) throw new RuntimeException(s"Experiment '$expName' either not found or ambiguous in suite '$suiteName'")
+    if (exps.size != 1)
+      throw new RuntimeException(s"Experiment '$expName' either not found or ambiguous in suite '$suiteName'")
 
-    for (exp <- expOption) {
+    // load config
+    for (e <- exps)
+      e.config = loadConfig(graph, e)
+
+    for (e <- exps) {
+      // traverse all systems relevant for this experiment
+      def allSystems(reverse: Boolean) = for {
+        System(s) <- if (reverse) graph.reverse.traverse() else graph.traverse()
+        if graph.descendants(e).contains(s)
+      } yield s
+
       // update config
-      exp.config = loadConfig(graph, exp)
-      for (n <- graph.descendants(exp)) n match {
-        case s: Configurable => s.config = exp.config
-        case _ => Unit
-      }
+      e.config = loadConfig(graph, e)
+      for (Configurable(c) <- graph.descendants(e))
+        c.config = e.config
 
-      logger.info("Tearing down systems for experiment '%s'".format(exp.name))
-      for (n <- graph.traverse(); if graph.descendants(exp).contains(n)) n match {
-        case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Lifespan.RUN :: Nil contains s.lifespan => s.tearDown()
-        case _ => Unit
-      }
+      logger.info("Tearing down systems for experiment '%s'".format(e.name))
+      for {
+        s <- allSystems(reverse = false)
+        if Seq(Lifespan.SUITE, Lifespan.EXPERIMENT, Lifespan.RUN) contains s.lifespan
+      } s.tearDown()
     }
 
   }
