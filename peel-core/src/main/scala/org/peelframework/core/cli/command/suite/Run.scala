@@ -23,7 +23,7 @@ import org.peelframework.core.beans.experiment.{Experiment, ExperimentSuite}
 import org.peelframework.core.beans.system.{Lifespan, System}
 import org.peelframework.core.cli.command.Command
 import org.peelframework.core.config.{Configurable, loadConfig}
-import org.peelframework.core.graph.{Node, createGraph}
+import org.peelframework.core.graph.createGraph
 import org.peelframework.core.util.console._
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
@@ -56,10 +56,12 @@ class Run extends Command {
   }
 
   override def run(context: ApplicationContext) = {
-    logger.info(s"Running experiments in suite '${Sys.getProperty("app.suite.name")}'")
-
     val force = Sys.getProperty("app.suite.experiment.force", "false") == "true"
-    val suite = context.getBean(Sys.getProperty("app.suite.name"), classOf[ExperimentSuite])
+    val suiteName = Sys.getProperty("app.suite.name")
+
+    logger.info(s"Running experiments in suite '$suiteName'")
+
+    val suite = context.getBean(suiteName, classOf[ExperimentSuite])
     val graph = createGraph(suite)
 
     //TODO check for cycles in the graph
@@ -74,7 +76,7 @@ class Run extends Command {
     val runs = for {
       e <- suite.experiments
       i <- 1 to e.runs
-      r = e.run(i, force)
+      r = e.run(i, force = force)
       if force || !r.isSuccessful
     } yield r
 
@@ -86,12 +88,12 @@ class Run extends Command {
     // SUITE lifespan
     try {
       logger.info("Executing experiments in suite")
-      for (exp <- exps) {
+      for (e <- exps) {
 
         // traverse all systems relevant for this experiment
         def allSystems(reverse: Boolean) = for {
           System(s) <- if (reverse) graph.reverse.traverse() else graph.traverse()
-          if graph.descendants(exp).contains(s)
+          if graph.descendants(e).contains(s)
         } yield s
 
         // traverse all systems relevant for this experiment
@@ -99,9 +101,9 @@ class Run extends Command {
         def inpSystems(reverse: Boolean) = {
           // compute the set of input descendants
           val inpDescendant = for {
-            inp <- exp.inputs
-            sys <- graph.descendants(inp)
-          } yield sys
+            i <- e.inputs
+            d <- graph.descendants(i)
+          } yield d
           allSystems(reverse = reverse).filter(inpDescendant)
         }
 
@@ -109,18 +111,18 @@ class Run extends Command {
         // and not required by any experiment input
         def expSystems(reverse: Boolean) = {
           // compute the set of experiment, non-input descendants
-          val expDescendant = graph.descendants(exp, exp.inputs).toSet
+          val expDescendant = graph.descendants(e, e.inputs).toSet
           allSystems(reverse = reverse).filter(expDescendant)
         }
 
         // EXPERIMENT lifespan
         try {
           logger.info("#" * 60)
-          logger.info("Current experiment is '%s'".format(exp.name))
+          logger.info("Current experiment is '%s'".format(e.name))
 
           // update config
-          for (Configurable(c) <- graph.descendants(exp))
-            c.config = exp.config
+          for (Configurable(c) <- graph.descendants(e))
+            c.config = e.config
 
           logger.info("Setting up / updating systems required for input data sets")
           for (s <- inpSystems(reverse = true))
@@ -129,7 +131,7 @@ class Run extends Command {
 
           logger.info("Materializing experiment input data sets")
           for {
-            n <- exp.inputs
+            n <- e.inputs
             p = n.resolve(n.path)
           } {
             if (!n.fs.exists(p)) {
@@ -172,10 +174,10 @@ class Run extends Command {
 
           for {
             r <- runs
-            if r.exp == exp
+            if r.exp == e
           } {
-            for (n <- exp.outputs)
-              n.clean()
+            for (o <- e.outputs)
+              o.clean()
 
             logger.info("Setting up systems with RUN lifespan")
             for {
@@ -197,13 +199,14 @@ class Run extends Command {
               } s.tearDown()
             }
 
-            for (n <- exp.outputs) n.clean()
+            for (o <- e.outputs)
+              o.clean()
           }
 
         } catch {
-          case e: Throwable =>
-            logger.error(s"Exception for experiment '${exp.name}' in suite '${suite.name}': ${e.getMessage}".red)
-            throw e
+          case t: Throwable =>
+            logger.error(s"Exception for experiment '${e.name}' in suite '${suite.name}': ${t.getMessage}".red)
+            throw t
 
         } finally {
           logger.info("Tearing down systems with EXPERIMENT lifespan")
