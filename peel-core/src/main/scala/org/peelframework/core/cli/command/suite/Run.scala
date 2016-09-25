@@ -88,17 +88,30 @@ class Run extends Command {
       logger.info("Executing experiments in suite")
       for (exp <- exps) {
 
-        val allSystems = for {
-          n <- graph.reverse.traverse()
-          if graph.descendants(exp).contains(n)
-        } yield n
+        // traverse all systems relevant for this experiment
+        def allSystems(reverse: Boolean) = for {
+          System(s) <- if (reverse) graph.reverse.traverse() else graph.traverse()
+          if graph.descendants(exp).contains(s)
+        } yield s
 
-        val inpSystems: Set[Node] = for {
-          inp <- exp.inputs
-          sys <- inp.dependencies
-        } yield sys
+        // traverse all systems relevant for this experiment
+        // and required by at least one experiment input
+        def inpSystems(reverse: Boolean) = {
+          // compute the set of input descendants
+          val inpDescendant = for {
+            inp <- exp.inputs
+            sys <- graph.descendants(inp)
+          } yield sys
+          allSystems(reverse = reverse).filter(inpDescendant)
+        }
 
-        val expSystems = (graph.descendants(exp, exp.inputs) diff Seq(exp)).toSet
+        // traverse all systems relevant for this experiment
+        // and not required by any experiment input
+        def expSystems(reverse: Boolean) = {
+          // compute the set of experiment, non-input descendants
+          val expDescendant = graph.descendants(exp, exp.inputs).toSet
+          allSystems(reverse = reverse).filter(expDescendant)
+        }
 
         // EXPERIMENT lifespan
         try {
@@ -110,7 +123,7 @@ class Run extends Command {
             c.config = exp.config
 
           logger.info("Setting up / updating systems required for input data sets")
-          for (System(s) <- inpSystems)
+          for (s <- inpSystems(reverse = true))
             if (s.isUp) s.update()
             else s.setUp()
 
@@ -134,25 +147,26 @@ class Run extends Command {
 
           logger.info("Tearing down redundant systems before conducting experiment runs")
           for {
-            System(s) <- inpSystems diff expSystems
+            s <- inpSystems(reverse = false)
+            if !(expSystems(reverse = false) contains s)
             if !(Seq(Lifespan.PROVIDED, Lifespan.SUITE) contains s.lifespan)
           } s.tearDown()
 
           logger.info("Setting up systems with SUITE lifespan")
           for {
-            System(s) <- allSystems
+            s <- allSystems(reverse = true)
             if (Seq(Lifespan.PROVIDED, Lifespan.SUITE) contains s.lifespan) && !s.isUp
           } s.setUp()
 
           logger.info("Updating systems with PROVIDED or SUITE lifespan")
           for {
-            System(s) <- allSystems
+            s <- allSystems(reverse = true)
             if Seq(Lifespan.PROVIDED, Lifespan.SUITE) contains s.lifespan
           } s.update()
 
           logger.info("Setting up systems with EXPERIMENT lifespan")
           for {
-            System(s) <- expSystems
+            System(s) <- expSystems(reverse = true)
             if Lifespan.EXPERIMENT == s.lifespan
           } s.setUp()
 
@@ -165,7 +179,7 @@ class Run extends Command {
 
             logger.info("Setting up systems with RUN lifespan")
             for {
-              System(s) <- allSystems
+              s <- allSystems(reverse = false)
               if Lifespan.RUN == s.lifespan
             } s.setUp()
 
@@ -178,7 +192,7 @@ class Run extends Command {
             finally {
               logger.info("Tearing down systems with RUN lifespan")
               for {
-                System(s) <- allSystems
+                s <- allSystems(reverse = false)
                 if Lifespan.RUN == s.lifespan
               } s.tearDown()
             }
@@ -194,7 +208,7 @@ class Run extends Command {
         } finally {
           logger.info("Tearing down systems with EXPERIMENT lifespan")
           for {
-            System(s) <- expSystems
+            System(s) <- expSystems(reverse = false)
             if Lifespan.EXPERIMENT == s.lifespan
           } s.tearDown()
         }
