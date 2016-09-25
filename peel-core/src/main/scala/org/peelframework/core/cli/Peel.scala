@@ -26,6 +26,7 @@ import org.peelframework.core.PeelApplicationContext
 import org.peelframework.core.cli.command.Command
 import org.peelframework.core.config.hostname
 import org.slf4j.{Logger, LoggerFactory}
+import org.apache.log4j.Logger.{getRootLogger => log4JRoot}
 
 import scala.collection.JavaConversions._
 
@@ -58,10 +59,12 @@ object Peel {
       // parse the arguments
       val ns = parser.parseArgs(args.takeWhile(arg => arg.startsWith("-") || arg.startsWith("--")))
 
-      System.setProperty("app.hostname", ns.getString("app.hostname"))
-      System.setProperty("app.log.level", ns.getString("app.log.level"))
-      System.setProperty("app.path.config", Paths.get("config").normalize().toAbsolutePath.toString)
-      System.setProperty("app.path.log", Paths.get("log").normalize().toAbsolutePath.toString)
+      //@formatter:off
+      System.setProperty("app.hostname"    , ns.getString("app.hostname"))
+      System.setProperty("app.log.level"   , ns.getString("app.log.level"))
+      System.setProperty("app.path.config" , Paths.get("config").normalize().toAbsolutePath.toString)
+      System.setProperty("app.path.log"    , Paths.get("log").normalize().toAbsolutePath.toString)
+      //@formatter:on
 
     } catch {
       case e: Throwable =>
@@ -75,8 +78,8 @@ object Peel {
     appender.setFile(String.format("%s/peel.log", System.getProperty("app.path.log", "log")), true, true, 4096)
     appender.setMaxFileSize("100KB")
     appender.setMaxBackupIndex(1)
-    org.apache.log4j.Logger.getRootLogger.addAppender(appender)
-    org.apache.log4j.Logger.getRootLogger.setLevel(Level.toLevel(System.getProperty("app.log.level")))
+    log4JRoot.addAppender(appender)
+    log4JRoot.setLevel(Level.toLevel(System.getProperty("app.log.level")))
 
     // construct application context
     val context = PeelApplicationContext(Option(System.getProperty("app.path.config")))
@@ -84,12 +87,23 @@ object Peel {
     // construct argument parser with commands
     parser = argumentParser(basicOnly = false)
 
-    // load available commands
-    val commands = (for (key <- context.getBeanNamesForType(classOf[Command]).sorted) yield {
-      val command = context.getBean(key, classOf[Command])
-      command.register(parser.addSubparsers().addParser(command.name, true).help(command.help))
-      key -> command
+    // load available commands in a map
+    val commands = (for {
+      key <- context.getBeanNamesForType(classOf[Command]).sorted
+    } yield {
+      key -> context.getBean(key, classOf[Command])
     }).toMap
+
+    // register a subparser for each command
+    for ((key, command) <- commands) {
+      // create a new subparser using the command name
+      val subparser = parser
+        .addSubparsers()
+        .addParser(command.name, true)
+        .help(command.help)
+      // register the parsing logic for this subparser
+      command.register(subparser)
+    }
 
     try {
       // parse the arguments
@@ -97,10 +111,17 @@ object Peel {
 
       Option(ns.getString("app.command")) match {
         case None =>
-          throw new RuntimeException("Missing command name. Type '--help' to see the list of the available commands. ")
-        case Some(commandName) if !commands.containsKey(commandName) =>
+
+          throw new RuntimeException("Missing command name. Type '--help' to see the list of the available commands.")
+
+        case Some(commandName)
+          if !commands.containsKey(commandName) =>
+
           throw new RuntimeException(s"Unexpected command '$commandName'")
-        case Some(commandName) if commands.containsKey(commandName) =>
+
+        case Some(commandName)
+          if commands.containsKey(commandName) =>
+
           // 1) create logger
           val logger = LoggerFactory.getLogger(Peel.getClass)
           // 2) print application header
@@ -127,7 +148,8 @@ object Peel {
 
   def argumentParser(basicOnly: Boolean = true) = {
     // construct parser
-    val parser = ArgumentParsers.newArgumentParser("peel", !basicOnly) // do not add help in 'basicOnly' mode
+    val parser = ArgumentParsers
+      .newArgumentParser("peel", !basicOnly) // do not add help in 'basicOnly' mode
       .description("A framework for execution of system experiments.")
 
     // general options
