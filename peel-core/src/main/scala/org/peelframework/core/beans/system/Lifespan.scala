@@ -30,5 +30,6 @@ package org.peelframework.core.beans.system
   */
 case object Lifespan extends Enumeration {
   type Lifespan = Value
-  final val PROVIDED, SUITE, EXPERIMENT, RUN = Value
+  // define values in order and use the `<` operator to check for containment
+  final val RUN, EXPERIMENT, SUITE, PROVIDED = Value
 }
