@@ -110,9 +110,10 @@ class SetUp extends Command {
           c.config = e.config
 
         logger.info("Setting up / updating systems required for input data sets")
-        for (s <- inpSystems(reverse = true))
+        for (s <- inpSystems(reverse = true)) {
           if (s.isUp) s.update()
           else s.setUp()
+        }
 
         logger.info("Materializing experiment input data sets")
         for {
@@ -135,15 +136,19 @@ class SetUp extends Command {
         logger.info("Tearing down redundant systems before conducting experiment runs")
         for {
           s <- inpSystems(reverse = false)
-          if !(expSystems(reverse = false) contains s)
-          if !(Seq(Lifespan.PROVIDED, Lifespan.SUITE) contains s.lifespan)
+          isRedundant = !(expSystems(reverse = false) contains s)
+          if (isRedundant && s.lifespan < Lifespan.SUITE) || s.lifespan == Lifespan.RUN
         } s.tearDown()
 
-        logger.info("Setting up systems with SUITE lifespan")
+        logger.info("Setting up / updating systems required for experiment")
         for {
           s <- expSystems(reverse = true)
-          if Lifespan.SUITE == s.lifespan && !s.isUp
-        } s.setUp()
+          if s.lifespan > Lifespan.RUN
+          if s.lifespan < Lifespan.PROVIDED
+        } {
+          if (s.isUp) s.update()
+          else s.setUp()
+        }
 
       } catch {
         case t: Throwable =>
@@ -152,7 +157,8 @@ class SetUp extends Command {
           logger.info("Tearing down running systems with SUITE or EXPERIMENT lifespan")
           for {
             s <- allSystems(reverse = false)
-            if (Seq(Lifespan.SUITE, Lifespan.EXPERIMENT) contains s.lifespan) && s.isUp
+            if s.lifespan != Lifespan.RUN
+            if s.lifespan <= Lifespan.SUITE
           } s.tearDown()
 
           throw t

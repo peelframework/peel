@@ -126,8 +126,6 @@ class Run extends Command {
       }
 
       try {
-        logger.info(s"Executing experiment '${e.name}'")
-
         // update config
         for (Configurable(c) <- graph.descendants(e))
           c.config = e.config
@@ -135,9 +133,10 @@ class Run extends Command {
         if (!justRun) {
 
           logger.info("Setting up / updating systems required for input data sets")
-          for (s <- inpSystems(reverse = true))
+          for (s <- inpSystems(reverse = true)) {
             if (s.isUp) s.update()
             else s.setUp()
+          }
 
           logger.info("Materializing experiment input data sets")
           for {
@@ -160,27 +159,19 @@ class Run extends Command {
           logger.info("Tearing down redundant systems before conducting experiment runs")
           for {
             s <- inpSystems(reverse = false)
-            if !(expSystems(reverse = false) contains s)
-            if !(Seq(Lifespan.PROVIDED, Lifespan.SUITE) contains s.lifespan)
+            isRedundant = !(expSystems(reverse = false) contains s)
+            if (isRedundant && s.lifespan < Lifespan.SUITE) || s.lifespan == Lifespan.RUN
           } s.tearDown()
 
-          logger.info("Setting up systems with SUITE lifespan")
+          logger.info("Setting up / updating systems required for experiment")
           for {
-            s <- allSystems(reverse = true)
-            if Lifespan.SUITE == s.lifespan && !s.isUp
-          } s.setUp()
-
-          logger.info("Updating systems with PROVIDED lifespan")
-          for {
-            s <- allSystems(reverse = true)
-            if Lifespan.PROVIDED == s.lifespan
-          } s.update()
-
-          logger.info("Setting up systems with EXPERIMENT lifespan")
-          for {
-            System(s) <- expSystems(reverse = true)
-            if Lifespan.EXPERIMENT == s.lifespan
-          } s.setUp()
+            s <- expSystems(reverse = true)
+            if s.lifespan > Lifespan.RUN
+            if s.lifespan < Lifespan.PROVIDED
+          } {
+            if (s.isUp) s.update()
+            else s.setUp()
+          }
 
         } else {
           logger.info("Updating all systems")
@@ -191,8 +182,8 @@ class Run extends Command {
 
         logger.info("Setting up systems with RUN lifespan")
         for {
-          s <- allSystems(reverse = true)
-          if Lifespan.RUN == s.lifespan
+          s <- expSystems(reverse = true)
+          if s.lifespan == Lifespan.RUN
         } s.setUp()
 
         for (n <- e.outputs)
@@ -209,19 +200,20 @@ class Run extends Command {
           throw t
 
       } finally {
+        logger.info("Tearing down systems with RUN lifespan")
+        for {
+          s <- allSystems(reverse = false)
+          if s.lifespan == Lifespan.RUN
+        } s.tearDown()
+
         if (!justRun) {
           logger.info("Tearing down systems with SUITE or EXPERIMENT lifespan")
           for {
             s <- allSystems(reverse = false)
-            if Seq(Lifespan.SUITE, Lifespan.EXPERIMENT) contains s.lifespan
+            if s.lifespan != Lifespan.RUN
+            if s.lifespan <= Lifespan.SUITE
           } s.tearDown()
         }
-
-        logger.info("Tearing down systems with RUN lifespan")
-        for {
-          s <- allSystems(reverse = false)
-          if Lifespan.RUN == s.lifespan
-        } s.tearDown()
       }
     }
 

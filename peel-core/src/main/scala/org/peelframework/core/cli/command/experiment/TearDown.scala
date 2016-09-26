@@ -91,7 +91,7 @@ class TearDown extends Command {
       logger.info("Tearing down systems for experiment '%s'".format(e.name))
       for {
         s <- allSystems(reverse = false)
-        if Seq(Lifespan.SUITE, Lifespan.EXPERIMENT, Lifespan.RUN) contains s.lifespan
+        if s.lifespan <= Lifespan.SUITE
       } s.tearDown()
     }
 
