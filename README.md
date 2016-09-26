@@ -1,6 +1,8 @@
 Peel Experiments Execution Framework
 ====================================
 
+[![Build Status](https://travis-ci.org/peelframework/peel.svg?branch=dev)](https://travis-ci.org/peelframework/peel)
+
 Peel is a framework that helps you to define, execute, analyze, and share experiments for distributed systems and algorithms.
 
 For more information and technical documentation about the project, please visit [peel-framework.org](http://peel-framework.org).
@@ -61,6 +63,7 @@ Peel offers the following features for your experiments.
 | `exp:run`            |  execute a specific experiment                     |
 | `exp:setup`          |  set up systems for a specific experiment          |
 | `exp:teardown`       |  tear down systems for a specific experiment       |
+| `exp:config`         |  list the configuration of a specific experiment   |
 | `hosts:generate`     |  generate a hosts.conf file                        |
 | `res:archive`        |  archive suite results to a tar.gz                 |
 | `res:extract`        |  extract suite results from a tar.gz               |
