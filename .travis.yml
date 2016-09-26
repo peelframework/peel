@@ -13,3 +13,10 @@ cache:
 
 script:
   - mvn install
+
+# exclude the `master` from Travis CI builds, as
+# it is status-check protected and will only accept
+# commits that passed a `mvn install` run on Travis
+branches:
+  except:
+  - master
