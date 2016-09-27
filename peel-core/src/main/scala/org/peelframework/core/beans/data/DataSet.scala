@@ -19,6 +19,7 @@ import com.typesafe.config.ConfigFactory
 import org.peelframework.core.beans.system.{FileSystem, System}
 import org.peelframework.core.config.Configurable
 import org.peelframework.core.graph.Node
+import org.peelframework.core.util.console._
 import org.slf4j.LoggerFactory
 
 /** Represents an abstract Dataset that can be used in experiments
@@ -26,24 +27,37 @@ import org.slf4j.LoggerFactory
   * This bean is an abstract representation of a dataset and implements the functionality to
   * physically materialize the data that it represents.
   *
-  * @param path Path/location where the data is physically materialized
+  * @param path         Path/location where the data is physically materialized
   * @param dependencies System-Dependencies needed to materialize the dataset (Data-Generators, Systems, ...)
-  * */
+  */
 abstract class DataSet(val path: String, val dependencies: Set[System]) extends Node with Configurable {
 
   final val logger = LoggerFactory.getLogger(this.getClass)
 
   override var config = ConfigFactory.empty()
 
-  /** The underlying FileSystem.
-    */
+  /** The underlying FileSystem. */
   val fs: System with FileSystem
 
-  /** Create the data set represented by this bean.
-    */
-  def materialize(): Unit
+  /** Ensure that the DataSet exists. */
+  def ensureExists(): Unit = {
+    val p = resolve(path)
+    if (!fs.exists(p)) {
+      try {
+        materialize()
+      } catch {
+        case e: Throwable =>
+          fs.rmr(p) // make sure the path is cleaned for the next try
+          throw e
+      }
+    } else {
+      logger.info(s"Skipping already materialized path '$p'".yellow)
+    }
+  }
 
-  /** Alias of name.
-    */
+  /** Create the data set represented by this bean. */
+  def materialize(): Unit // TODO: make protected
+
+  /** Alias of name. */
   override def toString: String = resolve(path)
 }

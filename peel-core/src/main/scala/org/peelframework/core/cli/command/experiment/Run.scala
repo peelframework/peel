@@ -138,23 +138,9 @@ class Run extends Command {
             else s.setUp()
           }
 
-          logger.info("Materializing experiment input data sets")
-          for {
-            n <- e.inputs
-            p = n.resolve(n.path)
-          } {
-            if (!n.fs.exists(p)) {
-              try {
-                n.materialize()
-              } catch {
-                case e: Throwable =>
-                  n.fs.rmr(p) // make sure the path is cleaned for the next try
-                  throw e
-              }
-            } else {
-              logger.info(s"Skipping already materialized path '$p'".yellow)
-            }
-          }
+          logger.info("Ensuring that input data sets exist")
+          for (i <- e.inputs)
+            i.ensureExists()
 
           logger.info("Tearing down redundant systems before conducting experiment runs")
           for {
@@ -186,6 +172,7 @@ class Run extends Command {
           if s.lifespan == Lifespan.RUN
         } s.setUp()
 
+        logger.info("Cleaning output datasets")
         for (n <- e.outputs)
           n.clean()
 
