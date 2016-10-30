@@ -22,9 +22,11 @@ import java.nio.channels.{Channels, ReadableByteChannel, WritableByteChannel}
 import java.nio.charset.StandardCharsets
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
-import java.security.{DigestInputStream, DigestOutputStream, MessageDigest}
+import java.security.cert.X509Certificate
+import java.security._
 import java.text.SimpleDateFormat
 import java.util.Date
+import javax.net.ssl.{HttpsURLConnection, SSLContext, TrustManager, X509TrustManager}
 
 import org.peelframework.core.util.console._
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream, TarArchiveOutputStream}
@@ -43,6 +45,30 @@ import scala.sys.process.{Process, ProcessLogger}
   * unzipping etc.
   */
 object shell {
+
+  // trust all SSL certificates (required for HTTPS downloads)
+  final val trustAllCertificates = Array[TrustManager]({
+    new X509TrustManager {
+
+      override def getAcceptedIssuers: Array[X509Certificate] = null // Not relevant.
+
+      override def checkClientTrusted(x509Certificates: Array[X509Certificate], s: String): Unit = {
+        // Do nothing. Just allow them all.
+      }
+
+      override def checkServerTrusted(x509Certificates: Array[X509Certificate], s: String): Unit = {
+        // Do nothing. Just allow them all.
+      }
+    }
+  })
+
+  try {
+    val sc = SSLContext.getInstance("SSL")
+    sc.init(null, trustAllCertificates, new SecureRandom())
+    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory)
+  } catch {
+    case e: GeneralSecurityException => throw new ExceptionInInitializerError(e)
+  }
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
