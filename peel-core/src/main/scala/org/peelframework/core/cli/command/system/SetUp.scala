@@ -48,21 +48,20 @@ class SetUp extends Command {
   override def run(context: ApplicationContext) = {
     val systemID = Sys.getProperty("app.system.id")
 
-    logger.info(s"Setting up system '$systemID' and dependencies with SUITE or EXPERIMENT lifespan")
+    logger.info(s"Setting up system '$systemID' and managed dependencies")
     val sys = context.getBean(systemID, classOf[System])
     val graph = createGraph(sys)
 
     // update config
     sys.config = loadConfig(graph, sys)
-    for (n <- graph.descendants(sys)) n match {
-      case s: Configurable => s.config = sys.config
-      case _ => Unit
-    }
+    for (Configurable(c) <- graph.descendants(sys))
+      c.config = sys.config
 
     // setup
-    for (n <- graph.reverse.traverse(); if graph.descendants(sys).contains(n)) n match {
-      case s: System => if ((Lifespan.SUITE :: Lifespan.EXPERIMENT :: Nil contains s.lifespan) && !s.isUp) s.setUp()
-      case _ => Unit
-    }
+    for {
+      System(s) <- graph.reverse.traverse()
+      if graph.descendants(sys).contains(s)
+      if s.lifespan <= Lifespan.SUITE && !s.isUp
+    } s.setUp()
   }
 }

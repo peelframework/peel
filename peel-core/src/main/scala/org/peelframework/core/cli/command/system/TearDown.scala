@@ -48,21 +48,20 @@ class TearDown extends Command {
   override def run(context: ApplicationContext) = {
     val systemID = Sys.getProperty("app.system.id")
 
-    logger.info(s"Tearing down system '$systemID' and dependencies managed by peel")
+    logger.info(s"Tearing down system '$systemID' and managed dependencies")
     val sys = context.getBean(systemID, classOf[System])
     val graph = createGraph(sys)
 
     // update config
     sys.config = loadConfig(graph, sys)
-    for (n <- graph.descendants(sys)) n match {
-      case s: Configurable => s.config = sys.config
-      case _ => Unit
-    }
+    for (Configurable(c) <- graph.descendants(sys))
+      c.config = sys.config
 
     // tear down
-    for (n <- graph.traverse(); if graph.descendants(sys).contains(n)) n match {
-      case s: System if Lifespan.SUITE :: Lifespan.EXPERIMENT :: Lifespan.RUN :: Nil contains s.lifespan => s.tearDown()
-      case _ => Unit
-    }
+    for {
+      System(s) <- graph.traverse()
+      if graph.descendants(sys).contains(s)
+      if s.lifespan <= Lifespan.SUITE
+    } s.tearDown()
   }
 }
