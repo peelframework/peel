@@ -21,7 +21,7 @@
 
     <groupId>org.peelframework</groupId>
     <artifactId>peel-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1.4</version>
     <packaging>pom</packaging>
 
     <name>peel</name>
