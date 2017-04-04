@@ -1,7 +1,8 @@
 Peel Experiments Execution Framework
 ====================================
 
-[![Build Status](https://travis-ci.org/peelframework/peel.svg?branch=dev)](https://travis-ci.org/peelframework/peel)
+<a href="https://travis-ci.org/peelframework/peel"><img alt="Build Status 1" src="https://travis-ci.org/peelframework/peel.svg?branch=dev" /></a>
+<a href="https://www.ej-technologies.com/products/jprofiler/overview.html"><img alt="Java Profiler" src="https://www.ej-technologies.com/images/product_banners/jprofiler_small.png" /></a>
 
 Peel is a framework that helps you to define, execute, analyze, and share experiments for distributed systems and algorithms.
 
