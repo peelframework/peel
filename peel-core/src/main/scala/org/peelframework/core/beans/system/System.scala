@@ -223,7 +223,7 @@ abstract class System(
     if (!Files.exists(Paths.get(archiveSrc))) {
       if (config.hasPath(s"system.$configKey.path.archive.url")) {
         val archiveUrl = config.getString(s"system.$configKey.path.archive.url")
-        logger.info(s"Downloading archive '$archiveSrc' from '$archiveUrl' (md5: '$archiveMD5')")
+        logger.info(s"Downloading archive '$archiveSrc' from '$archiveUrl' (md5: '${archiveMD5.toString(16)}')")
         shell.download(archiveUrl, archiveSrc, archiveMD5)
       }
       else {
