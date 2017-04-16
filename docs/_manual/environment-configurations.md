@@ -95,19 +95,19 @@ If you are using a versioned bundle, must clone the repository under your `*-bun
 
 For example, we offer an example ACME cluster has a shared configuration available [at GitHub](https://github.com/stratosphere/peelconfig.acme), you can use the following command to add it to your `peel-wordcount` bundle:
 
-{% highlight bash %}
+```bash
 git clone \
     git@github.com:stratosphere/peelconfig.acme.git \
     peel-wordcount-bundle/src/main/resources/config/hosts/acme-master
-{% endhighlight %}
+```
 
 We also encourage beginners to use the [devhost config](https://github.com/stratosphere/peelconfig.devhost) which contains best practice configurations for your developer machine.
 
-{% highlight bash %}
+```bash
 git clone \
     git@github.com:stratosphere/peelconfig.devhost.git \
     peel-wordcount-bundle/src/main/resources/config/hosts/$HOSTNAME
-{% endhighlight %}
+```
 
 If you intend to modify those settings, we suggest to fork the repository and clone the fork instead.
 
@@ -117,7 +117,7 @@ Please check the [Environment Configurations Repository]({{ site.baseurl }}/repo
 
 Let us take a look at the `config` folder of the `peel-wordcount` bundle in order to illustrate some of the concepts presented above.
 
-{% highlight bash %}
+```bash
 # cd "$BUNDLE_BIN" && \
 # tree -L 3 --dirsfirst peel-wordcount/config
 peel-wordcount/config
@@ -142,7 +142,7 @@ peel-wordcount/config
 ├── experiments.wordcount.xml
 ├── experiments.xml
 └── systems.xml
-{% endhighlight %}
+```
 
 We can see that our bundle does not include bundle-wide environment configuration, because the `config` folder does not contain any `*.conf` files as direct children. 
 

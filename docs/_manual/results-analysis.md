@@ -27,7 +27,7 @@ If you have a lot of data or want to do more advanced analytics on the extracted
 
 As a prerequisite, you will have to [install MonetDB](https://www.monetdb.org/Documentation/Guide/Installation) on your machine. Upon that, you need to execute the following commands in order to set up the Peel results database:
 
-{% highlight bash %}
+```bash
 sudo usermod -a -G monetdb $USER       # add yourself as MonetDB admin
 cd "$BUNDLE_BIN/peel-wordcount"        # go to your bundle root
 monetdbd create $(pwd)/results/monetdb # initialize DB farm
@@ -35,7 +35,7 @@ monetdbd start $(pwd)/results/monetdb  # start MonetDB with this farm
 monetdb create peel                    # create DB
 monetdb release peel                   # release DB maintenance mode
 mclient -u monetdb -d peel             # connect to DB (pw:monetdb)
-{% endhighlight %}
+```
 
 The default MonetDB connection `monetdb` should now work for you.
 
@@ -53,9 +53,9 @@ Before you do this, make sure that the the proper connection information is conf
 As described above, Peel has [two pre-configured connections](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/resources/reference.peel.conf#L15): `h2` (for an H2 database), and `monetdb` (for a MonetDB backend). 
 You can initialize the database for a specified connection with the `db:initialize` command.
 
-{% highlight bash %}
+```bash
 ./peel.sh db:initialize --connection=h2 --force 
-{% endhighlight %}
+```
 
 Use the optional `--force` flag if you want to delete existing old schema and data.
 
@@ -64,9 +64,9 @@ Use the optional `--force` flag if you want to delete existing old schema and da
 After the DB schema is initialized, you can [extract, transform, and load (ETL)](https://en.wikipedia.org/wiki/Extract,_transform,_load) the raw data from the results folder into your backend results database with the help of the `db:import` command. 
 For example, in order to load the data form the `wordcount.scale-out` suite into your (previously intialized) `h2` database , you need to run the following code.
 
-{% highlight bash %}
+```bash
 ./peel.sh db:import --connection=h2 wordcount.scale-out 
-{% endhighlight %}
+```
 
 ## Analysis
 

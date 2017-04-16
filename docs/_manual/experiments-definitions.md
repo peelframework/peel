@@ -174,7 +174,7 @@ For our setup, we want to override the `flink-0.9.0` and `spark-1.3.1` beans so 
 <div class="tabs-content">
 
 <div class="content active" id="ex01-xml">
-{% highlight xml %}
+```xml
 <bean id="flink-0.9.0" class="org.peelframework.flink.beans.system.Flink" parent="system">
     <constructor-arg name="version" value="0.9.0"/>
     <constructor-arg name="configKey" value="flink" />
@@ -196,11 +196,11 @@ For our setup, we want to override the `flink-0.9.0` and `spark-1.3.1` beans so 
         </set>
     </constructor-arg>
 </bean>
-{% endhighlight %}
+```
 </div>
 
 <div class="content" id="ex01-scala">
-{% highlight scala %}
+```scala
 @Bean(name = Array("flink-0.9.0"))
 def `flink-0.9.0`: Flink = new Flink(
   version      = "0.9.0",
@@ -218,7 +218,7 @@ def `spark-1.3.1`: Spark = new Spark(
   dependencies = Set(ctx.getBean("hdfs-2.7.1", classOf[HDFS2])),
   mc           = ctx.getBean(classOf[Mustache.Compiler])
 )
-{% endhighlight %}
+```
 </div>
 
 </div>
@@ -243,24 +243,24 @@ Upon that, we can define the corresponding *CopiedDataSet* bean as follows.
 <div class="tabs-content">
 
 <div class="content active" id="ex02-xml">
-{% highlight xml %}
+```xml
 <bean id="dataset.words.static" class="org.peelframework.core.beans.data.CopiedDataSet">
     <constructor-arg name="src" value="${app.path.datasets}/rubbish.txt"/>
     <constructor-arg name="dst" value="${system.hadoop-2.path.input}/rubbish.txt"/>
     <constructor-arg name="fs" ref="hdfs-2.7.1"/>
 </bean>
-{% endhighlight %}
+```
 </div>
 
 <div class="content" id="ex02-scala">
-{% highlight scala %}
+```scala
 @Bean(name = Array("dataset.words.static"))
 def `dataset.words.static`: DataSet = new CopiedDataSet(
   src = "${app.path.datasets}/rubbish.txt",
   dst = "${system.hadoop-2.path.input}/rubbish.txt",
   fs  = ctx.getBean("hdfs-2.7.1", classOf[HDFS2])
 )
-{% endhighlight %}
+```
 </div>
 
 </div>
@@ -277,7 +277,7 @@ For the second option, we first add [a WordGenerator Flink job](https://github.c
 <div class="tabs-content">
 
 <div class="content active" id="ex03-xml">
-{% highlight xml %}
+```xml
 <bean id="datagen.words" class="org.peelframework.flink.beans.job.FlinkJob">
     <constructor-arg name="runner" ref="flink-0.9.0"/>
     <constructor-arg name="command">
@@ -292,11 +292,11 @@ For the second option, we first add [a WordGenerator Flink job](https://github.c
         </value>
     </constructor-arg>
 </bean>
-{% endhighlight %}
+```
 </div>
 
 <div class="content" id="ex03-scala">
-{% highlight scala %}
+```scala
 @Bean(name = Array("dataset.words"))
 def `datagen.words`: FlinkJob = new FlinkJob(
   runner  = ctx.getBean("flink-0.9.0", classOf[Flink]),
@@ -309,16 +309,16 @@ def `datagen.words`: FlinkJob = new FlinkJob(
               | ${system.hadoop-2.path.input}/rubbish.txt
             """.stripMargin.trim
   )
-{% endhighlight %}
+```
 </div>
 
 </div>
 
 The bean relies on the `flink-0.9.0` system (which is [provided out of the box as explained above](#supported-systems)) and runs the given `command`.
 
-{% highlight bash %}
+```bash
 /flink-home/bin/flink run ${command}
-{% endhighlight %}
+```
 
 The values for the parameters in the command string are thereby taken and substituted based on the environment configuration of the enclosing experiment bean.
 This allows us to vary parameters like the DOP and the size of the dictionary per experiment.
@@ -334,24 +334,24 @@ With that, we can configure a *DataSet* bean that runs the `datagen.words` job o
 <div class="tabs-content">
 
 <div class="content active" id="ex04-xml">
-{% highlight xml %}
+```xml
 <bean id="dataset.words.generated" class="org.peelframework.core.beans.data.GeneratedDataSet">
     <constructor-arg name="src" ref="datagen.words"/>
     <constructor-arg name="dst" value="${system.hadoop-2.path.input}/rubbish.txt"/>
     <constructor-arg name="fs" ref="hdfs-2.7.1"/>
 </bean>
-{% endhighlight %}
+```
 </div>
 
 <div class="content" id="ex04-scala">
-{% highlight scala %}
+```scala
 @Bean(name = Array("dataset.words.generated"))
 def `dataset.words.generated`: DataSet = new GeneratedDataSet(
   src = ctx.getBean("datagen.words", classOf[FlinkJob]),
   dst = "${system.hadoop-2.path.input}/rubbish.txt",
   fs  = ctx.getBean("hdfs-2.7.1", classOf[HDFS2])
 )
-{% endhighlight %}
+```
 </div>
 
 </div>
@@ -366,22 +366,22 @@ We also add an *ExperimentOutput* bean for the path where the WordCount jobs wil
 <div class="tabs-content">
 
 <div class="content active" id="ex05-xml">
-{% highlight xml %}
+```xml
 <bean id="wordcount.output" class="org.peelframework.core.beans.data.ExperimentOutput">
     <constructor-arg name="path" value="${system.hadoop-2.path.output}/wordcount"/>
     <constructor-arg name="fs" ref="hdfs-2.7.1"/>
 </bean>
-{% endhighlight %}
+```
 </div>
 
 <div class="content" id="ex05-scala">
-{% highlight scala %}
+```scala
 @Bean(name = Array("wordcount.output"))
 def `wordcount.output`: ExperimentOutput = new ExperimentOutput(
   path = "${system.hadoop-2.path.output}/wordcount",
   fs  = ctx.getBean("hdfs-2.7.1", classOf[HDFS2])
 )
-{% endhighlight %}
+```
 </div>
 
 </div>
@@ -401,7 +401,7 @@ We wrap this variant in a `word-count.default` bundle.
 <div class="tabs-content">
 
 <div class="content active" id="ex06-xml">
-{% highlight xml %}
+```xml
 <bean id="wordcount.default" class="org.peelframework.core.beans.experiment.ExperimentSuite">
     <constructor-arg name="experiments">
         <list value-type="org.peelframework.core.beans.experiment.Experiment">
@@ -456,11 +456,11 @@ We wrap this variant in a `word-count.default` bundle.
         </list>
     </constructor-arg>
 </bean>
-{% endhighlight %}
+```
 </div>
 
 <div class="content" id="ex06-scala">
-{% highlight scala %}
+```scala
 @Bean(name = Array("wordcount.default"))
 def `wordcount.default`: ExperimentSuite = {
   val `wordcount.flink.default` = new FlinkExperiment(
@@ -499,7 +499,7 @@ def `wordcount.default`: ExperimentSuite = {
     `wordcount.flink.default`,
     `wordcount.spark.default`))
 }
-{% endhighlight %}
+```
 </div>
 
 </div>
@@ -533,7 +533,7 @@ The values from the `system.default` namespace are used per default in all other
 
 In order to assign the correct list, we make use of the predefined [hosts.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/hosts.conf) file for the ACME cluster. The command that generated this file is as follows:
 
-{% highlight scala %}
+```scala
 ./peel.sh hosts:generate ./config/acme-master/hosts.conf  \
           --masters "acme-master"                         \
           --slaves-pattern "acme-%03d"                    \
@@ -541,7 +541,7 @@ In order to assign the correct list, we make use of the predefined [hosts.conf](
           --parallelism 32                                \
           --memory 33554432                               \
           --unit 5
-{% endhighlight %}
+```
 
 Because the unit is set to 5 and the number of workers is 40 (`acme-001` through `acme-040`), the [hosts.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/hosts.conf) will contain the following config entries
 
@@ -553,7 +553,7 @@ Because the unit is set to 5 and the number of workers is 40 (`acme-001` through
 
 Per default, we have the following config values set in ACME's [application.conf](https://github.com/stratosphere/peelconfig.acme/blob/master/application.conf):
 
-{% highlight docker %}
+```docker
 system {
     default {
         config {
@@ -564,12 +564,12 @@ system {
         }
     }
 }
-{% endhighlight %}
+```
 
 Recall that the `parallelism.total` parameter [is used in the command of data generation job](#input-and-output-data-1).
 Based on this insight, we know that for the weak scale-out suite we need to parameterize the environment configuration per experiment as follows:
 
-{% highlight docker %}
+```docker
 system {
     default {
         config {
@@ -578,7 +578,7 @@ system {
         }
     }
 }
-{% endhighlight %}
+```
 
 Where `__topXXX__` is a placeholder that iterates over the following values: `top005`, `top010`, and `top020`. 
 In order to minimize the boilerplate code in a situation like this, Peel offers an [ExperimentSequence](https://github.com/stratosphere/peel/blob/master/peel-core/src/main/scala/org/peelframework/core/beans/experiment/ExperimentSequence.scala) factory.
@@ -600,7 +600,7 @@ The code snippet looks as follows
 <div class="tabs-content">
 
 <div class="content active" id="ex07-xml">
-{% highlight xml %}
+```xml
 <bean id="wordcount.scale-out" class="org.peelframework.core.beans.experiment.ExperimentSuite">
     <constructor-arg name="experiments">
         <bean class="org.peelframework.core.beans.experiment.ExperimentSequence">
@@ -651,11 +651,11 @@ The code snippet looks as follows
         </bean>
     </constructor-arg>
 </bean>
-{% endhighlight %}
+```
 </div>
 
 <div class="content" id="ex07-scala">
-{% highlight scala %}
+```scala
 @Bean(name = Array("wordcount.scale-out"))
 def `wordcount.scale-out`: ExperimentSuite = {
   val `wordcount.flink.prototype` = new FlinkExperiment(
@@ -711,7 +711,7 @@ def `wordcount.scale-out`: ExperimentSuite = {
         `wordcount.flink.prototype`,
         `wordcount.spark.prototype`)))
 }
-{% endhighlight %}
+```
 </div>
 
 </div>

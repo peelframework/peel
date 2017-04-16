@@ -69,7 +69,7 @@ Taking a closer look at the *peel-wordcount* bundle from the [Motivation]({{ sit
 
 The bundle sources are organized as a multi-module Maven project with the following structure:
 
-{% highlight bash %}
+```bash
 # cd "$BUNDLE_SRC" && \
 # tree -L 1 --dirsfirst -d peel-wordcount
 peel-wordcount                     # parent module
@@ -78,13 +78,13 @@ peel-wordcount                     # parent module
 ├── peel-wordcount-flink-jobs      # module for Flink jobs 
 ├── peel-wordcount-peelextensions  # module for Peel extensions
 └── peel-wordcount-spark-jobs      # module for Spark jobs
-{% endhighlight %}
+```
 
 ### Assembled Bundle 
 
 The assembled bundle for the `peel-wordcount` bundle looks as follows:
 
-{% highlight bash %}
+```bash
 # cd "$BUNDLE_BIN" && \
 # tree -L 2 --dirsfirst peel-wordcount
 peel-wordcount
@@ -108,7 +108,7 @@ peel-wordcount
 ├── utils
 ├── peel.sh
 └── VERSION
-{% endhighlight %}
+```
 
 Here is how the Maven modules from the bundle sources are mapped to the assembled bundle.
 
@@ -121,12 +121,12 @@ Here is how the Maven modules from the bundle sources are mapped to the assemble
 
 To assemble the bundle from the sources with Maven, you have one of four options:
 
-{% highlight bash %}
+```bash
 mvn clean package       # package in peel-wordcount-bundle
 mvn clean package -Pdev # package with soft links
 mvn clean deploy        # package and copy to $BUNDLE_BIN
 mvn clean deploy -Pdev  # package and copy with soft links
-{% endhighlight %}
+```
 
 Running the `deploy` phase automatically copies the assembled bundle binaries folder to `$BUNDLE_BIN`.
 

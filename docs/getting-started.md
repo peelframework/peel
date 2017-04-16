@@ -12,7 +12,7 @@ To get started, you need to bootstrap a Peel bundle using one of two methods -- 
 
 The code snippets below assume that the following shell variables are set. Modify them accordingly before running the code.
 
-{% highlight bash %}
+```bash
 # for all bundles
 export BUNDLE_BIN=~/bundles/bin                          # bundle binaries parent
 export BUNDLE_SRC=~/bundles/src                          # bundle sources parent
@@ -20,7 +20,7 @@ export BUNDLE_SRC=~/bundles/src                          # bundle sources parent
 export BUNDLE_GID=com.acme                               # bundle groupId
 export BUNDLE_AID=peel-wordcount                         # bundle artifactId
 export BUNDLE_PKG=com.acme.benchmarks.wordcount          # bundle root package
-{% endhighlight %}
+```
 
 *__Tip__: If you intend to maintain multiple bundles, we suggest to define `BUNDLE_BIN` and `BUNDLE_SRC` in your `~/.profile` file.*
 
@@ -28,18 +28,18 @@ export BUNDLE_PKG=com.acme.benchmarks.wordcount          # bundle root package
 
 If you don't want to version the code and configuration data of your bundle, your best option is to download and extract the [pre-packaged empty bundle archive](http://peel-framework.org/peel-empty-bundle-{{ site.current_version }}.tar.gz).
 
-{% highlight bash %}
+```bash
 wget https://github.com/stratosphere/peel/releases/download/v{{ site.current_version }}/peel-empty-bundle-{{ site.current_version }}.tar.gz
 mkdir -p "$BUNDLE_BIN/$BUNDLE_AID"
 tar -xzvf peel-empty-bundle-{{ site.current_version }}.tar.gz -C "$BUNDLE_BIN/$BUNDLE_AID"
 cd "$BUNDLE_BIN/$BUNDLE_AID"
-{% endhighlight %}
+```
 
 ## Maven Archetype
 
 If you intend to version the code and configuration data of your bundle, your best option is to bootstrap a project structure from a Peel archetype.
 
-{% highlight bash %}
+```bash
 cd "$BUNDLE_SRC"
 mvn archetype:generate -B                         \
     -Dpackage="$BUNDLE_PKG"                       \
@@ -51,7 +51,7 @@ mvn archetype:generate -B                         \
 cd "$BUNDLE_AID"
 mvn clean deploy
 cd "$BUNDLE_BIN/$BUNDLE_AID"
-{% endhighlight %}
+```
 
 The following archetypes are currently supported:
 
@@ -65,9 +65,9 @@ The following archetypes are currently supported:
 
 From the `$BUNDLE_BIN/$BUNDLE_AID` directory, run the following command:
 
-{% highlight bash %}
+```bash
 ./peel.sh suite:run wordcount.default
-{% endhighlight %}
+```
 
 This will trigger the execution of an example suite which consists of two experiments running a Wordcount job on Flink and Spark respectively. 
 Each job will be repeated three times, and the results and raw log data for each run will be stored in the `results/wordcount.default` folder.
@@ -77,15 +77,15 @@ Each job will be repeated three times, and the results and raw log data for each
 Peel ships with facilities to extract, transform, and load the row data from your experiments in a relational database.
 To do this for the Wordcount job, run the following commands:
 
-{% highlight bash %}
+```bash
 ./peel.sh db:initialize
 ./peel.sh db:import wordcount.default
-{% endhighlight %}
+```
 
 You can then start analyzing your experiment data with SQL queries and data analysis tools that can use a relational database as a backend. 
 For example, the following SQL query retrieves the min, median, and max runtime for the two experiments in the `wordcount.default` suite.
 
-{% highlight sql %}
+```sql
 SELECT   e.suite                                 as suite       ,
          e.name                                  as name        ,
          MIN(r.time)                             as min_time    ,
@@ -97,13 +97,13 @@ WHERE    e.id    = r.experiment_id
 AND      e.suite = "wordcount.default"
 GROUP BY e.suite, e.name
 ORDER BY e.suite, e.name
-{% endhighlight %}
+```
 
 If you're using the archetype method, you can run the above query directly through the custom Peel command shipped with your bundle:
 
-{% highlight bash %}
+```bash
 ./peel.sh query:runtimes wordcount.default
-{% endhighlight %}
+```
 
 ## Next Steps
 

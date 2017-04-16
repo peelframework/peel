@@ -16,12 +16,12 @@ In this section, we will explain how to make use of the commands provided by the
 
 To assemble the bundle from the sources with Maven, you have one of four options:
 
-{% highlight bash %}
+```bash
 mvn clean package       # package
 mvn clean package -Pdev # package with soft links
 mvn clean deploy        # package and copy to $BUNDLE_BIN
 mvn clean deploy -Pdev  # package and copy with soft links
-{% endhighlight %}
+```
 
 The bundle binaries are assembled under `peel-wordcount-bundle/target`.
 
@@ -37,16 +37,16 @@ For large-scale applications, the environment where the experiments need to be e
 In order to start the execution process, the user therefore needs to first deploy the bundle binaries from the local machine to the desired host environment.
 The Peel CLI offers a special command to that purpose. In order to push the `peel-wordcount` bundle to the ACME cluster, you just have to run:
 
-{% highlight bash %}
+```bash
 # from $BUNDLE_BIN/peel-experiments on the developer host
 ./peel.sh rsync:push acme
-{% endhighlight %}
+```
 
 The command uses [rsync](https://en.wikipedia.org/wiki/Rsync) to copy the contents of the enclosing Peel bundle to the target environment. 
 The connection options for the `rsync` calls are thereby taken from the environment configuration of the local environment.
 In the example above we are referring to the `acme` remote, which is configured in the `application.conf` of the linked [developer environment](https://github.com/stratosphere/peelconfig.devhost/blob/master/application.conf#L22).
 
-{% highlight docker %}
+```docker
 # rsync remotes, located in $HOSTNAME/application.conf
 app.rsync {
     # 'ACME' remote 
@@ -57,24 +57,24 @@ app.rsync {
         own = "peel:peel"                   # remote files owner (optional)
     }
 }
-{% endhighlight %}
+```
 
 Upon executing the `rsync:push` command, you can login to the ACME server and continue working from there with the mirrored copy of your bundle.
 
-{% highlight bash %}
+```bash
 # on the developer host
 ssh -l acme-user acme-master.acme.org
 # on acme-master.acme.org
 cd "/home/acme-user/experiments/peel-wordcount"
-{% endhighlight %}
+```
 
 Once you start [running experiments](#experiments-execution) on the remote host you will accumulate results data under the `app.path.results` folder of your bundle. 
 Once you [archive those results](#archiving-the-results), you can fetch them back to your developer host with the following command.
 
-{% highlight bash %}
+```bash
 # from $BUNDLE_BIN/peel-experiments on the developer host
 ./peel.sh rsync:pull acme
-{% endhighlight %}
+```
 
 ## Experiments Execution
 
@@ -114,15 +114,15 @@ The Peel CLI offers a number of commands that are based on the above lifecycle.
 
 First, let us take a look at the most common scenario - running all experiments in a suite. The following command
 
-{% highlight bash %}
+```bash
 ./peel.sh suite:run wordcount.scale-out
-{% endhighlight %}
+```
 
 will execute the weak `wordcount.scale-out` experiment defined in the previous section.
 The results are thereby written in the `results` subfolder of your bundle (the default path configured for `app.path.results`).
 In this case the file structure looks as follows.
 
-{% highlight bash %}
+```bash
 # tree -L 3 --dirsfirst results/wordcount.scale-out/
 results/wordcount.scale-out/
 ├── datagen.words
@@ -175,7 +175,7 @@ results/wordcount.scale-out/
 │   └── ...
 └── wordcount.spark.top020.run03
     └── ...
-{% endhighlight %}
+```
 
 Under `results/wordcount.scale-out` we see a folder for the data generation job `datagen.words`, as well as a folder for each experiment run.
 The latter contains at least the following items:
@@ -189,9 +189,9 @@ If an experiment run succeeds, the `runExitCode` value in it's `state.json` file
 If you execute the `suite:run` command again, Peel will skip successfully completed runs per default.
 In order to enforce the re-execution of successful experiments, use the `--force` flag.
 
-{% highlight bash %}
+```bash
 ./peel.sh suite:run wordcount.scale-out --force
-{% endhighlight %}
+```
 
 ### Running a Single Experiment
 
@@ -201,27 +201,27 @@ The default run to be executed is 1, but you can change this with the optional `
 
 For example, to execute only the second run of the `wordcount.flink.top010` experiment type the following command.
 
-{% highlight bash %}
+```bash
 ./peel.sh exp:run wordcount.scale-out wordcount.flink.top10 --run 2
-{% endhighlight %}
+```
 
 You can also split the preparation (system setup + data generation), run execution, and finalization (system teardown) phases in three commands as follows.
 
-{% highlight bash %}
+```bash
 ./peel.sh exp:setup wordcount.scale-out wordcount.flink.top10
 ./peel.sh exp:run wordcount.scale-out wordcount.flink.top10 --run 2 --just
 ./peel.sh exp:teardown wordcount.scale-out wordcount.flink.top10
-{% endhighlight %}
+```
 
 ### Setting Up / Tearing Down Systems
 
 In addition to the lifecycle-based commands explained above, Peel also offers commands to directly start and stop systems described by system beans.
 To start and stop the `flink-0.9.0` system bean, for example, you can use the following command.
 
-{% highlight bash %}
+```bash
 ./peel.sh sys:setup flink-0.9.0     # start 
 ./peel.sh sys:teardown flink-0.9.0  # stop
-{% endhighlight %}
+```
 
 Dependent systems are thereby transitively started and stopped (in the above example this includes `hdfs-2.7.1`).
 Since the system bean is loaded outside of the context of a particular experiment, it will be configured using the values loaded for the current environment.
@@ -231,10 +231,10 @@ Since the system bean is loaded outside of the context of a particular experimen
 Experiment results are maintained in subfolders of `${app.path.results}` and tend to get bigger when you scale out the data and the number of slaves due to the increased number of log files.
 To save space and make use of the inherent log file entropy, Peel offers the following commands.
 
-{% highlight bash %}
+```bash
 ./peel.sh res:archive wordcount.scale-out
 ./peel.sh res:extract wordcount.scale-out
-{% endhighlight %}
+```
 
 The first command creates a `*.tar.gz` archive for the given experiment path, while the second extracts a previously created archive.
 Make sure you archive the results of a suite before you fetch them to your developer machine with `rsync:pull`.

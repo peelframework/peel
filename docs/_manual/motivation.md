@@ -117,7 +117,7 @@ After fiddling around for some days, you will solve the problem at hand and prod
 
 Peel can help you solve all of the above problems. The remainder of this manual explains how by means of the running example presented above. To get the example, run the following code snippet:
 
-{% highlight bash %}
+```bash
 cd "$BUNDLE_SRC"
 mvn archetype:generate -B                         \
     -Dpackage="org.peelframework.wordcount"       \
@@ -129,4 +129,4 @@ mvn archetype:generate -B                         \
 cd "peel-wordcount"
 mvn clean deploy
 cd "$BUNDLE_BIN/peel-wordcount"
-{% endhighlight %}
+```

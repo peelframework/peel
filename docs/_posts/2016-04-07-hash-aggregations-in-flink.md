@@ -60,7 +60,7 @@ We have to basic workloads that execute simple MapReduce jobs.
 
 Compute length of the largest value per group.
 
-{% highlight scala %}
+```scala
 env
   .readCsvFile[(Long, String)](inputPath)
   .map{kv => (kv._1, kv._2.length)}
@@ -71,13 +71,13 @@ env
     (K, V)
   }, combineHint)
   .writeAsCsv(outputPath)
-{% endhighlight %}
+```
 
 #### Workload Y
 
 Get the largest value per group based on lexicographic ordering. This workload is designed to make the records change size during the reduce steps, so that the hash table can do an in-place update.
 
-{% highlight scala %}
+```scala
 env
   .readCsvFile[(Long, String)](inputPath)
   .groupBy(0)
@@ -87,7 +87,7 @@ env
     (K, V)
   }, combineHint)
   .writeAsCsv(outputPath)
-{% endhighlight %}
+```
 
 Both jobs are parameterizable with a `combineHint` parameter that sets a hash-based or a sort-based strategy for the combiner.
 
@@ -143,7 +143,7 @@ Tying all of the above elements together, we finally define experiment suites [f
 In order to trigger multiple combiner emissions even with the relatively small **Dataset A**, we have to reduce the memory available to the Flink runtime. To that end, we override the relevant Flink config parameters in the suite’s experiment configs as follows.
 
 
-{% highlight docker %}
+```docker
 system.flink.config.yaml {
   # 1 GiB of memory
   taskmanager.heap.mb = 1024
@@ -153,7 +153,7 @@ system.flink.config.yaml {
   taskmanager.network.numberOfBuffers = 16384
   taskmanager.network.bufferSizeInBytes = 16384
 }
-{% endhighlight %}
+```
 
 Each task manager operates with 1GiB of total and 0.5GiB of managed memory, from which 0.25GiB is reserved for network buffers.
 
@@ -245,7 +245,7 @@ To repeat the experiments on a different environment, follow the instructions be
 
 The the following global variables as assumed.
 
-{% highlight bash %}
+```bash
 # the bundles parent folder
 export BUNDLE_BIN=~/bundles/bin 
 # the hostname of the target exec. environment
@@ -255,23 +255,23 @@ export VER=1.0.0
 # repository URLs
 export REP=https://github.com/TU-Berlin-DIMA/flink-hashagg
 export URL=$REP/releases/download/v$VER
-{% endhighlight %}
+```
 
 ### Downloading the Bundle
 
 The binary assembly of the **flink-hashagg** Peel bundle is available at the project webpage and can be downloaded as follows.
 
-{% highlight bash %}
+```bash
 wget $URL/flink-hashagg.tar.gz
 tar -xzvf flink-hashagg.tar.gz
 cd flink-hashagg
-{% endhighlight %}
+```
 
 ### Downloading the `cloud-7` Results
 
 If you wish to also download the results presented in this paper, execute the following commands.
 
-{% highlight bash %}
+```bash
 # on the target execution environment ($ENV)
 for DS in A1 A2 A3; do for W in X Y; do
     # download results for experiment
@@ -279,7 +279,7 @@ for DS in A1 A2 A3; do for W in X Y; do
     # extract results for experiment
     ./peel.sh res:extract ex-$DS.$W.v$VER.cloud-7
 done; done
-{% endhighlight %}
+```
 
 If you rather wish to analyze these results instead of repeating the experiments, proceed directly to ["Importing the Experiment Results"](#importing-the-experiment-results) using `ENV=cloud-7`.
 
@@ -292,74 +292,74 @@ To run the experiments, you will then have to do the following changes to the bu
 
 Once you are done with that, deploy the bundle to your execution environment.
 
-{% highlight bash %}
+```bash
 # on the developer host
 ./peel.sh rsync:push $ENV
-{% endhighlight %}
+```
 
 Upon that, login on the target environment and execute the following commands.
 
-{% highlight bash %}
+```bash
 # on the target execution environment ($ENV)
 for DS in A1 A2 A3; do for W in X Y; do
   ./peel.sh suite:run ex-$DS.$W
 done; done
-{% endhighlight %}
+```
 
 Each experiment in the two suites will be repeated 5 times in order to protect against outliers caused by system warm up and external interference.
 
 Upon executing the experiments, archive the result folders and fetch them locally as follows. On the target execution environment execute the following commands.
 
-{% highlight bash %}
+```bash
 for DS in A1 A2 A3; do for W in X Y; do
   # append $VER and $ENV to results folder
   mv results/ex-$DS.$W results/ex-$DS.$W.v$VER.$ENV
   # archive results folder
   ./peel.sh res:archive ex-$DS.$W.v$VER.$ENV
 done; done
-{% endhighlight %}
+```
 
 And after that the developer host execute this.
 
-{% highlight bash %}
+```bash
 # pull the results from the target execution environment ($ENV)
 ./peel.sh rsync:pull cloud-7-peel
 # extract the result folders for local analysis
 for DS in A1 A2 A3; do for W in X Y; do
     ./peel.sh res:extract ex-$DS.$W.v$VER.$ENV
 done; done
-{% endhighlight %}
+```
 
 ### Importing the Experiment Results
 
 Before you can import the results you will have to prepare a MonetDB instance, [following the instructions from the manual section](http://peel-framework.org/manual/results-analysis.html#monetdb). 
 The instance schema can be then initialized as follows.
 
-{% highlight bash %}
+```bash
 ./peel.sh db:initialize -f --connection monetdb
-{% endhighlight %}
+```
 
 After that, use the following command to import the results.
 
-{% highlight bash %}
+```bash
 for DS in A1 A2 A3; do for W in X Y; do
   ./peel.sh db:import  ex-$DS.$W.v$VER.$ENV --connection monetdb
 done; done
-{% endhighlight %}
+```
 
 ### Generating the Result Plots
 
 To generate the SVG plots, use this.
 
-{% highlight bash %}
+```bash
 for DS in A1 A2 A3; do for W in X Y; do
   ./peel.sh db:results ex-$DS.$W.v$VER.$ENV --connection monetdb
 done; done
-{% endhighlight %}
+```
 
 PNG charts with side-by-side comparison between workloads A and B can be then derived from the SVG files using ImageMagick.
 
-{% highlight bash %}
+```bash
 # convert SVG to PNG
 for f in $(find -name '*.svg'); do convert $f ${f%.svg}.png; done
 # create comparison figures folder
@@ -371,4 +371,4 @@ for DS in A1 A2 A3; do for T in runtimes tuples emissions; do
     ./results/ex-$DS.Y.v$VER.$ENV/plots/$T.png \
     ./results/comparison/ex-$DS.v$VER.$ENV.$T.png
 done; done
-{% endhighlight %}
+```
