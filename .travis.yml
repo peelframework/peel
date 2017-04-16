@@ -1,16 +1,28 @@
-language: java
-
-# use Java 8 for the build
-jdk:
-  - oraclejdk8
-
 # use of container-based infrastructure
 sudo: false
 
+dist: trusty
+
+language: java
+
+jdk:
+  - oraclejdk8
+
 cache:
   directories:
-    $HOME/.m2
+    - $HOME/.m2
+    - $HOME/.zinc
+
+install:
+  - mvn -q dependency:resolve-plugins
+  - mvn -q dependency:resolve
+  - tools/zinc_setup.sh
+
+before_script:
+  - tools/zinc.sh start
 
 script:
   - mvn install
 
+after_script:
+  - tools/zinc.sh stop

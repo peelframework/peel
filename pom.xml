@@ -490,10 +490,10 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <noticeTemplate>https://gist.githubusercontent.com/aalexandrov/25a931c7d106415c8af7/raw/04e7a3d5534194929f1864d0535b8cc1c5f9cddb/NOTICE.template</noticeTemplate>
+                    <noticeTemplate>file://${project.basedir}/tools/NOTICE.template</noticeTemplate>
                     <licenseMapping>
                         <param>https://source.jasig.org/licenses/license-mappings.xml</param>
-                        <param>file://${project.basedir}/.license-mappings.xml</param>
+                        <param>file://${project.basedir}/tools/license-mappings.xml</param>
                     </licenseMapping>
                     <generateChildNotices>false</generateChildNotices>
                 </configuration>
