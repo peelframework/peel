@@ -104,6 +104,9 @@ The `peel-extensions` module ships with several *System* implementations. The fo
 | HDFS             | 1.2.1          | hdfs-1.2.1      |
 | HDFS             | 2.4.1          | hdfs-2.4.1      |
 | HDFS             | 2.7.1          | hdfs-2.7.1      |
+| HDFS             | 2.7.2          | hdfs-2.7.2      |
+| HDFS             | 2.7.3          | hdfs-2.7.3      |
+| HDFS             | 2.8.0          | hdfs-2.8.0      |
 | Flink            | 0.8.0          | flink-0.8.0     |
 | Flink            | 0.8.1          | flink-0.8.1     |
 | Flink            | 0.9.0          | flink-0.9.0     |
@@ -135,6 +138,7 @@ The `peel-extensions` module ships with several *System* implementations. The fo
 | Spark            | 2.1.0          | spark-2.1.0     |
 | Zookeeper        | 3.4.5          | zookeeper-3.4.5 |
 | Dstat            | 0.7.2          | dstat-0.7.2     |
+| Dstat            | 0.7.3          | dstat-0.7.3     |
 
 Each system bean has a [a default configuration entry](https://github.com/stratosphere/peel/tree/master/peel-extensions/src/main/resources) with name `reference.${systemID}.conf` which sets values suitable for running experiments on your local machine. Browse the corresponding [*peel-extensions*](https://github.com/stratosphere/peel/tree/master/peel-extensions/src/main/scala/org/peelframework/extensions) packages to see what other beans are implemented and available for each system.
 

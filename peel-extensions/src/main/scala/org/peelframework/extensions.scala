@@ -75,6 +75,30 @@ class extensions extends ApplicationContextAware {
     mc           = ctx.getBean(classOf[Mustache.Compiler])
   )
 
+  @Bean(name = Array("hdfs-2.7.2"))
+  def `hdfs-2.7.2`: HDFS2 = new HDFS2(
+    version      = "2.7.2",
+    configKey    = "hadoop-2",
+    lifespan     = Lifespan.SUITE,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("hdfs-2.7.3"))
+  def `hdfs-2.7.3`: HDFS2 = new HDFS2(
+    version      = "2.7.3",
+    configKey    = "hadoop-2",
+    lifespan     = Lifespan.SUITE,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("hdfs-2.8.0"))
+  def `hdfs-2.8.0`: HDFS2 = new HDFS2(
+    version      = "2.8.0",
+    configKey    = "hadoop-2",
+    lifespan     = Lifespan.SUITE,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
   // Yarn
 
   @Bean(name = Array("yarn-2.4.1"))
@@ -310,6 +334,14 @@ class extensions extends ApplicationContextAware {
   @Bean(name = Array("dstat-0.7.2"))
   def `dstat-0.7.2`: Dstat = new Dstat(
     version      = "0.7.2",
+    configKey    = "dstat",
+    lifespan     = Lifespan.RUN,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("dstat-0.7.3"))
+  def `dstat-0.7.3`: Dstat = new Dstat(
+    version      = "0.7.3",
     configKey    = "dstat",
     lifespan     = Lifespan.RUN,
     mc           = ctx.getBean(classOf[Mustache.Compiler])
