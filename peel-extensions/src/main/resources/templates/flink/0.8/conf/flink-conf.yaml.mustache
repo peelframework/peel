@@ -33,9 +33,17 @@
 #
 {{#env.java.home}}env.java.home: {{env.java.home}}{{/env.java.home}}{{^env.java.home}}env.java.home: $JAVA_HOME{{/env.java.home}}
 
-# The path to the Java installation to use.
+# JVM options used for JM and TM.
 #
 {{#env.java.opts}}env.java.opts: {{env.java.opts}}{{/env.java.opts}}{{^env.java.opts}}# env.java.opts: {{/env.java.opts}}
+
+# JobManager-specific JVM options.
+#
+{{#env.java.opts_jobmanager}}env.java.opts.jobmanager: {{env.java.opts_jobmanager}}{{/env.java.opts_jobmanager}}{{^env.java.opts_jobmanager}}# env.java.opts.jobmanager: {{/env.java.opts_jobmanager}}
+
+# TaskManager-specific JVM options.
+#
+{{#env.java.opts_taskmanager}}env.java.opts.taskmanager: {{env.java.opts_taskmanager}}{{/env.java.opts_taskmanager}}{{^env.java.opts_taskmanager}}# env.java.opts.taskmanager: {{/env.java.opts_taskmanager}}
 
 #==============================================================================
 # Environment Options
