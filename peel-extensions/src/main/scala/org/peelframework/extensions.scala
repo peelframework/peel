@@ -271,6 +271,22 @@ class extensions extends ApplicationContextAware {
     mc           = ctx.getBean(classOf[Mustache.Compiler])
   )
 
+  @Bean(name = Array("flink-1.3.2"))
+  def `flink-1.3.2`: Flink = new Flink(
+    version      = "1.3.2",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("flink-1.4.0"))
+  def `flink-1.4.0`: Flink = new Flink(
+    version      = "1.4.0",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
   // Spark
 
   @Bean(name = Array("spark-1.3.1"))
@@ -364,6 +380,14 @@ class extensions extends ApplicationContextAware {
   @Bean(name = Array("spark-2.2.0"))
   def `spark-2.2.0`: Spark = new Spark(
     version      = "2.2.0",
+    configKey    = "spark",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("spark-2.2.1"))
+  def `spark-2.2.1`: Spark = new Spark(
+    version      = "2.2.1",
     configKey    = "spark",
     lifespan     = Lifespan.EXPERIMENT,
     mc           = ctx.getBean(classOf[Mustache.Compiler])
