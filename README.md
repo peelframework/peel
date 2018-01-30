@@ -54,6 +54,8 @@ Peel offers the following features for your experiments.
 | Flink            | 1.2.1          | `flink-1.2.1`     |
 | Flink            | 1.3.0          | `flink-1.3.0`     |
 | Flink            | 1.3.1          | `flink-1.3.1`     |
+| Flink            | 1.3.2          | `flink-1.3.2`     |
+| Flink            | 1.4.0          | `flink-1.4.0`     |
 | MapReduce        | 1.2.1          | `mapred-1.2.1`    |
 | MapReduce        | 2.4.1          | `mapred-2.4.1`    |
 | Spark            | 1.3.1          | `spark-1.3.1`     |
@@ -69,6 +71,7 @@ Peel offers the following features for your experiments.
 | Spark            | 2.1.0          | `spark-2.1.0`     |
 | Spark            | 2.1.1          | `spark-2.1.1`     |
 | Spark            | 2.2.0          | `spark-2.2.0`     |
+| Spark            | 2.2.1          | `spark-2.2.1`     |
 | Zookeeper        | 3.4.5          | `zookeeper-3.4.5` |
 | Dstat            | 0.7.2          | `dstat-0.7.2`     |
 | Dstat            | 0.7.3          | `dstat-0.7.3`     |
