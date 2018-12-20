@@ -120,10 +120,12 @@ class Flink(
           // wait a bit
           Thread.sleep(config.getInt(s"system.$configKey.startup.polling.interval"))
           // get new values
-          if (version.startsWith("0.6"))
+          if (Version(version) <= Version("0.6"))
             curr = Integer.parseInt((shell !! s"""cat $logDir/flink-$user-jobmanager-*.log | grep 'Creating instance' | wc -l""").trim())
-          else
+          else if (Version(version) <= Version("1.6"))
             curr = Integer.parseInt((shell !! s"""cat $logDir/flink-$user-jobmanager-*.log | grep 'Registered TaskManager' | wc -l""").trim())
+          else
+            curr = Integer.parseInt((shell !! s"""cat $logDir/flink-$user-standalonesession-*.log | grep 'Registering TaskManager' | wc -l""").trim())
           // timeout if counter goes below zero
           cntr = cntr - 1
           if (cntr < 0) throw new SetUpTimeoutException(s"Cannot start system '$toString'; node connection timeout at system ")
