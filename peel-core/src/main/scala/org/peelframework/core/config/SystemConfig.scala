@@ -53,7 +53,7 @@ object SystemConfig {
     private final val template = {
       val rs = Option(getClass.getResourceAsStream(templatePath))
       mc.compile(new BufferedReader(new InputStreamReader(
-        rs.getOrElse(throw new RuntimeException("Cannot find template resoure %s".format(templatePath))))))
+        rs.getOrElse(throw new RuntimeException("Cannot find template resource %s".format(templatePath))))))
     }
 
     /** Check whether file represented by this entry has changed with resepect to a given `config` instance.
