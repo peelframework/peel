@@ -21,7 +21,7 @@ import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan.Lifespan
 import org.peelframework.core.beans.system.{DistributedLogCollection, SetUpTimeoutException, System}
 import org.peelframework.core.config.{Model, SystemConfig}
-import org.peelframework.core.util.shell
+import org.peelframework.core.util.{Version, shell}
 
 import scala.collection.JavaConverters._
 import scala.collection.Seq
@@ -108,7 +108,9 @@ class Flink(
         val init = 0 // Flink resets the job manager log on startup
 
         shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/start-cluster.sh"
-        shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/start-webclient.sh"
+        if (Version(version) < Version("1.0")) {
+          shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/start-webclient.sh"
+        }
         logger.info(s"Waiting for nodes to connect")
 
         var curr = init
@@ -143,7 +145,9 @@ class Flink(
 
   override protected def stop() = {
     shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/stop-cluster.sh"
-    shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/stop-webclient.sh"
+    if (Version(version) < Version("1.0")) {
+      shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/stop-webclient.sh"
+    }
     shell ! s"rm -f ${config.getString(s"system.$configKey.config.yaml.env.pid.dir")}/flink-*.pid"
     isUp = false
   }
