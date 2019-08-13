@@ -126,7 +126,7 @@ class HDFS2(
         case e: SetUpTimeoutException =>
           failedStartUpAttempts = failedStartUpAttempts + 1
           if (failedStartUpAttempts < config.getInt(s"system.$configKey.startup.max.attempts")) {
-            shell ! s"$home/bin/stop-dfs.sh"
+            shell ! s"$home/sbin/stop-dfs.sh"
             logger.info(s"Could not bring system '$toString' up in time, trying again...")
           } else {
             throw e
