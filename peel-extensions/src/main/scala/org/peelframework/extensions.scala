@@ -19,6 +19,7 @@ import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan
 import org.peelframework.dstat.beans.system.Dstat
 import org.peelframework.flink.beans.system.Flink
+import org.peelframework.flink.beans.system.FlinkStandaloneCluster
 import org.peelframework.hadoop.beans.system.{HDFS2, Yarn}
 import org.peelframework.spark.beans.system.Spark
 import org.peelframework.zookeeper.beans.system.Zookeeper
@@ -120,7 +121,7 @@ class extensions extends ApplicationContextAware {
   // Flink
 
   @Bean(name = Array("flink-0.8.0"))
-  def `flink-0.8.0`: Flink = new Flink(
+  def `flink-0.8.0`: FlinkStandaloneCluster = new FlinkStandaloneCluster(
     version      = "0.8.0",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -128,7 +129,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-0.8.1"))
-  def `flink-0.8.1`: Flink = new Flink(
+  def `flink-0.8.1`: Flink = new FlinkStandaloneCluster(
     version      = "0.8.1",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -136,7 +137,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-0.9.0"))
-  def `flink-0.9.0`: Flink = new Flink(
+  def `flink-0.9.0`: Flink = new FlinkStandaloneCluster(
     version      = "0.9.0",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -144,7 +145,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-0.10.0"))
-  def `flink-0.10.0`: Flink = new Flink(
+  def `flink-0.10.0`: Flink = new FlinkStandaloneCluster(
     version      = "0.10.0",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -152,7 +153,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-0.10.1"))
-  def `flink-0.10.1`: Flink = new Flink(
+  def `flink-0.10.1`: Flink = new FlinkStandaloneCluster(
     version      = "0.10.1",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -160,7 +161,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-0.10.2"))
-  def `flink-0.10.2`: Flink = new Flink(
+  def `flink-0.10.2`: Flink = new FlinkStandaloneCluster(
     version      = "0.10.2",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -168,7 +169,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.0.0"))
-  def `flink-1.0.0`: Flink = new Flink(
+  def `flink-1.0.0`: Flink = new FlinkStandaloneCluster(
     version      = "1.0.0",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -176,7 +177,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.0.1"))
-  def `flink-1.0.1`: Flink = new Flink(
+  def `flink-1.0.1`: Flink = new FlinkStandaloneCluster(
     version      = "1.0.1",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -184,7 +185,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.0.2"))
-  def `flink-1.0.2`: Flink = new Flink(
+  def `flink-1.0.2`: Flink = new FlinkStandaloneCluster(
     version      = "1.0.2",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -192,7 +193,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.0.3"))
-  def `flink-1.0.3`: Flink = new Flink(
+  def `flink-1.0.3`: Flink = new FlinkStandaloneCluster(
     version      = "1.0.3",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -200,7 +201,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.1.0"))
-  def `flink-1.1.0`: Flink = new Flink(
+  def `flink-1.1.0`: Flink = new FlinkStandaloneCluster(
     version      = "1.1.0",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -208,7 +209,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.1.1"))
-  def `flink-1.1.1`: Flink = new Flink(
+  def `flink-1.1.1`: Flink = new FlinkStandaloneCluster(
     version      = "1.1.1",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -216,7 +217,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.1.2"))
-  def `flink-1.1.2`: Flink = new Flink(
+  def `flink-1.1.2`: Flink = new FlinkStandaloneCluster(
     version      = "1.1.2",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -224,7 +225,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.1.3"))
-  def `flink-1.1.3`: Flink = new Flink(
+  def `flink-1.1.3`: Flink = new FlinkStandaloneCluster(
     version      = "1.1.3",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -232,7 +233,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.1.4"))
-  def `flink-1.1.4`: Flink = new Flink(
+  def `flink-1.1.4`: Flink = new FlinkStandaloneCluster(
     version      = "1.1.4",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -240,7 +241,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.2.0"))
-  def `flink-1.2.0`: Flink = new Flink(
+  def `flink-1.2.0`: Flink = new FlinkStandaloneCluster(
     version      = "1.2.0",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -248,7 +249,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.2.1"))
-  def `flink-1.2.1`: Flink = new Flink(
+  def `flink-1.2.1`: Flink = new FlinkStandaloneCluster(
     version      = "1.2.1",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -256,7 +257,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.3.0"))
-  def `flink-1.3.0`: Flink = new Flink(
+  def `flink-1.3.0`: Flink = new FlinkStandaloneCluster(
     version      = "1.3.0",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -264,7 +265,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.3.1"))
-  def `flink-1.3.1`: Flink = new Flink(
+  def `flink-1.3.1`: Flink = new FlinkStandaloneCluster(
     version      = "1.3.1",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -272,7 +273,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.3.2"))
-  def `flink-1.3.2`: Flink = new Flink(
+  def `flink-1.3.2`: Flink = new FlinkStandaloneCluster(
     version      = "1.3.2",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
@@ -280,7 +281,7 @@ class extensions extends ApplicationContextAware {
   )
 
   @Bean(name = Array("flink-1.4.0"))
-  def `flink-1.4.0`: Flink = new Flink(
+  def `flink-1.4.0`: Flink = new FlinkStandaloneCluster(
     version      = "1.4.0",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
