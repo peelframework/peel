@@ -173,7 +173,7 @@ class DependencyGraph[T: ClassTag] {
       throw new Exception("Cannot reverse empty Graph!")
   }
 
-  /** Collects descendants in a depth-first manner starting from the given set.
+  /** Collects descendants in a breadth-first manner starting from the given set.
    *
    * @param toVisit A set of nodes that are yet to be visited.
    * @param visited A list of already visited nodes.
@@ -191,7 +191,7 @@ class DependencyGraph[T: ClassTag] {
         case x: Any => !visited.contains(x)
       }
 
-      collect(children ++ toVisit.tail, next :: visited, excluded)
+      collect(toVisit.tail ++ children, next :: visited, excluded)
     }
   }
 
