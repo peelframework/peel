@@ -18,9 +18,8 @@ package org.peelframework
 import com.samskivert.mustache.Mustache
 import org.peelframework.core.beans.system.Lifespan
 import org.peelframework.dstat.beans.system.Dstat
-import org.peelframework.flink.beans.system.Flink
-import org.peelframework.flink.beans.system.FlinkStandaloneCluster
-import org.peelframework.hadoop.beans.system.{HDFS2, Yarn}
+import org.peelframework.flink.beans.system.{Flink, FlinkStandaloneCluster, FlinkYarnSession}
+import org.peelframework.hadoop.beans.system.{HDFS2, HDFS3, Yarn, Yarn3}
 import org.peelframework.spark.beans.system.Spark
 import org.peelframework.zookeeper.beans.system.Zookeeper
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -100,6 +99,14 @@ class extensions extends ApplicationContextAware {
     mc           = ctx.getBean(classOf[Mustache.Compiler])
   )
 
+  @Bean(name = Array("hdfs-3.1.1"))
+  def `hdfs-3.1.1`: HDFS3 = new HDFS3(
+    version      = "3.1.1",
+    configKey    = "hadoop-3",
+    lifespan     = Lifespan.SUITE,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
   // Yarn
 
   @Bean(name = Array("yarn-2.4.1"))
@@ -115,6 +122,14 @@ class extensions extends ApplicationContextAware {
     version      = "2.7.1",
     configKey    = "hadoop-2",
     lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("yarn-3.1.1"))
+  def `yarn-3.1.1`: Yarn3 = new Yarn3(
+    version      = "3.1.1",
+    configKey    = "hadoop-3",
+    lifespan     = Lifespan.SUITE,
     mc           = ctx.getBean(classOf[Mustache.Compiler])
   )
 
@@ -283,6 +298,24 @@ class extensions extends ApplicationContextAware {
   @Bean(name = Array("flink-1.4.0"))
   def `flink-1.4.0`: Flink = new FlinkStandaloneCluster(
     version      = "1.4.0",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  @Bean(name = Array("flink-1.7.2"))
+  def `flink-1.7.2`: Flink = new FlinkStandaloneCluster(
+    version      = "1.7.2",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
+  // Flink YARN session
+
+  @Bean(name = Array("flink-yarn-1.7.2"))
+  def `flink-yarn-1.7.2`: Flink = new FlinkYarnSession(
+    version      = "1.7.2",
     configKey    = "flink",
     lifespan     = Lifespan.EXPERIMENT,
     mc           = ctx.getBean(classOf[Mustache.Compiler])
