@@ -99,7 +99,7 @@ object Model {
     }
   }
 
-  /** A model for (key, value) based yaml files (e.g. conf/flink-conf.yaml).
+  /** A model for (key, value) based files (e.g. conf/flink-conf.yaml or etc/hadoop/capacity-manager.xml).
     *
     * Consists of multiple (key, value) entries which are constructed by collecting all values under
     * the specified `prefix` path. Intermediate paths are thereby flattened, i.e.
@@ -118,7 +118,7 @@ object Model {
     * @param c The HOCON config to use when constructing the model.
     * @param prefix The prefix path which has to be rendered.
     */
-  class Yaml(val c: Config, val prefix: String) extends util.HashMap[String, Object] with Model {
+  class KeyValue(val c: Config, val prefix: String) extends util.HashMap[String, Object] with Model {
 
     // constructor
     {
@@ -138,6 +138,11 @@ object Model {
       Unit
     }
   }
+
+  /** Alias for Model.KeyValue.
+   *
+   */
+  class Yaml(override val c: Config, override val prefix: String) extends KeyValue(c, prefix) { }
 
   /** A model for list based hosts files (e.g. etc/hadoop/slaves).
     *
