@@ -76,6 +76,39 @@ object Model {
     }
   }
 
+  class INI(val c: Config, val prefix: String) extends Model {
+
+    val sections = {
+      val sectionBuffer = ListBuffer[Section]()
+
+      def sanitize(s: String) =
+        s.stripPrefix(s"$prefix.") // remove prefix
+
+      def fixRoot(s: String) = if (s == "_root_") null else s
+
+      def collectPairs(c: Config, name: String): Unit = {
+        val buffer = ListBuffer[Pair]()
+
+        for (e <- c.entrySet().asScala) {
+          val key = sanitize(e.getKey)
+            .replace("\"_root_\"", "_root_")
+            .stripPrefix(s"$name.")
+          buffer += Pair(key, c.getString(e.getKey))
+        }
+
+        sectionBuffer += Section(fixRoot(name), buffer.toList.asJava)
+      }
+
+      for (e <- c.getObject(prefix).entrySet().asScala) {
+        val name = sanitize(e.getKey)
+        collectPairs(c.withOnlyPath(s"$prefix.$name"), name)
+      }
+
+      sectionBuffer.toList.asJava
+    }
+
+  }
+
   /** A model for environment files (e.g., etc/hadoop/hadoop-env.sh).
     *
     * The children of the specified `prefix` path in the given `c` config are converted as (key, value) pairs in a
