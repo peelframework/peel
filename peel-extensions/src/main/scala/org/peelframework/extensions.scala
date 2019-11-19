@@ -303,6 +303,14 @@ class extensions extends ApplicationContextAware {
     mc           = ctx.getBean(classOf[Mustache.Compiler])
   )
 
+  @Bean(name = Array("flink-1.7.0"))
+  def `flink-1.7.0`: Flink = new FlinkStandaloneCluster(
+    version      = "1.7.0",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
+
   @Bean(name = Array("flink-1.7.2"))
   def `flink-1.7.2`: Flink = new FlinkStandaloneCluster(
     version      = "1.7.2",
@@ -312,6 +320,14 @@ class extensions extends ApplicationContextAware {
   )
 
   // Flink YARN session
+
+  @Bean(name = Array("flink-yarn-1.7.0"))
+  def `flink-yarn-1.7.0`: Flink = new FlinkYarnSession(
+    version      = "1.7.0",
+    configKey    = "flink",
+    lifespan     = Lifespan.EXPERIMENT,
+    mc           = ctx.getBean(classOf[Mustache.Compiler])
+  )
 
   @Bean(name = Array("flink-yarn-1.7.2"))
   def `flink-yarn-1.7.2`: Flink = new FlinkYarnSession(
