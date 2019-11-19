@@ -26,6 +26,7 @@ import scala.collection.mutable.ListBuffer
 trait Model {
 
   case class Pair(name: String, value: Any) {}
+  case class Section(name: String, entries: util.List[Pair]) {}
 
 }
 
