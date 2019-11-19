@@ -245,4 +245,9 @@
 
 # The directory where the PID files are stored
 {{#env.pid.dir}}env.pid.dir: {{env.pid.dir}}{{/env.pid.dir}}{{^env.pid.dir}}env.pid.dir: /tmp{{/env.pid.dir}}
+
+# Hadoop / YARN configuration directory
 {{#env.hadoop.conf.dir}}env.hadoop.conf.dir: {{env.hadoop.conf.dir}}{{/env.hadoop.conf.dir}}
+
+# Use accelerators provided by Hadoop
+{{#taskmanager.useAccelerators}}taskmanager.useAccelerators: {{taskmanager.useAccelerators}}{{/taskmanager.useAccelerators}}
