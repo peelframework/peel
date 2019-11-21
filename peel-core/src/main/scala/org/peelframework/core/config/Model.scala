@@ -77,6 +77,21 @@ object Model {
     }
   }
 
+  /** A model for INI type configuration files (e.g. etc/hadoop/container-executor.xml).
+   *
+   * Consists of a single entry `sections` which is constructed by collecting
+   * all direct children under the specified `prefix` path. Each child
+   * represents a section in the INI file and collects the (key, value) pairs
+   * below it.
+   *
+   * (key, value) pairs that should not appear in a section have to be
+   * listed under the child with a special name "_root_" (without quotes).
+   *
+   * See https://en.wikipedia.org/wiki/INI_file for details.
+   *
+   * @param c The HOCON config to use when constructing the model.
+   * @param prefix The prefix path which has to be rendered.
+   */
   class INI(val c: Config, val prefix: String) extends Model {
 
     val sections = {
