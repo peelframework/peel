@@ -95,7 +95,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <!-- Scala -->
-        <scala.version>2.10.5</scala.version>
+        <scala.version>2.13.1</scala.version>
         <scala.tools.version>2.10</scala.tools.version>
         <!-- Spring -->
         <spring-beans.version>4.0.5.RELEASE</spring-beans.version>
