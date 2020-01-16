@@ -64,6 +64,7 @@ class Yarn3(
     val conf = config.getString(s"system.$configKey.path.config")
     List(
       SystemConfig.Entry[Model.Hosts](s"system.$configKey.config.workers", s"$conf/workers", templatePath("conf/hosts"), mc),
+      SystemConfig.Entry[Model.Hosts](s"system.$configKey.config.workers", s"$conf/yarn-workers", templatePath("conf/hosts"), mc),
       SystemConfig.Entry[Model.Env](s"system.$configKey.config.env", s"$conf/hadoop-env.sh", templatePath("conf/hadoop-env.sh"), mc),
       SystemConfig.Entry[Model.Site](s"system.$configKey.config.core", s"$conf/core-site.xml", templatePath("conf/site.xml"), mc),
       SystemConfig.Entry[Model.Site](s"system.$configKey.config.yarn", s"$conf/yarn-site.xml", templatePath("conf/site.xml"), mc),
