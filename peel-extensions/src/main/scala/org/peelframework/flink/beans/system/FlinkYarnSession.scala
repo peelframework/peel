@@ -93,13 +93,14 @@ class FlinkYarnSession(
 
     // await for all futureInitOps to finish
     Await.result(futureInitOps, Math.max(30, 5 * hosts.size).seconds)
+    val numberOfTaskSlots = config.getString(s"system.$configKey.config.yaml.taskmanager.numberOfTaskSlots")
 
     var failedStartUpAttempts = 0
     while (!isUp) {
       try {
         var done = false
 
-        shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/yarn-session.sh -d"
+        shell ! s"${config.getString(s"system.$configKey.path.home")}/bin/yarn-session.sh -n ${hosts.size} -s $numberOfTaskSlots -d"
 
         var cntr = config.getInt(s"system.$configKey.startup.polling.counter")
         while (!done) {
