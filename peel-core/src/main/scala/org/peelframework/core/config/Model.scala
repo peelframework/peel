@@ -26,6 +26,7 @@ import scala.collection.mutable.ListBuffer
 trait Model {
 
   case class Pair(name: String, value: Any) {}
+  case class Section(name: String, entries: util.List[Pair]) {}
 
 }
 
@@ -76,6 +77,54 @@ object Model {
     }
   }
 
+  /** A model for INI type configuration files (e.g. etc/hadoop/container-executor.xml).
+   *
+   * Consists of a single entry `sections` which is constructed by collecting
+   * all direct children under the specified `prefix` path. Each child
+   * represents a section in the INI file and collects the (key, value) pairs
+   * below it.
+   *
+   * (key, value) pairs that should not appear in a section have to be
+   * listed under the child with a special name "_root_" (without quotes).
+   *
+   * See https://en.wikipedia.org/wiki/INI_file for details.
+   *
+   * @param c The HOCON config to use when constructing the model.
+   * @param prefix The prefix path which has to be rendered.
+   */
+  class INI(val c: Config, val prefix: String) extends Model {
+
+    val sections = {
+      val sectionBuffer = ListBuffer[Section]()
+
+      def sanitize(s: String) =
+        s.stripPrefix(s"$prefix.") // remove prefix
+
+      def fixRoot(s: String) = if (s == "_root_") null else s
+
+      def collectPairs(c: Config, name: String): Unit = {
+        val buffer = ListBuffer[Pair]()
+
+        for (e <- c.entrySet().asScala) {
+          val key = sanitize(e.getKey)
+            .replace("\"_root_\"", "_root_")
+            .stripPrefix(s"$name.")
+          buffer += Pair(key, c.getString(e.getKey))
+        }
+
+        sectionBuffer += Section(fixRoot(name), buffer.toList.asJava)
+      }
+
+      for (e <- c.getObject(prefix).entrySet().asScala) {
+        val name = sanitize(e.getKey)
+        collectPairs(c.withOnlyPath(s"$prefix.$name"), name)
+      }
+
+      sectionBuffer.toList.asJava
+    }
+
+  }
+
   /** A model for environment files (e.g., etc/hadoop/hadoop-env.sh).
     *
     * The children of the specified `prefix` path in the given `c` config are converted as (key, value) pairs in a
@@ -99,7 +148,7 @@ object Model {
     }
   }
 
-  /** A model for (key, value) based yaml files (e.g. conf/flink-conf.yaml).
+  /** A model for (key, value) based files (e.g. conf/flink-conf.yaml or etc/hadoop/capacity-manager.xml).
     *
     * Consists of multiple (key, value) entries which are constructed by collecting all values under
     * the specified `prefix` path. Intermediate paths are thereby flattened, i.e.
@@ -118,7 +167,7 @@ object Model {
     * @param c The HOCON config to use when constructing the model.
     * @param prefix The prefix path which has to be rendered.
     */
-  class Yaml(val c: Config, val prefix: String) extends util.HashMap[String, Object] with Model {
+  class KeyValue(val c: Config, val prefix: String) extends util.HashMap[String, Object] with Model {
 
     // constructor
     {
@@ -138,6 +187,11 @@ object Model {
       Unit
     }
   }
+
+  /** Alias for Model.KeyValue.
+   *
+   */
+  class Yaml(override val c: Config, override val prefix: String) extends KeyValue(c, prefix) { }
 
   /** A model for list based hosts files (e.g. etc/hadoop/slaves).
     *

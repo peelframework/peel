@@ -35,6 +35,8 @@ Peel offers the following features for your experiments.
 | HDFS             | 2.7.2          | `hdfs-2.7.2`      |
 | HDFS             | 2.7.3          | `hdfs-2.7.3`      |
 | HDFS             | 2.8.0          | `hdfs-2.8.0`      |
+| HDFS             | 3.1.1          | `hdfs-3.1.1`      |
+| Yarn             | 3.1.1          | `yarn-3.1.1`      |
 | Flink            | 0.8.0          | `flink-0.8.0`     |
 | Flink            | 0.8.1          | `flink-0.8.1`     |
 | Flink            | 0.9.0          | `flink-0.9.0`     |
@@ -56,6 +58,10 @@ Peel offers the following features for your experiments.
 | Flink            | 1.3.1          | `flink-1.3.1`     |
 | Flink            | 1.3.2          | `flink-1.3.2`     |
 | Flink            | 1.4.0          | `flink-1.4.0`     |
+| Flink Standalone Cluster | 1.7.0          | `flink-1.7.0`     |
+| Flink Standalone Cluster | 1.7.2          | `flink-1.7.2`     |
+| Flink Yarn Session | 1.7.0          | `flink-yarn-1.7.0`     |
+| Flink Yarn Session | 1.7.2          | `flink-yarn-1.7.2`     |
 | MapReduce        | 1.2.1          | `mapred-1.2.1`    |
 | MapReduce        | 2.4.1          | `mapred-2.4.1`    |
 | Spark            | 1.3.1          | `spark-1.3.1`     |

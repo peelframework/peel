@@ -1,0 +1,43 @@
+################################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+# This affects logging for both user code and Flink
+log4j.rootLogger=INFO, file
+
+# The following lines keep the log level of common libraries/connectors on
+# log level INFO. The root logger does not override this. You have to manually
+# change the log levels here.
+log4j.logger.akka=INFO
+log4j.logger.org.apache.kafka=INFO
+log4j.logger.org.apache.hadoop=INFO
+log4j.logger.org.apache.zookeeper=INFO
+
+# Log all infos in the given file
+{{#log4j.appender.file._root_}}log4j.appender.file={{log4j.appender.file._root_}}{{/log4j.appender.file._root_}}{{^log4j.appender.file._root_}}log4j.appender.file=org.apache.log4j.FileAppender{{/log4j.appender.file._root_}}
+{{#log4j.appender.file.file}}log4j.appender.file.file={{log4j.appender.file.file}}{{/log4j.appender.file.file}}{{^log4j.appender.file.file}}log4j.appender.file.file=${log.file}{{/log4j.appender.file.file}}
+{{#log4j.appender.file.append}}log4j.appender.file.append={{log4j.appender.file.append}}{{/log4j.appender.file.append}}{{^log4j.appender.file.append}}log4j.appender.file.append=false{{/log4j.appender.file.append}}
+{{#log4j.appender.file.layout._root_}}log4j.appender.file.layout={{log4j.appender.file.layout._root_}}{{/log4j.appender.file.layout._root_}}{{^log4j.appender.file.layout._root_}}log4j.appender.file.layout=org.apache.log4j.PatternLayout{{/log4j.appender.file.layout._root_}}
+{{#log4j.appender.file.layout.ConversionPattern}}log4j.appender.file.layout.ConversionPattern={{log4j.appender.file.layout.ConversionPattern}}{{/log4j.appender.file.layout.ConversionPattern}}{{^log4j.appender.file.layout.ConversionPattern}}log4j.appender.file.layout.ConversionPattern=%d{HH:mm:ss,SSS} %-5p %-60c %x - %m%n{{/log4j.appender.file.layout.ConversionPattern}}
+
+# suppress the irrelevant (wrong) warnings from the netty channel handler
+{{#log4j.logger.org.jboss.netty.channel.DefaultChannelPipeline}}log4j.logger.org.jboss.netty.channel.DefaultChannelPipeline={{log4j.logger.org.jboss.netty.channel.DefaultChannelPipeline}}{{/log4j.logger.org.jboss.netty.channel.DefaultChannelPipeline}}{{^log4j.logger.org.jboss.netty.channel.DefaultChannelPipeline}}log4j.logger.org.jboss.netty.channel.DefaultChannelPipeline=ERROR, file{{/log4j.logger.org.jboss.netty.channel.DefaultChannelPipeline}}
+{{#log4j.logger.org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline}}log4j.logger.org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline={{log4j.logger.org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline}}{{/log4j.logger.org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline}}{{^log4j.logger.org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline}}log4j.logger.org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline=ERROR, stdout{{/log4j.logger.org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline}}
+{{#log4j.logger.org.apache.zookeeper}}log4j.logger.org.apache.zookeeper={{log4j.logger.org.apache.zookeeper}}{{/log4j.logger.org.apache.zookeeper}}{{^log4j.logger.org.apache.zookeeper}}log4j.logger.org.apache.zookeeper=WARN, stdout{{/log4j.logger.org.apache.zookeeper}}
+{{#log4j.logger.org.apache.flink.shaded.org.apache.curator.framework}}log4j.logger.org.apache.flink.shaded.org.apache.curator.framework={{log4j.logger.org.apache.flink.shaded.org.apache.curator.framework}}{{/log4j.logger.org.apache.flink.shaded.org.apache.curator.framework}}{{^log4j.logger.org.apache.flink.shaded.org.apache.curator.framework}}log4j.logger.org.apache.flink.shaded.org.apache.curator.framework=WARN, stdout{{/log4j.logger.org.apache.flink.shaded.org.apache.curator.framework}}
+{{#log4j.logger.org.apache.flink.runtime.util.ZooKeeperUtils}}log4j.logger.org.apache.flink.runtime.util.ZooKeeperUtils={{log4j.logger.org.apache.flink.runtime.util.ZooKeeperUtils}}{{/log4j.logger.org.apache.flink.runtime.util.ZooKeeperUtils}}{{^log4j.logger.org.apache.flink.runtime.util.ZooKeeperUtils}}log4j.logger.org.apache.flink.runtime.util.ZooKeeperUtils=WARN, stdout{{/log4j.logger.org.apache.flink.runtime.util.ZooKeeperUtils}}
+{{#log4j.logger.org.apache.flink.runtime.leaderretrieval.ZooKeeperLeaderRetrievalService}}log4j.logger.org.apache.flink.runtime.leaderretrieval.ZooKeeperLeaderRetrievalService={{log4j.logger.org.apache.flink.runtime.leaderretrieval.ZooKeeperLeaderRetrievalService}}{{/log4j.logger.org.apache.flink.runtime.leaderretrieval.ZooKeeperLeaderRetrievalService}}{{^log4j.logger.org.apache.flink.runtime.leaderretrieval.ZooKeeperLeaderRetrievalService}}log4j.logger.org.apache.flink.runtime.leaderretrieval.ZooKeeperLeaderRetrievalService=WARN, stdout{{/log4j.logger.org.apache.flink.runtime.leaderretrieval.ZooKeeperLeaderRetrievalService}}
