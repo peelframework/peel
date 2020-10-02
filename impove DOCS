@@ -23,7 +23,7 @@ Peel offers the following features for your experiments.
 - **Unified Design**. Specify and maintain collections of experiments using a simple, DI-based configuration.
 - **Automated Execution**. Automate the experiment execution lifecycle.
 - **Automated Analysis**. Extracts, transforms, and loads results into an RDBMS.
-- **Result Sharing**. Share your bundles and migrating to other evaluation environments without additional effort.
+- **Result Sharing**. Share your bundles and migrating to other evaluation environment without additional effort.
 
 ## Supported Systems
 
@@ -80,19 +80,19 @@ Peel offers the following features for your experiments.
 
 | Command              | Description                                        |
 | -------------------- | -------------------------------------------------- |
-| `db:import`          |  import suite results into an initialized database |
-| `db:initialize`      |  initialize results database                       |
-| `exp:run`            |  execute a specific experiment                     |
-| `exp:setup`          |  set up systems for a specific experiment          |
-| `exp:teardown`       |  tear down systems for a specific experiment       |
-| `exp:config`         |  list the configuration of a specific experiment   |
-| `hosts:generate`     |  generate a hosts.conf file                        |
-| `res:archive`        |  archive suite results to a tar.gz                 |
-| `res:extract`        |  extract suite results from a tar.gz               |
-| `rsync:pull`         |  pull bundle from a remote location                |
-| `rsync:push`         |  push bundle to a remote location                  |
-| `suite:run`          |  execute all experiments in a suite                |
-| `sys:setup`          |  set up a system                                   |
-| `sys:teardown`       |  tear down a system                                |
-| `val:hosts`          |  validates correct hosts setup                     |
+| `db:import`          |  import suite results into an initialized database. |
+| `db:initialize`      |  initialize results database.                       |
+| `exp:run`            |  execute a specific experiment .                    |
+| `exp:setup`          |  set up systems for a specific experiment .         |
+| `exp:teardown`       |  tear down systems for a specific experiment .      |
+| `exp:config`         |  list the configuration of a specific experiment.   |
+| `hosts:generate`     |  generate a hosts.conf file.                        |
+| `res:archive`        |  archive suite results to a tar.gz .                |
+| `res:extract`        |  extract suite results from a tar.gz .              |
+| `rsync:pull`         |  pull bundle from a remote location .               |
+| `rsync:push`         |  push bundle to a remote location .                 |
+| `suite:run`          |  execute all experiments in a suite .               |
+| `sys:setup`          |  set up a system  .                                 |
+| `sys:teardown`       |  tear down a system .                               |
+| `val:hosts`          |  validates correct hosts setup .                    |
 
