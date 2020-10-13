@@ -104,7 +104,7 @@
         <!-- Auto-Resource Management -->
         <scala-arm.version>1.4</scala-arm.version>
         <!-- Testing -->
-        <junit.version>4.11</junit.version>
+        <junit.version>4.13.1</junit.version>
         <scalatest.version>2.1.7</scalatest.version>
         <specs2.version>2.3.10</specs2.version>
         <scalacheck.version>1.12.2</scalacheck.version>
