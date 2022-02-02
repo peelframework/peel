@@ -23,7 +23,7 @@
         <!-- MonetDB JDBC driver -->
         <monetdb.version>2.19</monetdb.version>
         <!-- PostgreSQL driver -->
-        <postgresql.version>9.4.1208</postgresql.version>
+        <postgresql.version>42.2.25</postgresql.version>
         <!-- bundle binaries parent folder -->
         <bundle.bin>${env.BUNDLE_BIN}</bundle.bin>
         <!-- Assembly file path -->
